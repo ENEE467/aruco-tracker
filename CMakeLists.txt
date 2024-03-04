@@ -10,10 +10,12 @@ add_compile_options(-lopencv_objdetect)
 add_compile_options(-lopencv_calib3d)
 add_compile_options(-lopencv_aruco)
 
-add_executable( DetectMarkers src/DetectMarkers.cpp )
+add_executable(line-follower-tracker
+  src/tracker.cpp
+  src/main.cpp)
 
-target_include_directories(DetectMarkers PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
+target_include_directories(line-follower-tracker PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries( DetectMarkers ${OpenCV_LIBS} )
+target_link_libraries(line-follower-tracker ${OpenCV_LIBS})
