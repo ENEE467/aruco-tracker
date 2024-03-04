@@ -66,7 +66,7 @@ then
 fi
 
 mkdir -p opencv-4.9.0/build && cd opencv-4.9.0/build
-cmake -D OPENCV_EXTRA_MODULES_PATH=~/aruco-tracker/opencv_contrib/modules \
+cmake -D OPENCV_EXTRA_MODULES_PATH=~/line-follower-tracker/opencv_contrib/modules \
       -D BUILD_LIST=calib3d,highgui,objdetect,aruco,videoio \
       -D WITH_OPENGL=ON \
       -D WITH_QT=ON \
