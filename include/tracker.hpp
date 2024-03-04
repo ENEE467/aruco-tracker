@@ -49,6 +49,7 @@ the use of this software, even if advised of the possibility of such damage.
 
 namespace tracker {
 
+// TODO: Finish the struct
 struct trackerOptions {
   cv::String video_path;
 
@@ -95,6 +96,9 @@ inline static bool saveCameraParams(const std::string &filename, cv::Size imageS
     return true;
 }
 
+// TODO: Finish the follower method that takes in an options struct as a parameter
 void trackLineFollower();
+
+// TODO: Add a method for camera calibration
 
 }

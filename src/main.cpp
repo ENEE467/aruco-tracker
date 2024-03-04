@@ -6,6 +6,7 @@ using namespace cv;
 namespace {
 const char* about = "Basic marker detection";
 
+// TODO: Add a new option for camera calibration.
 //! [aruco_detect_markers_keys]
 const char* keys  =
         "{v        |       | Input from video or image file, if ommited, input comes from camera }"
@@ -24,6 +25,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+    // TODO: Finish encapsulating these parsed parameters in the new options struct
     bool estimatePose = parser.has("c");
     float markerLength = parser.get<float>("l");
 
@@ -73,6 +75,7 @@ int main(int argc, char *argv[]) {
     objPoints.ptr<Vec3f>(0)[2] = Vec3f(markerLength/2.f, -markerLength/2.f, 0);
     objPoints.ptr<Vec3f>(0)[3] = Vec3f(-markerLength/2.f, -markerLength/2.f, 0);
 
+    // TODO: Move this while loop into the trackLineFollower() method.
     std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << std::endl;
     while(inputVideo.grab()) {
         Mat image, imageCopy, resizedImage;
