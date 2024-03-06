@@ -51,8 +51,13 @@ namespace tracker {
 
 // TODO: Finish the struct
 struct trackerOptions {
-  cv::String video_path;
-
+  int camID;
+  cv::String videoPath;
+  cv::Mat camMatrix;
+  cv::Mat distCoeffs;
+  float markerLengthMeters;
+  cv::aruco::DetectorParameters detectorParameters;
+  cv::aruco::Dictionary arucoDictionary;
 };
 
 inline static bool readCameraParameters(std::string filename, cv::Mat &camMatrix, cv::Mat &distCoeffs) {
@@ -97,7 +102,7 @@ inline static bool saveCameraParams(const std::string &filename, cv::Size imageS
 }
 
 // TODO: Finish the follower method that takes in an options struct as a parameter
-void trackLineFollower();
+void trackLineFollower(const trackerOptions& options);
 
 // TODO: Add a method for camera calibration
 
