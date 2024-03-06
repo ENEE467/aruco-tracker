@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   CommandLineParser parser(argc, argv, keys);
   parser.about(about);
 
-  if(argc < 2) {
+  if (argc < 2) {
     parser.printMessage();
     return 0;
   }
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   options.camID = parser.get<int>("ci");
   options.markerLengthMeters = parser.get<float>("l");
 
-  if(parser.has("v")) {
+  if (parser.has("v")) {
     options.videoPath = parser.get<String>("v");
   }
 
