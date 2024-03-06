@@ -17,42 +17,36 @@ const char* keys  =
 //! [aruco_detect_markers_keys]
 
 int main(int argc, char *argv[]) {
-    CommandLineParser parser(argc, argv, keys);
-    parser.about(about);
+  CommandLineParser parser(argc, argv, keys);
+  parser.about(about);
 
-    if(argc < 2) {
-        parser.printMessage();
-        return 0;
-    }
+  if(argc < 2) {
+    parser.printMessage();
+    return 0;
+  }
 
-    // TODO: Finish encapsulating these parsed parameters in the new options struct
-    bool estimatePose = parser.has("c");
-    float markerLength = parser.get<float>("l");
+  // TODO: Finish encapsulating these parsed parameters in the new options struct
+  tracker::trackerOptions options {};
 
-    aruco::DetectorParameters detectorParams {cv::aruco::DetectorParameters()};
+  options.camID = parser.get<int>("ci");
+  options.markerLengthMeters = parser.get<float>("l");
 
-    int camId = parser.get<int>("ci");
+  if(parser.has("v")) {
+    options.videoPath = parser.get<String>("v");
+  }
 
-    String video;
-    if(parser.has("v")) {
-        video = parser.get<String>("v");
-    }
+  options.arucoDictionary = aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
 
-    if(!parser.check()) {
-        parser.printErrors();
-        return 0;
-    }
+  bool readOk {tracker::readCameraParameters(parser.get<string>("c"), options.camMatrix, options.distCoeffs)};
+  if(!readOk) {
+    cerr << "Invalid camera parameters file" << endl;
+    return 0;
+  }
 
-    aruco::Dictionary dictionary = aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
-
-    Mat camMatrix, distCoeffs;
-    if(estimatePose) {
-        bool readOk = tracker::readCameraParameters(parser.get<string>("c"), camMatrix, distCoeffs);
-        if(!readOk) {
-            cerr << "Invalid camera parameters file" << endl;
-            return 0;
-        }
-    }
+  if(!parser.check()) {
+    parser.printErrors();
+    return 0;
+  }
 
     // TODO: Move this while loop into the trackLineFollower() method.
 
