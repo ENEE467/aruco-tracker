@@ -20,10 +20,10 @@ int main(int argc, char *argv[]) {
   CommandLineParser parser(argc, argv, keys);
   parser.about(about);
 
-  if (argc < 2) {
-    parser.printMessage();
-    return 0;
-  }
+  // if (argc < 2) {
+  //   parser.printMessage();
+  //   return 0;
+  // }
 
   // TODO: Finish encapsulating these parsed parameters in the new options struct
   tracker::trackerOptions options {};
