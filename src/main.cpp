@@ -37,10 +37,13 @@ int main(int argc, char *argv[]) {
 
   options.arucoDictionary = aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
 
-  bool readOk {tracker::readCameraParameters(parser.get<string>("c"), options.camMatrix, options.distCoeffs)};
-  if(!readOk) {
-    cerr << "Invalid camera parameters file" << endl;
-    return 0;
+  if (parser.has("c")) {
+    bool readOk {tracker::readCameraParameters(parser.get<string>("c"), options.camMatrix, options.distCoeffs)};
+
+    if(!readOk) {
+      cerr << "Invalid camera parameters file" << endl;
+      return 0;
+    }
   }
 
   if(!parser.check()) {
