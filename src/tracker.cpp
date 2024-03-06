@@ -50,34 +50,34 @@ void tracker::trackLineFollower(const trackerOptions& options)
     if(estimatePose && !ids.empty()) {
       // Calculate pose for each marker
       for (size_t  i = 0; i < nMarkers; i++) {
-        solvePnP(objPoints, corners.at(i), camMatrix, distCoeffs, rvecs.at(i), tvecs.at(i));
+        solvePnP(objPoints, corners.at(i), options.camMatrix, options.distCoeffs, rvecs.at(i), tvecs.at(i));
       }
     }
 
-    double currentTime = ((double)getTickCount() - tick) / getTickFrequency();
+    double currentTime = ((double)cv::getTickCount() - tick) / cv::getTickFrequency();
     totalTime += currentTime;
     totalIterations++;
     if(totalIterations % 30 == 0) {
-      cout << "Detection Time = " << currentTime * 1000 << " ms "
-           << "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << endl;
+      std::cout << "Detection Time = " << currentTime * 1000 << " ms "
+        << "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << std::endl;
     }
 
     // draw results
     resizedImage.copyTo(imageCopy);
     if(!ids.empty()) {
-      aruco::drawDetectedMarkers(imageCopy, corners, ids);
+      cv::aruco::drawDetectedMarkers(imageCopy, corners, ids);
 
       if(estimatePose) {
         for(unsigned int i = 0; i < ids.size(); i++)
-          cv::drawFrameAxes(imageCopy, camMatrix, distCoeffs, rvecs[i], tvecs[i], markerLength * 1.5f, 2);
+          cv::drawFrameAxes(imageCopy, options.camMatrix, options.distCoeffs, rvecs[i], tvecs[i], options.markerLengthMeters * 1.5f, 2);
       }
     }
 
     if(!rejected.empty())
-      aruco::drawDetectedMarkers(imageCopy, rejected, noArray(), Scalar(100, 0, 255));
+      cv::aruco::drawDetectedMarkers(imageCopy, rejected, cv::noArray(), cv::Scalar(100, 0, 255));
 
     imshow("out", imageCopy);
-    char key = (char)waitKey(waitTime);
+    char key = (char)cv::waitKey(waitTime);
     if(key == 27) break;
   }
 }
