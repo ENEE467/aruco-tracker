@@ -52,10 +52,11 @@ namespace tracker {
 // TODO: Finish the struct
 struct trackerOptions {
   int camID {0};
-  cv::String videoPath {};
+  cv::String inputFilePath {};
   cv::Mat camMatrix;
   cv::Mat distCoeffs;
-  float markerLengthMeters {0};
+  float markerSideMeters {0};
+  bool showRejectedMarkers {false};
   cv::aruco::DetectorParameters detectorParameters {cv::aruco::DetectorParameters()};
   cv::aruco::Dictionary arucoDictionary {cv::aruco::getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)};
 };
