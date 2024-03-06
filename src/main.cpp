@@ -48,8 +48,8 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-    // TODO: Move this while loop into the trackLineFollower() method.
+  // TODO: Move this while loop into the trackLineFollower() method.
+  tracker::trackLineFollower(options);
 
-
-    return 0;
+  return 0;
 }
