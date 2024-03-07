@@ -67,6 +67,8 @@ enum class Error {
   INCOMPLETE_INFORMATION = 402
 };
 
+void readConfigFile(const std::string& filename, trackerOptions& options);
+
 inline static bool readCameraParameters(std::string filename, cv::Mat &camMatrix, cv::Mat &distCoeffs) {
     cv::FileStorage fs(filename, cv::FileStorage::READ);
     if (!fs.isOpened())
