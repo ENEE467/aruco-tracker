@@ -114,5 +114,6 @@ inline static bool saveCameraParams(const std::string &filename, cv::Size imageS
 void trackLineFollower(const trackerOptions& options);
 
 // TODO: Add a method for camera calibration
+void calibrateCamera();
 
 }
