@@ -26,8 +26,15 @@ int main(int argc, char *argv[]) {
   //   return 0;
   // }
 
-  // TODO: Finish encapsulating these parsed parameters in the new options struct
-  tracker::trackerOptions options {};
+  if (!parser.has("config")) {
+    std::cerr << "A configuration file is required to run the program." << std::endl;
+    return 1;
+  }
+
+  tracker::trackerOptions demo_options {};
+  std::cout << "Config file path: " << parser.get<std::string>("config") << std::endl;
+  tracker::readConfigFile(parser.get<std::string>("config"), demo_options);
+
 
   options.camID = parser.get<int>("ci");
   options.markerLengthMeters = parser.get<float>("l");
