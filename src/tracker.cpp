@@ -4,8 +4,8 @@ void tracker::trackLineFollower(const trackerOptions& options)
 {
   cv::VideoCapture inputVideo;
   int waitTime;
-  if(!options.videoPath.empty()) {
-    inputVideo.open(options.videoPath);
+  if(!options.inputFilePath.empty() || options.inputFilePath != "none") {
+    inputVideo.open(options.inputFilePath);
     waitTime = 0;
   } else {
     inputVideo.open(options.camID);
@@ -21,10 +21,10 @@ void tracker::trackLineFollower(const trackerOptions& options)
 
   // Set coordinate system
   cv::Mat objPoints(4, 1, CV_32FC3);
-  objPoints.ptr<cv::Vec3f>(0)[0] = cv::Vec3f(-options.markerLengthMeters/2.f, options.markerLengthMeters/2.f, 0);
-  objPoints.ptr<cv::Vec3f>(0)[1] = cv::Vec3f(options.markerLengthMeters/2.f, options.markerLengthMeters/2.f, 0);
-  objPoints.ptr<cv::Vec3f>(0)[2] = cv::Vec3f(options.markerLengthMeters/2.f, -options.markerLengthMeters/2.f, 0);
-  objPoints.ptr<cv::Vec3f>(0)[3] = cv::Vec3f(-options.markerLengthMeters/2.f, -options.markerLengthMeters/2.f, 0);
+  objPoints.ptr<cv::Vec3f>(0)[0] = cv::Vec3f(-options.markerSideMeters/2.f, options.markerSideMeters/2.f, 0);
+  objPoints.ptr<cv::Vec3f>(0)[1] = cv::Vec3f(options.markerSideMeters/2.f, options.markerSideMeters/2.f, 0);
+  objPoints.ptr<cv::Vec3f>(0)[2] = cv::Vec3f(options.markerSideMeters/2.f, -options.markerSideMeters/2.f, 0);
+  objPoints.ptr<cv::Vec3f>(0)[3] = cv::Vec3f(-options.markerSideMeters/2.f, -options.markerSideMeters/2.f, 0);
 
   std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << std::endl;
 
@@ -69,11 +69,11 @@ void tracker::trackLineFollower(const trackerOptions& options)
 
       if(estimatePose) {
         for(unsigned int i = 0; i < ids.size(); i++)
-          cv::drawFrameAxes(imageCopy, options.camMatrix, options.distCoeffs, rvecs[i], tvecs[i], options.markerLengthMeters * 1.5f, 2);
+          cv::drawFrameAxes(imageCopy, options.camMatrix, options.distCoeffs, rvecs[i], tvecs[i], options.markerSideMeters * 1.5f, 2);
       }
     }
 
-    if(!rejected.empty())
+    if(options.showRejectedMarkers == true && !rejected.empty())
       cv::aruco::drawDetectedMarkers(imageCopy, rejected, cv::noArray(), cv::Scalar(100, 0, 255));
 
     imshow("out", imageCopy);
