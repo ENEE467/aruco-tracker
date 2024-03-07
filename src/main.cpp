@@ -35,12 +35,14 @@ int main(int argc, char *argv[]) {
   std::cout << "Config file path: " << parser.get<std::string>("config") << std::endl;
   tracker::readConfigFile(parser.get<std::string>("config"), demo_options);
 
+  // TODO: Finish encapsulating these parsed parameters in the new options struct
+  tracker::trackerOptions options {};
 
   options.camID = parser.get<int>("ci");
-  options.markerLengthMeters = parser.get<float>("l");
+  options.markerSideMeters = parser.get<float>("l");
 
   if (parser.has("v")) {
-    options.videoPath = parser.get<String>("v");
+    options.inputFilePath = parser.get<String>("v");
   }
 
   options.arucoDictionary = aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
