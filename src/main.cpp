@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     if(!readOk) {
       cerr << "Invalid camera parameters file" << endl;
-      return 0;
+      return 1;
     }
   }
   else
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   if(!parser.check()) {
     parser.printErrors();
-    return 0;
+    return 1;
   }
 
   // TODO: Move this while loop into the trackLineFollower() method.
