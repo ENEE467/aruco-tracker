@@ -135,3 +135,8 @@ void tracker::trackLineFollower(const tracker::trackerOptions& options)
     if(key == 27) break;
   }
 }
+
+void tracker::calibrateCamera()
+{
+
+}
