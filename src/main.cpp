@@ -9,10 +9,11 @@ const char* about = "Basic marker detection";
 // TODO: Add a new option for camera calibration.
 //! [aruco_detect_markers_keys]
 const char* keys  =
-        "{v        |       | Input from video or image file, if ommited, input comes from camera }"
-        "{ci       | 0     | Camera id if input doesnt come from video (-v) }"
-        "{c        |       | Camera intrinsic parameters. Needed for camera pose }"
-        "{l        | 0.1   | Marker side length (in meters). Needed for correct scale in camera pose }";
+  "{config   |       | Configuration file path for the program }"
+  "{v        |       | Input from video or image file, if ommited, input comes from camera }"
+  "{ci       | 0     | Camera id if input doesnt come from video (-v) }"
+  "{c        |       | Camera intrinsic parameters. Needed for camera pose }"
+  "{l        | 0.1   | Marker side length (in meters). Needed for correct scale in camera pose }";
 }
 //! [aruco_detect_markers_keys]
 
