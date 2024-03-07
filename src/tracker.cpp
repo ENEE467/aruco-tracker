@@ -1,6 +1,6 @@
 #include "tracker.hpp"
 
-void tracker::trackLineFollower(const trackerOptions& options)
+void tracker::trackLineFollower(const tracker::trackerOptions& options)
 {
   cv::VideoCapture inputVideo;
   int waitTime;
@@ -76,7 +76,7 @@ void tracker::trackLineFollower(const trackerOptions& options)
     if(options.showRejectedMarkers == true && !rejected.empty())
       cv::aruco::drawDetectedMarkers(imageCopy, rejected, cv::noArray(), cv::Scalar(100, 0, 255));
 
-    imshow("out", imageCopy);
+    cv::imshow("out", imageCopy);
     char key = (char)cv::waitKey(waitTime);
     if(key == 27) break;
   }
