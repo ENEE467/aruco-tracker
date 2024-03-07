@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
       return 0;
     }
   }
+  else
+    std::cout << "Camera parameters file is needed for pose estimation.";
 
   if(!parser.check()) {
     parser.printErrors();
