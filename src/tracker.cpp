@@ -1,5 +1,59 @@
 #include "tracker.hpp"
 
+void tracker::readConfigFile(const std::string& filename, tracker::trackerOptions& options)
+{
+  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+
+  if (!configFile.isOpened())
+    throw Error::CANNOT_OPEN_FILE;
+
+  auto markerDetectionNode {configFile["marker_detection"]};
+
+  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
+    throw Error::INCOMPLETE_INFORMATION;
+
+  // read camera id
+  auto camIDNode {markerDetectionNode["camera_id"]};
+  read(camIDNode, options.camID, 0);
+
+  // read input file path
+  auto inputFileNode {markerDetectionNode["input_file_path"]};
+  read(inputFileNode, options.inputFilePath, "");
+
+  // read marker side length
+  auto markerSideNode {markerDetectionNode["marker_side_meters"]};
+  read(markerSideNode, options.markerSideMeters, 0.1);
+
+  // read aruco dictionary option
+  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
+  int dictionaryID {};
+  cv::read(dictionaryIDNode, dictionaryID, 16);
+  options.arucoDictionary = cv::aruco::getPredefinedDictionary(dictionaryID);
+
+  auto cameraCalibrationNode {configFile["camera_calibration"]};
+
+  // read camera calibration parameters
+  if (!cameraCalibrationNode.empty() && cameraCalibrationNode.isMap()) {
+    // read camera matrix
+    auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
+    cv::read(cameraMatrixNode, options.camMatrix);
+
+    // read distortion coefficients
+    auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
+    cv::read(distortionCoefficientNode, options.distCoeffs);
+  }
+
+  // TODO: print for debug
+  std::cout << "-- Parsed parameters --" << std::endl;
+  std::cout << "Camera ID: " << options.camID << std::endl;
+  std::cout << "Input path: " << options.inputFilePath << std::endl;
+  std::cout << "Camera Matrix: " << options.camMatrix << std::endl;
+  std::cout << "Distortion Coefficients: " << options.distCoeffs << std::endl;
+  std::cout << "Marker side in meters: " << options.markerSideMeters << std::endl;
+  std::cout << "Marker dictionary: " << dictionaryID << std::endl;
+  std::cout << " -- " << std::endl;
+}
+
 void tracker::trackLineFollower(const tracker::trackerOptions& options)
 {
   cv::VideoCapture inputVideo;
