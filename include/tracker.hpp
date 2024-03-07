@@ -61,6 +61,12 @@ struct trackerOptions {
   cv::aruco::Dictionary arucoDictionary {cv::aruco::getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)};
 };
 
+// TODO: Define error codes
+enum class Error {
+  CANNOT_OPEN_FILE = 401,
+  INCOMPLETE_INFORMATION = 402
+};
+
 inline static bool readCameraParameters(std::string filename, cv::Mat &camMatrix, cv::Mat &distCoeffs) {
     cv::FileStorage fs(filename, cv::FileStorage::READ);
     if (!fs.isOpened())
