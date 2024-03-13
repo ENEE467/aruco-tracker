@@ -1,11 +1,15 @@
 %YAML:1.0
 marker_detection:
-  input_file_path: none
+  input_source_path: none
   camera_id: 0
   marker_dictionary: 0
   marker_side_meters: 0.1
 
 camera_calibration:
+  squares_quantity_x: 3
+  squares_quantity_y: 3
+  square_side_meters: 0.5
+
   camera_matrix: !!opencv-matrix
     rows: 3
     cols: 3
