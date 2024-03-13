@@ -70,8 +70,29 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
   }
 
   bool estimatePose {false};
-  if (!options.camMatrix.empty() && !options.distCoeffs.empty())
+
+  cv::Mat zero_cam_matrix {
+    cv::Mat::zeros(
+      options.camMatrix.rows,
+      options.camMatrix.cols,
+      options.camMatrix.type()
+    )
+  };
+  cv::Mat cam_matrix_comp {options.camMatrix != zero_cam_matrix};
+
+  cv::Mat zero_dist_coeff {
+    cv::Mat::zeros(
+      options.distCoeffs.rows,
+      options.distCoeffs.cols,
+      options.camMatrix.type()
+    )
+  };
+  cv::Mat dist_coeff_comp {options.distCoeffs != zero_dist_coeff};
+
+  if (cv::countNonZero(cam_matrix_comp) && cv::countNonZero(dist_coeff_comp)) {
+    std::cout << "Camera matrix and distortion coefficients are not empty" << std::endl;
     estimatePose = true;
+  }
 
   double totalTime = 0;
   int totalIterations = 0;
