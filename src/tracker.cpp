@@ -112,7 +112,7 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
     cv::Mat image, imageCopy, resizedImage;
     inputVideo.retrieve(image);
 
-    cv::resize(image, resizedImage, cv::Size(426, 240));
+    cv::resize(image, resizedImage, cv::Size(), 0.25, 0.25);
 
     double tick = (double)cv::getTickCount();
 
