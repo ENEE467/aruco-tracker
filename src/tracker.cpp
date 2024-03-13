@@ -42,16 +42,6 @@ void tracker::readConfigFile(const std::string& filename, tracker::detectionOpti
     auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
     cv::read(distortionCoefficientNode, options.distCoeffs);
   }
-
-  // TODO: print for debug
-  std::cout << "-- Parsed parameters --" << std::endl;
-  std::cout << "Camera ID: " << options.camID << std::endl;
-  std::cout << "Input path: " << options.inputFilePath << std::endl;
-  std::cout << "Camera Matrix: " << options.camMatrix << std::endl;
-  std::cout << "Distortion Coefficients: " << options.distCoeffs << std::endl;
-  std::cout << "Marker side in meters: " << options.markerSideMeters << std::endl;
-  std::cout << "Marker dictionary: " << dictionaryID << std::endl;
-  std::cout << " -- " << std::endl;
 }
 
 void tracker::trackLineFollower(const tracker::detectionOptions& options)
