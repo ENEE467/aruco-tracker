@@ -113,6 +113,8 @@ enum class Error {
 };
 
 void readConfigFile(const std::string& filename, detectionOptions& options);
+void readConfigFile(const std::string& filename, calibrationOptions& options);
+void writeConfigFile();
 inline static bool saveCameraParams(const std::string &filename, cv::Size imageSize, float aspectRatio, int flags,
                                     const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs, double totalAvgErr) {
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
