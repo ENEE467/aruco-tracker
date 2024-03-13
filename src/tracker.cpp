@@ -128,7 +128,7 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
     if(estimatePose && !ids.empty()) {
       // Calculate pose for each marker
       for (size_t  i = 0; i < nMarkers; i++) {
-        solvePnP(objPoints, corners.at(i), options.camMatrix, options.distCoeffs, rvecs.at(i), tvecs.at(i));
+        cv::solvePnP(objPoints, corners.at(i), options.camMatrix, options.distCoeffs, rvecs.at(i), tvecs.at(i));
       }
     }
 
