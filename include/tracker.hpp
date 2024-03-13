@@ -70,6 +70,25 @@ struct detectionOptions {
   cv::aruco::Dictionary arucoDictionary;
 };
 
+struct calibrationOptions {
+  calibrationOptions()
+  : camID {0},
+    inputFilePath {},
+    markerSideMeters {0},
+    squareSideMeters {0},
+    squaresQuantityX {0},
+    squaresQuantityY {0},
+    arucoDictionary {getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)}
+    {}
+
+  int camID;
+  cv::String inputFilePath;
+  float markerSideMeters;
+  float squareSideMeters;
+  int squaresQuantityX;
+  int squaresQuantityY;
+  cv::aruco::Dictionary arucoDictionary;
+};
 
 // TODO: Define error codes
 enum class Error {
