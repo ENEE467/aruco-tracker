@@ -108,6 +108,7 @@ struct calibrationOutput {
   cv::Size imageSize;
 };
 
+// TODO: Define error codes and implement error handling
 enum class Error {
   CANNOT_OPEN_FILE = 401,
   INCOMPLETE_INFORMATION = 402
@@ -115,7 +116,11 @@ enum class Error {
 
 void readConfigFile(const std::string& filename, detectionOptions& options);
 void readConfigFile(const std::string& filename, calibrationOptions& options);
+
+// TODO: Finish implementing this method
 void writeConfigFile();
+
+// TODO: Delete this after using it as a reference for writing data a YAML file
 inline static bool saveCameraParams(const std::string &filename, cv::Size imageSize, float aspectRatio, int flags,
                                     const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs, double totalAvgErr) {
   cv::FileStorage fs(filename, cv::FileStorage::WRITE);
