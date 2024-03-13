@@ -4,16 +4,12 @@ using namespace std;
 using namespace cv;
 
 namespace {
-const char* about = "Basic marker detection";
+const char* about = "Line follower tracker using ArUco markers";
 
-// TODO: Add a new option for camera calibration.
 //! [aruco_detect_markers_keys]
 const char* keys  =
-  "{config   |       | Configuration file path for the program }"
-  "{v        |       | Input from video or image file, if ommited, input comes from camera }"
-  "{ci       | 0     | Camera id if input doesnt come from video (-v) }"
-  "{c        |       | Camera intrinsic parameters. Needed for camera pose }"
-  "{l        | 0.1   | Marker side length (in meters). Needed for correct scale in camera pose }";
+  "{config               |       | Configuration file path for the program }"
+  "{calibration          | false | Enable calibration mode}";
 }
 //! [aruco_detect_markers_keys]
 
@@ -28,6 +24,7 @@ int main(int argc, char *argv[]) {
 
   if (!parser.has("config")) {
     std::cerr << "A configuration file is required to run the program." << std::endl;
+    parser.printMessage();
     return 1;
   }
 
