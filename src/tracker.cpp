@@ -17,7 +17,7 @@ void tracker::readConfigFile(const std::string& filename, tracker::detectionOpti
   read(camIDNode, options.camID, 0);
 
   // read input file path
-  auto inputFileNode {markerDetectionNode["input_file_path"]};
+  auto inputFileNode {markerDetectionNode["input_source_path"]};
   read(inputFileNode, options.inputFilePath, "");
 
   // read marker side length
