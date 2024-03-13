@@ -28,39 +28,14 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  tracker::trackerOptions demo_options {};
-  std::cout << "Config file path: " << parser.get<std::string>("config") << std::endl;
-  tracker::readConfigFile(parser.get<std::string>("config"), demo_options);
-
-  // TODO: Finish encapsulating these parsed parameters in the new options struct
-  tracker::trackerOptions options {};
-
-  options.camID = parser.get<int>("ci");
-  options.markerSideMeters = parser.get<float>("l");
-
-  if (parser.has("v")) {
-    options.inputFilePath = parser.get<String>("v");
-  }
-
-  options.arucoDictionary = aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50);
-
-  if (parser.has("c")) {
-    bool readOk {tracker::readCameraParameters(parser.get<string>("c"), options.camMatrix, options.distCoeffs)};
-
-    if(!readOk) {
-      cerr << "Invalid camera parameters file" << endl;
-      return 1;
-    }
-  }
-  else
-    std::cout << "Camera parameters file is needed for pose estimation.";
+  tracker::detectionOptions options {};
+  tracker::readConfigFile(parser.get<std::string>("config"), options);
 
   if(!parser.check()) {
     parser.printErrors();
     return 1;
   }
 
-  // TODO: Move this while loop into the trackLineFollower() method.
   tracker::trackLineFollower(options);
 
   return 0;
