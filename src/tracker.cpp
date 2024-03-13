@@ -58,10 +58,13 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
 {
   cv::VideoCapture inputVideo;
   int waitTime;
-  if(!options.inputFilePath.empty() || options.inputFilePath != "none") {
+
+  if(options.inputFilePath != "none") {
     inputVideo.open(options.inputFilePath);
+    std::cout << "Using input source file instead of camera stream" << std::endl;
     waitTime = 0;
-  } else {
+  }
+  else {
     inputVideo.open(options.camID);
     waitTime = 10;
   }
