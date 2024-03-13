@@ -1,6 +1,6 @@
 #include "tracker.hpp"
 
-void tracker::readConfigFile(const std::string& filename, tracker::trackerOptions& options)
+void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
 {
   cv::FileStorage configFile(filename, cv::FileStorage::READ);
 
@@ -54,7 +54,7 @@ void tracker::readConfigFile(const std::string& filename, tracker::trackerOption
   std::cout << " -- " << std::endl;
 }
 
-void tracker::trackLineFollower(const tracker::trackerOptions& options)
+void tracker::trackLineFollower(const tracker::detectionOptions& options)
 {
   cv::VideoCapture inputVideo;
   int waitTime;
