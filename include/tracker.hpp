@@ -49,17 +49,27 @@ the use of this software, even if advised of the possibility of such damage.
 
 namespace tracker {
 
-// TODO: Finish the struct
-struct trackerOptions {
-  int camID {0};
-  cv::String inputFilePath {};
+using cv::aruco::getPredefinedDictionary;
+struct detectionOptions {
+  detectionOptions()
+  : camID {0},
+    inputFilePath {},
+    markerSideMeters {0},
+    showRejectedMarkers {false},
+    detectorParameters {cv::aruco::DetectorParameters()},
+    arucoDictionary {getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)}
+    {}
+
+  int camID;
+  cv::String inputFilePath;
   cv::Mat camMatrix;
   cv::Mat distCoeffs;
-  float markerSideMeters {0};
-  bool showRejectedMarkers {false};
-  cv::aruco::DetectorParameters detectorParameters {cv::aruco::DetectorParameters()};
-  cv::aruco::Dictionary arucoDictionary {cv::aruco::getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)};
+  float markerSideMeters;
+  bool showRejectedMarkers;
+  cv::aruco::DetectorParameters detectorParameters;
+  cv::aruco::Dictionary arucoDictionary;
 };
+
 
 // TODO: Define error codes
 enum class Error {
