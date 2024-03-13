@@ -112,17 +112,7 @@ enum class Error {
   INCOMPLETE_INFORMATION = 402
 };
 
-void readConfigFile(const std::string& filename, trackerOptions& options);
-
-inline static bool readCameraParameters(std::string filename, cv::Mat &camMatrix, cv::Mat &distCoeffs) {
-    cv::FileStorage fs(filename, cv::FileStorage::READ);
-    if (!fs.isOpened())
-        return false;
-    fs["camera_matrix"] >> camMatrix;
-    fs["distortion_coefficients"] >> distCoeffs;
-    return true;
-}
-
+void readConfigFile(const std::string& filename, detectionOptions& options);
 inline static bool saveCameraParams(const std::string &filename, cv::Size imageSize, float aspectRatio, int flags,
                                     const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs, double totalAvgErr) {
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
@@ -155,10 +145,5 @@ inline static bool saveCameraParams(const std::string &filename, cv::Size imageS
     return true;
 }
 
-// TODO: Finish the follower method that takes in an options struct as a parameter
-void trackLineFollower(const trackerOptions& options);
-
-// TODO: Add a method for camera calibration
-void calibrateCamera();
-
+void trackLineFollower(const detectionOptions& options);
 }
