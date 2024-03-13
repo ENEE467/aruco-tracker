@@ -90,7 +90,23 @@ struct calibrationOptions {
   cv::aruco::Dictionary arucoDictionary;
 };
 
-// TODO: Define error codes
+struct calibrationOutput {
+  calibrationOutput()
+  : allCharucoCorners {},
+    allCharucoIds {},
+    allImagePoints {},
+    allObjectPoints {},
+    allImages {}
+    {}
+
+  std::vector<cv::Mat> allCharucoCorners;
+  std::vector<cv::Mat> allCharucoIds;
+  std::vector<std::vector<cv::Point2f>> allImagePoints;
+  std::vector<std::vector<cv::Point3f>> allObjectPoints;
+  std::vector<cv::Mat> allImages;
+  cv::Size imageSize;
+};
+
 enum class Error {
   CANNOT_OPEN_FILE = 401,
   INCOMPLETE_INFORMATION = 402
