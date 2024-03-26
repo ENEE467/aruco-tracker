@@ -58,7 +58,7 @@ struct detectionOptions {
     markerSideMeters {0},
     showRejectedMarkers {false},
     detectorParameters {cv::aruco::DetectorParameters()},
-    arucoDictionary {getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)}
+    arucoDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
     {}
 
   int camID;
@@ -68,7 +68,7 @@ struct detectionOptions {
   float markerSideMeters;
   bool showRejectedMarkers;
   cv::aruco::DetectorParameters detectorParameters;
-  cv::aruco::Dictionary arucoDictionary;
+  int arucoDictionaryID;
 };
 
 struct calibrationOptions {
@@ -79,7 +79,7 @@ struct calibrationOptions {
     squareSideMeters {0},
     squaresQuantityX {0},
     squaresQuantityY {0},
-    arucoDictionary {getPredefinedDictionary(cv::aruco::DICT_ARUCO_ORIGINAL)}
+    arucoDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
     {}
 
   int camID;
@@ -88,7 +88,7 @@ struct calibrationOptions {
   float squareSideMeters;
   int squaresQuantityX;
   int squaresQuantityY;
-  cv::aruco::Dictionary arucoDictionary;
+  int arucoDictionaryID;
 };
 
 struct calibrationOutput {
