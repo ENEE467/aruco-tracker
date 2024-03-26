@@ -128,6 +128,9 @@ std::stringstream createTimeStampedFileName(
   const std::string& prefix,
   const std::string& extension);
 
-void trackLineFollower(const detectionOptions& options);
+void trackLineFollower(
+  const detectionOptions& options,
+  const std::string& output_file = "none");
+
 void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
 }
