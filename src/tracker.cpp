@@ -1,3 +1,6 @@
+#include <iomanip>
+#include <fstream>
+
 #include "tracker.hpp"
 
 void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
