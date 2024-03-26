@@ -93,19 +93,12 @@ struct calibrationOptions {
 
 struct calibrationOutput {
   calibrationOutput()
-  : allCharucoCorners {},
-    allCharucoIds {},
-    allImagePoints {},
-    allObjectPoints {},
-    allImages {}
+  : cameraMatrix {cv::Mat::zeros(cv::Size(3, 3), CV_32F)},
+    distCoeffs {cv::Mat::zeros(cv::Size(5, 1), CV_32F)}
     {}
 
-  std::vector<cv::Mat> allCharucoCorners;
-  std::vector<cv::Mat> allCharucoIds;
-  std::vector<std::vector<cv::Point2f>> allImagePoints;
-  std::vector<std::vector<cv::Point3f>> allObjectPoints;
-  std::vector<cv::Mat> allImages;
-  cv::Size imageSize;
+  cv::Mat cameraMatrix;
+  cv::Mat distCoeffs;
 };
 
 // TODO: Define error codes and implement error handling
