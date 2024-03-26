@@ -39,6 +39,7 @@ the use of this software, even if advised of the possibility of such damage.
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <ctime>
 
 #include <opencv2/highgui.hpp>
@@ -116,6 +117,11 @@ void writeConfigFile(
   const detectionOptions& detection_options,
   const calibrationOptions& calibration_options,
   const calibrationOutput& calibration_output);
+
+void writePoseToCSV(
+  std::ofstream& csv_file,
+  const cv::Vec3d& tvec,
+  const cv::Vec3d& rvec);
 
 std::stringstream createTimeStampedFileName(
   const std::string& filedir,
