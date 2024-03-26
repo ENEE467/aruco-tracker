@@ -51,7 +51,15 @@ int main(int argc, char *argv[]) {
   if (!calibrationMode) {
     auto fileName {parser.get<std::string>("config")};
     tracker::readConfigFile(fileName, detectionOptions);
-    tracker::trackLineFollower(detectionOptions);
+
+    if (hasOutputDir) {
+      auto outputDir {parser.get<std::string>("output")};
+      auto fileName {tracker::createTimeStampedFileName(outputDir, "run", "csv")};
+      tracker::trackLineFollower(detectionOptions, fileName.str());
+    }
+    else {
+      tracker::trackLineFollower(detectionOptions);
+    }
   }
   else {
     if (hasConfigFile) {
