@@ -90,12 +90,17 @@ void tracker::readConfigFile(const std::string& filename, tracker::calibrationOp
   cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 }
 
-std::stringstream tracker::createConfigFileName(const std::string& filedir)
+std::stringstream tracker::createTimeStampedFileName(
+  const std::string& filedir,
+  const std::string& prefix,
+  const std::string& extension)
 {
   std::stringstream filenameStream;
   std::time_t t = std::time(nullptr);
   std::tm tm = *std::localtime(&t);
-  filenameStream << filedir << "config-" << std::put_time(&tm, "%Y%m%d-%H%M%S") << ".yaml";
+  filenameStream << filedir << prefix << "-"
+                 << std::put_time(&tm, "%Y%m%d-%H%M%S")
+                 << "." << extension;
 
   return filenameStream;
 }
