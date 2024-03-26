@@ -335,12 +335,10 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
     return;
   }
 
-  cv::Mat cameraMatrix, distCoeffs;
-
   // Calibrate camera using ChArUco
   double repError = cv::calibrateCamera(
     allObjectPoints, allImagePoints, imageSize,
-    cameraMatrix, distCoeffs, cv::noArray(), cv::noArray(), cv::noArray(),
+    output.cameraMatrix, output.distCoeffs, cv::noArray(), cv::noArray(), cv::noArray(),
     cv::noArray(), cv::noArray(), calibrationFlags
   );
 }
