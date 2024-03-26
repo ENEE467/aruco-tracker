@@ -54,7 +54,7 @@ using cv::aruco::getPredefinedDictionary;
 struct detectionOptions {
   detectionOptions()
   : camID {0},
-    inputFilePath {},
+    inputFilePath {"none"},
     markerSideMeters {0},
     showRejectedMarkers {false},
     detectorParameters {cv::aruco::DetectorParameters()},
@@ -74,7 +74,7 @@ struct detectionOptions {
 struct calibrationOptions {
   calibrationOptions()
   : camID {0},
-    inputFilePath {},
+    inputFilePath {"none"},
     markerSideMeters {0},
     squareSideMeters {0},
     squaresQuantityX {0},
