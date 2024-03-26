@@ -164,7 +164,7 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
   cv::Mat dist_coeff_comp {options.distCoeffs != zero_dist_coeff};
 
   if (cv::countNonZero(cam_matrix_comp) && cv::countNonZero(dist_coeff_comp)) {
-    std::cout << "Camera matrix and distortion coefficients are not empty" << std::endl;
+    std::cout << "Marker pose estimation active" << std::endl;
     estimatePose = true;
   }
 
