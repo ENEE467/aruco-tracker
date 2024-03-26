@@ -83,7 +83,9 @@
       "csignal": "cpp",
       "span": "cpp",
       "typeindex": "cpp",
-      "variant": "cpp"
+      "variant": "cpp",
+      "csetjmp": "cpp",
+      "any": "cpp"
     },
     "editor.detectIndentation": false
   }
