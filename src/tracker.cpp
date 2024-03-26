@@ -154,7 +154,7 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
   }
 }
 
-void tracker::calibrateCamera(const calibrationOptions& options, const calibrationOutput& output)
+void tracker::calibrateCamera(const tracker::calibrationOptions& options, const tracker::calibrationOutput& output)
 {
   bool showChessboardCorners {true};
   int calibrationFlags {0};
