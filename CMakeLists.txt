@@ -1,17 +1,21 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1.0)
 project( DetectMarkers )
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-lopencv_highgui)
 add_compile_options(-lopencv_objdetect)
 add_compile_options(-lopencv_calib3d)
 add_compile_options(-lopencv_aruco)
 
-add_executable( DetectMarkers src/DetectMarkers.cpp )
+add_executable(line-follower-tracker
+  src/tracker.cpp
+  src/main.cpp)
 
-target_include_directories(DetectMarkers PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
+target_include_directories(line-follower-tracker PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries( DetectMarkers ${OpenCV_LIBS} )
+target_link_libraries(line-follower-tracker ${OpenCV_LIBS})

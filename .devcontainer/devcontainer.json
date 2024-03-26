@@ -1,8 +1,8 @@
 {
 	"dockerFile": "Dockerfile",
 	"remoteUser": "467-dev",
-	"workspaceMount": "source=${localEnv:HOME}/aruco-tracker,target=/home/467-dev/aruco-tracker,type=bind",
-	"workspaceFolder": "/home/467-dev/aruco-tracker",
+	"workspaceMount": "source=${localEnv:HOME}/line-follower-tracker,target=/home/467-dev/line-follower-tracker,type=bind",
+	"workspaceFolder": "/home/467-dev/line-follower-tracker",
 	"runArgs": [
 		"--network=host",
 		"--cap-add=SYS_PTRACE",
