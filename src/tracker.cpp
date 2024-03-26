@@ -141,6 +141,23 @@ void tracker::writePoseToCSV(
            << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << std::endl;
 }
 
+void tracker::trackLineFollower(
+  const tracker::detectionOptions& options,
+  const std::string& output_file)
+{
+  bool hasOutputFile {output_file != "none"};
+  std::ofstream posesOutputFile;
+
+  if (hasOutputFile) {
+    posesOutputFile = std::ofstream(output_file);
+    if (!posesOutputFile.is_open())
+      throw Error::CANNOT_OPEN_FILE;
+  }
+  else {
+    std::cout << "No output directory given, poses will not be recorded."
+              << std::endl;
+  }
+
   cv::VideoCapture inputVideo;
   int waitTime;
 
@@ -215,6 +232,10 @@ void tracker::writePoseToCSV(
       // Calculate pose for each marker
       for (size_t  i = 0; i < nMarkers; i++) {
         cv::solvePnP(objPoints, corners.at(i), options.camMatrix, options.distCoeffs, rvecs.at(i), tvecs.at(i));
+
+        // Record the poses if there's an output file
+        if (hasOutputFile)
+          tracker::writePoseToCSV(posesOutputFile, tvecs.at(i), rvecs.at(i));
       }
     }
 
