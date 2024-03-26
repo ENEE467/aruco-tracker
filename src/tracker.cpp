@@ -90,6 +90,44 @@ void tracker::readConfigFile(const std::string& filename, tracker::calibrationOp
   cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 }
 
+std::stringstream tracker::createConfigFileName(const std::string& filedir)
+{
+  std::stringstream filenameStream;
+  std::time_t t = std::time(nullptr);
+  std::tm tm = *std::localtime(&t);
+  filenameStream << filedir << "config-" << std::put_time(&tm, "%Y%m%d-%H%M%S") << ".yaml";
+
+  return filenameStream;
+}
+
+void tracker::writeConfigFile(
+  const std::string& filename,
+  const detectionOptions& detection_options,
+  const calibrationOptions& calibration_options,
+  const calibrationOutput& calibration_output)
+{
+  cv::FileStorage configFile(filename, cv::FileStorage::WRITE);
+  if (!configFile.isOpened())
+    throw Error::CANNOT_OPEN_FILE;
+
+  configFile.startWriteStruct("marker_detection", cv::FileNode::MAP);
+  configFile << "input_source_path" << detection_options.inputFilePath;
+  configFile << "camera_id" << detection_options.camID;
+  configFile << "marker_dictionary" << detection_options.arucoDictionaryID;
+  configFile << "marker_side_meters" << detection_options.markerSideMeters;
+  configFile.endWriteStruct();
+
+  configFile.startWriteStruct("camera_calibration", cv::FileNode::MAP);
+  configFile << "squares_quantity_x" << calibration_options.squaresQuantityX;
+  configFile << "squares_quantity_y" << calibration_options.squaresQuantityY;
+  configFile << "square_side_meters" << calibration_options.squareSideMeters;
+  configFile << "camera_matrix" << calibration_output.cameraMatrix;
+  configFile << "distortion_coefficients" << calibration_output.distCoeffs;
+  configFile.endWriteStruct();
+
+  configFile.release();
+}
+
 void tracker::trackLineFollower(const tracker::detectionOptions& options)
 {
   cv::VideoCapture inputVideo;
