@@ -39,6 +39,7 @@ the use of this software, even if advised of the possibility of such damage.
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <ctime>
 
 #include <opencv2/highgui.hpp>
@@ -117,8 +118,19 @@ void writeConfigFile(
   const calibrationOptions& calibration_options,
   const calibrationOutput& calibration_output);
 
-std::stringstream createConfigFileName(const std::string& filedir);
+void writePoseToCSV(
+  std::ofstream& csv_file,
+  const cv::Vec3d& tvec,
+  const cv::Vec3d& rvec);
 
-void trackLineFollower(const detectionOptions& options);
+std::stringstream createTimeStampedFileName(
+  const std::string& filedir,
+  const std::string& prefix,
+  const std::string& extension);
+
+void trackLineFollower(
+  const detectionOptions& options,
+  const std::string& output_file = "none");
+
 void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
 }

@@ -51,7 +51,15 @@ int main(int argc, char *argv[]) {
   if (!calibrationMode) {
     auto fileName {parser.get<std::string>("config")};
     tracker::readConfigFile(fileName, detectionOptions);
-    tracker::trackLineFollower(detectionOptions);
+
+    if (hasOutputDir) {
+      auto outputDir {parser.get<std::string>("output")};
+      auto fileName {tracker::createTimeStampedFileName(outputDir, "run", "csv")};
+      tracker::trackLineFollower(detectionOptions, fileName.str());
+    }
+    else {
+      tracker::trackLineFollower(detectionOptions);
+    }
   }
   else {
     if (hasConfigFile) {
@@ -62,7 +70,7 @@ int main(int argc, char *argv[]) {
 
       if (hasOutputDir) {
         auto outputDir {parser.get<std::string>("output")};
-        auto fileNameStream {tracker::createConfigFileName(outputDir)};
+        auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
         tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
       }
       else {
@@ -76,7 +84,7 @@ int main(int argc, char *argv[]) {
       std::cout << "Creating a new config file in the output directory..." << std::endl;
       auto outputDir {parser.get<std::string>("output")};
 
-      auto fileNameStream {tracker::createConfigFileName(outputDir)};
+      auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
 
       tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
       std::cout << "Config file created: " << fileNameStream.str() << std::endl;

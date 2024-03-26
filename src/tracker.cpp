@@ -1,5 +1,4 @@
 #include <iomanip>
-#include <fstream>
 
 #include "tracker.hpp"
 
@@ -90,12 +89,17 @@ void tracker::readConfigFile(const std::string& filename, tracker::calibrationOp
   cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 }
 
-std::stringstream tracker::createConfigFileName(const std::string& filedir)
+std::stringstream tracker::createTimeStampedFileName(
+  const std::string& filedir,
+  const std::string& prefix,
+  const std::string& extension)
 {
   std::stringstream filenameStream;
   std::time_t t = std::time(nullptr);
   std::tm tm = *std::localtime(&t);
-  filenameStream << filedir << "config-" << std::put_time(&tm, "%Y%m%d-%H%M%S") << ".yaml";
+  filenameStream << filedir << prefix << "-"
+                 << std::put_time(&tm, "%Y%m%d-%H%M%S")
+                 << "." << extension;
 
   return filenameStream;
 }
@@ -128,8 +132,32 @@ void tracker::writeConfigFile(
   configFile.release();
 }
 
-void tracker::trackLineFollower(const tracker::detectionOptions& options)
+void tracker::writePoseToCSV(
+  std::ofstream& csv_file,
+  const cv::Vec3d& tvec,
+  const cv::Vec3d& rvec)
 {
+  csv_file << tvec[0] << ", " << tvec[1] << ", " << tvec[2] << ", "
+           << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << std::endl;
+}
+
+void tracker::trackLineFollower(
+  const tracker::detectionOptions& options,
+  const std::string& output_file)
+{
+  bool hasOutputFile {output_file != "none"};
+  std::ofstream posesOutputFile;
+
+  if (hasOutputFile) {
+    posesOutputFile = std::ofstream(output_file);
+    if (!posesOutputFile.is_open())
+      throw Error::CANNOT_OPEN_FILE;
+  }
+  else {
+    std::cout << "No output directory given, poses will not be recorded."
+              << std::endl;
+  }
+
   cv::VideoCapture inputVideo;
   int waitTime;
 
@@ -204,6 +232,10 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
       // Calculate pose for each marker
       for (size_t  i = 0; i < nMarkers; i++) {
         cv::solvePnP(objPoints, corners.at(i), options.camMatrix, options.distCoeffs, rvecs.at(i), tvecs.at(i));
+
+        // Record the poses if there's an output file
+        if (hasOutputFile)
+          tracker::writePoseToCSV(posesOutputFile, tvecs.at(i), rvecs.at(i));
       }
     }
 
