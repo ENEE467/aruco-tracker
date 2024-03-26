@@ -9,7 +9,8 @@ const char* about = "Line follower tracker using ArUco markers";
 //! [aruco_detect_markers_keys]
 const char* keys  =
   "{config               |       | Configuration file path for the program }"
-  "{calibration          | false | Enable calibration mode}";
+  "{calibration          | false | Enable calibration mode }"
+  "{output               |       | Output file directory for a new configuration file }";
 }
 //! [aruco_detect_markers_keys]
 
