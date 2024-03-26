@@ -99,7 +99,8 @@ void tracker::trackLineFollower(const tracker::detectionOptions& options)
 
   std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << std::endl;
 
-  cv::aruco::ArucoDetector detector(options.arucoDictionary, options.detectorParameters);
+  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.arucoDictionaryID)};
+  cv::aruco::ArucoDetector detector(arucoDictionary, options.detectorParameters);
 
   while(inputVideo.grab()) {
     cv::Mat image, imageCopy, resizedImage;
@@ -172,11 +173,12 @@ void tracker::calibrateCamera(const calibrationOptions& options, const calibrati
     waitTime = 10;
   }
 
+  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.arucoDictionaryID)};
   cv::aruco::CharucoBoard board(
     cv::Size(options.squaresQuantityX, options.squaresQuantityY),
     options.squareSideMeters,
     options.markerSideMeters,
-    options.arucoDictionary
+    arucoDictionary
   );
 
   cv::aruco::CharucoParameters charucoParams;
