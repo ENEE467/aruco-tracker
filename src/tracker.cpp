@@ -1,5 +1,4 @@
 #include <iomanip>
-#include <fstream>
 
 #include "tracker.hpp"
 
@@ -133,8 +132,15 @@ void tracker::writeConfigFile(
   configFile.release();
 }
 
-void tracker::trackLineFollower(const tracker::detectionOptions& options)
+void tracker::writePoseToCSV(
+  std::ofstream& csv_file,
+  const cv::Vec3d& tvec,
+  const cv::Vec3d& rvec)
 {
+  csv_file << tvec[0] << ", " << tvec[1] << ", " << tvec[2] << ", "
+           << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << std::endl;
+}
+
   cv::VideoCapture inputVideo;
   int waitTime;
 
