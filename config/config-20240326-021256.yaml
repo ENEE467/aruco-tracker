@@ -1,0 +1,23 @@
+%YAML:1.0
+---
+marker_detection:
+   input_source_path: none
+   camera_id: 0
+   marker_dictionary: 0
+   marker_side_meters: 1.0999999940395355e-02
+camera_calibration:
+   squares_quantity_x: 8
+   squares_quantity_y: 11
+   square_side_meters: 1.4999999664723873e-02
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: f
+      data: [ 6.01865967e+02, 0., 9.59500488e+02, 0., 1.82282336e+03,
+          5.39500305e+02, 0., 0., 1. ]
+   distortion_coefficients: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: f
+      data: [ -1.10107519e-01, 1.79726654e-03, -1.45584927e-03,
+          -5.15812971e-02, -6.97141877e-06 ]
