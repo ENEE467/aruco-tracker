@@ -29,9 +29,7 @@ void tracker::readConfigFile(const std::string& filename, tracker::detectionOpti
 
   // read aruco dictionary option
   auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  int dictionaryID {};
-  cv::read(dictionaryIDNode, dictionaryID, 16);
-  options.arucoDictionary = cv::aruco::getPredefinedDictionary(dictionaryID);
+  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 
   auto cameraCalibrationNode {configFile["camera_calibration"]};
 
