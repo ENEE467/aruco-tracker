@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
       if (hasOutputDir) {
         auto outputDir {parser.get<std::string>("output")};
-        auto fileNameStream {tracker::createConfigFileName(outputDir)};
+        auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
         tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
       }
       else {
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
       std::cout << "Creating a new config file in the output directory..." << std::endl;
       auto outputDir {parser.get<std::string>("output")};
 
-      auto fileNameStream {tracker::createConfigFileName(outputDir)};
+      auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
 
       tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
       std::cout << "Config file created: " << fileNameStream.str() << std::endl;
