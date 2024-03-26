@@ -262,6 +262,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
     arucoDictionary
   );
 
+  // Charuco and Detector parameters are currently default
   cv::aruco::CharucoParameters charucoParams;
   cv::aruco::CharucoDetector detector(board, charucoParams, detectorParams);
 
