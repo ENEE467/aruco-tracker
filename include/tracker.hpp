@@ -117,7 +117,10 @@ void writeConfigFile(
   const calibrationOptions& calibration_options,
   const calibrationOutput& calibration_output);
 
-std::stringstream createConfigFileName(const std::string& filedir);
+std::stringstream createTimeStampedFileName(
+  const std::string& filedir,
+  const std::string& prefix,
+  const std::string& extension);
 
 void trackLineFollower(const detectionOptions& options);
 void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
