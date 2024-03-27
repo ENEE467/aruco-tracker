@@ -168,6 +168,9 @@ void tracker::trackLineFollower(
   }
   else {
     inputVideo.open(options.camID);
+    inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    inputVideo.set(cv::CAP_PROP_FPS, 30);
     waitTime = 10;
   }
 
@@ -212,10 +215,8 @@ void tracker::trackLineFollower(
   cv::aruco::ArucoDetector detector(arucoDictionary, options.detectorParameters);
 
   while(inputVideo.grab()) {
-    cv::Mat image, imageCopy, resizedImage;
+    cv::Mat image, imageCopy;
     inputVideo.retrieve(image);
-
-    cv::resize(image, resizedImage, cv::Size(), 0.25, 0.25);
 
     double tick = (double)cv::getTickCount();
 
@@ -223,7 +224,7 @@ void tracker::trackLineFollower(
     std::vector<std::vector<cv::Point2f>> corners, rejected;
 
     // detect markers and estimate pose
-    detector.detectMarkers(resizedImage, corners, ids, rejected);
+    detector.detectMarkers(image, corners, ids, rejected);
 
     size_t  nMarkers = corners.size();
     std::vector<cv::Vec3d> rvecs(nMarkers), tvecs(nMarkers);
@@ -248,7 +249,7 @@ void tracker::trackLineFollower(
     }
 
     // draw results
-    resizedImage.copyTo(imageCopy);
+    image.copyTo(imageCopy);
     if(!ids.empty()) {
       cv::aruco::drawDetectedMarkers(imageCopy, corners, ids);
 
@@ -283,6 +284,9 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
   }
   else {
     inputVideo.open(options.camID);
+    inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+    inputVideo.set(cv::CAP_PROP_FPS, 30);
     waitTime = 10;
   }
 
