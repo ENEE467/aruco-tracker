@@ -131,6 +131,7 @@ void readConfigFile(const std::string& filename, calibrationOptions& options);
 void writeConfigFile(
   const std::string& filename,
   const detectionOptions& detection_options,
+  const boardOptions& board_options,
   const calibrationOptions& calibration_options,
   const calibrationOutput& calibration_output);
 
