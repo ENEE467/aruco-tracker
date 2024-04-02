@@ -51,7 +51,6 @@ the use of this software, even if advised of the possibility of such damage.
 
 namespace tracker {
 
-using cv::aruco::getPredefinedDictionary;
 struct detectionOptions {
   detectionOptions()
   : camID {0},
@@ -70,6 +69,22 @@ struct detectionOptions {
   bool showRejectedMarkers;
   cv::aruco::DetectorParameters detectorParameters;
   int arucoDictionaryID;
+};
+
+struct boardOptions {
+  boardOptions()
+  : markerSideMeters {0},
+    markerSeperationMetersX {0},
+    markerSeperationMetersY {0},
+    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL},
+    markerIDs {}
+  {}
+
+  float markerSideMeters;
+  float markerSeperationMetersX;
+  float markerSeperationMetersY;
+  int markerDictionaryID;
+  std::vector<int> markerIDs;
 };
 
 struct calibrationOptions {
@@ -108,13 +123,18 @@ enum class Error {
   INCOMPLETE_INFORMATION = 402
 };
 
+void generateLineFollowerBoardPoints(
+  const boardOptions& board_options,
+  std::vector<std::vector<cv::Point3f>>& output_board_obj_points);
+
 void readConfigFile(const std::string& filename, detectionOptions& options);
+void readConfigFile(const std::string& filename, boardOptions& options);
 void readConfigFile(const std::string& filename, calibrationOptions& options);
 
-// TODO: Finish implementing this method
 void writeConfigFile(
   const std::string& filename,
   const detectionOptions& detection_options,
+  const boardOptions& board_options,
   const calibrationOptions& calibration_options,
   const calibrationOutput& calibration_output);
 
@@ -128,9 +148,13 @@ std::stringstream createTimeStampedFileName(
   const std::string& prefix,
   const std::string& extension);
 
+// TODO: Implement a method to detect just the board
+//       Maybe would have to separate board and line follower detection...
+
 void trackLineFollower(
-  const detectionOptions& options,
-  const std::string& output_file = "none");
+  const detectionOptions& detectionOptions,
+  const boardOptions& boardOptions,
+  const std::string& outputFileName = "none");
 
 void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
 }

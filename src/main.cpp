@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
   }
 
   // TODO: Finish this.
+  tracker::boardOptions boardOptions{};
   tracker::detectionOptions detectionOptions {};
   tracker::calibrationOptions calibrationOptions {};
   tracker::calibrationOutput calibrationOutput {};
@@ -51,31 +52,33 @@ int main(int argc, char *argv[]) {
   if (!calibrationMode) {
     auto fileName {parser.get<std::string>("config")};
     tracker::readConfigFile(fileName, detectionOptions);
+    tracker::readConfigFile(fileName, boardOptions);
 
     if (hasOutputDir) {
       auto outputDir {parser.get<std::string>("output")};
       auto fileName {tracker::createTimeStampedFileName(outputDir, "run", "csv")};
-      tracker::trackLineFollower(detectionOptions, fileName.str());
+      tracker::trackLineFollower(detectionOptions, boardOptions, fileName.str());
     }
     else {
-      tracker::trackLineFollower(detectionOptions);
+      tracker::trackLineFollower(detectionOptions, boardOptions);
     }
   }
   else {
     if (hasConfigFile) {
       auto fileName {parser.get<std::string>("config")};
       tracker::readConfigFile(fileName, detectionOptions);
+      tracker::readConfigFile(fileName, boardOptions);
       tracker::readConfigFile(fileName, calibrationOptions);
       tracker::calibrateCamera(calibrationOptions, calibrationOutput);
 
       if (hasOutputDir) {
         auto outputDir {parser.get<std::string>("output")};
         auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
-        tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
+        tracker::writeConfigFile(fileNameStream.str(), detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
       }
       else {
         std::remove(fileName.c_str());
-        tracker::writeConfigFile(fileName, detectionOptions, calibrationOptions, calibrationOutput);
+        tracker::writeConfigFile(fileName, detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
       }
 
       return 0;
@@ -86,7 +89,7 @@ int main(int argc, char *argv[]) {
 
       auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
 
-      tracker::writeConfigFile(fileNameStream.str(), detectionOptions, calibrationOptions, calibrationOutput);
+      tracker::writeConfigFile(fileNameStream.str(), detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
       std::cout << "Config file created: " << fileNameStream.str() << std::endl;
 
       return 0;
