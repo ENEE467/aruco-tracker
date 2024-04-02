@@ -72,6 +72,22 @@ struct detectionOptions {
   int arucoDictionaryID;
 };
 
+struct boardOptions {
+  boardOptions()
+  : markerSideMeters {0},
+    markerSeperationMetersX {0},
+    markerSeperationMetersY {0},
+    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL},
+    markerIDs {}
+  {}
+
+  float markerSideMeters;
+  float markerSeperationMetersX;
+  float markerSeperationMetersY;
+  int markerDictionaryID;
+  std::vector<int> markerIDs;
+};
+
 struct calibrationOptions {
   calibrationOptions()
   : camID {0},
