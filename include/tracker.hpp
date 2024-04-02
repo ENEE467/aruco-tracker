@@ -123,6 +123,10 @@ enum class Error {
   INCOMPLETE_INFORMATION = 402
 };
 
+void generateLineFollowerBoardPoints(
+  const boardOptions& board_options,
+  std::vector<std::vector<cv::Point3f>>& output_board_obj_points);
+
 void readConfigFile(const std::string& filename, detectionOptions& options);
 void readConfigFile(const std::string& filename, boardOptions& options);
 void readConfigFile(const std::string& filename, calibrationOptions& options);
