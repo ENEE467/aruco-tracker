@@ -51,7 +51,6 @@ the use of this software, even if advised of the possibility of such damage.
 
 namespace tracker {
 
-using cv::aruco::getPredefinedDictionary;
 struct detectionOptions {
   detectionOptions()
   : camID {0},
