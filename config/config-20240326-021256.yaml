@@ -4,6 +4,7 @@ marker_detection:
    input_source_path: none
    camera_id: 0
    marker_dictionary: 0
+   marker_side_meters: 2.1999999880790710e-02
 board_markers:
    marker_side_meters: 2.10e-02
    marker_seperation_meters_x: 20.00e-02
@@ -12,17 +13,17 @@ board_markers:
    marker_ids: [ 0, 1, 2, 3 ]
 camera_calibration:
    squares_quantity_x: 8
-   squares_quantity_y: 11
-   square_side_meters: 1.4999999664723873e-02
+   squares_quantity_y: 6
+   square_side_meters: 2.9999999329447746e-02
    camera_matrix: !!opencv-matrix
       rows: 3
       cols: 3
       dt: f
-      data: [ 6.01865967e+02, 0., 9.59500488e+02, 0., 1.82282336e+03,
-          5.39500305e+02, 0., 0., 1. ]
+      data: [ 5.14758362e+02, 0., 3.08533203e+02, 0., 5.14997742e+02,
+          2.49487762e+02, 0., 0., 1. ]
    distortion_coefficients: !!opencv-matrix
       rows: 1
       cols: 5
       dt: f
-      data: [ -1.10107519e-01, 1.79726654e-03, -1.45584927e-03,
-          -5.15812971e-02, -6.97141877e-06 ]
+      data: [ -8.24871473e-03, 6.68980122e-01, 3.13996430e-03,
+          -6.13448117e-03, -1.93881428e+00 ]
