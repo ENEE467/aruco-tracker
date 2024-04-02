@@ -83,6 +83,35 @@ void tracker::readConfigFile(const std::string& filename, tracker::detectionOpti
   }
 }
 
+void tracker::readConfigFile(const std::string& filename, tracker::boardOptions& options)
+{
+  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+
+  if (!configFile.isOpened())
+    throw Error::CANNOT_OPEN_FILE;
+
+  auto markerDetectionNode {configFile["marker_detection"]};
+  auto boardParametersNode {configFile["board_markers"]};
+
+  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
+    throw Error::INCOMPLETE_INFORMATION;
+
+  if (boardParametersNode.empty() || !boardParametersNode.isMap())
+    throw Error::INCOMPLETE_INFORMATION;
+
+  auto markerSideMetersNode {boardParametersNode["marker_side_meters"]};
+  auto markerSeperationMetersXNode {boardParametersNode["marker_seperation_meters_x"]};
+  auto markerSeperationMetersYNode {boardParametersNode["marker_seperation_meters_y"]};
+  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
+  auto markerIDsNode {boardParametersNode["marker_ids"]};
+
+  cv::read(markerSideMetersNode, options.markerSideMeters, 0.F);
+  cv::read(markerSeperationMetersXNode, options.markerSeperationMetersX, 0.F);
+  cv::read(markerSeperationMetersYNode, options.markerSeperationMetersY, 0.F);
+  cv::read(dictionaryIDNode, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  cv::read(markerIDsNode, options.markerIDs, {});
+}
+
 void tracker::readConfigFile(const std::string& filename, tracker::calibrationOptions& options)
 {
   cv::FileStorage configFile(filename, cv::FileStorage::READ);
