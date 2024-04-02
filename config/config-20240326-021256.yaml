@@ -4,7 +4,12 @@ marker_detection:
    input_source_path: none
    camera_id: 0
    marker_dictionary: 0
-   marker_side_meters: 1.0999999940395355e-02
+board_markers:
+   marker_side_meters: 2.10e-02
+   marker_seperation_meters_x: 20.00e-02
+   marker_seperation_meters_y: 14.00e-02
+   marker_dictionary_id: 0
+   marker_ids: [ 0, 1, 2, 3 ]
 camera_calibration:
    squares_quantity_x: 8
    squares_quantity_y: 11
