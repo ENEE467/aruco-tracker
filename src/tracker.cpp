@@ -128,32 +128,20 @@ void tracker::readConfigFile(const std::string& filename, tracker::calibrationOp
   if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
     throw Error::INCOMPLETE_INFORMATION;
 
-  // read camera id
   auto camIDNode {markerDetectionNode["camera_id"]};
-  read(camIDNode, options.camID, 0);
-
-  // read input file path
   auto inputFileNode {markerDetectionNode["input_source_path"]};
-  read(inputFileNode, options.inputFilePath, "");
-
-  // marker side length
   auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  read(markerSideNode, options.markerSideMeters, 0.F);
-
-  // square side length
-  auto squareSideNode {cameraCalibrationNode["square_side_meters"]};
-  read(squareSideNode, options.squareSideMeters, 0.F);
-
-  // squares quantity x
-  auto squaresQuantityXNode {cameraCalibrationNode["squares_quantity_x"]};
-  read(squaresQuantityXNode, options.squaresQuantityX, 0);
-
-  // squares quantity y
-  auto squaresQuantityYNode {cameraCalibrationNode["squares_quantity_y"]};
-  read(squaresQuantityYNode, options.squaresQuantityY, 0);
-
-  // read aruco dictionary option
   auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
+  auto squareSideNode {cameraCalibrationNode["square_side_meters"]};
+  auto squaresQuantityXNode {cameraCalibrationNode["squares_quantity_x"]};
+  auto squaresQuantityYNode {cameraCalibrationNode["squares_quantity_y"]};
+
+  cv::read(camIDNode, options.camID, 0);
+  cv::read(inputFileNode, options.inputFilePath, "");
+  cv::read(markerSideNode, options.markerSideMeters, 0.F);
+  cv::read(squareSideNode, options.squareSideMeters, 0.F);
+  cv::read(squaresQuantityXNode, options.squaresQuantityX, 0);
+  cv::read(squaresQuantityYNode, options.squaresQuantityY, 0);
   cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 }
 
