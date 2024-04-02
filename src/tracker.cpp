@@ -62,32 +62,23 @@ void tracker::readConfigFile(const std::string& filename, tracker::detectionOpti
   if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
     throw Error::INCOMPLETE_INFORMATION;
 
-  // read camera id
   auto camIDNode {markerDetectionNode["camera_id"]};
-  read(camIDNode, options.camID, 0);
-
-  // read input file path
   auto inputFileNode {markerDetectionNode["input_source_path"]};
-  read(inputFileNode, options.inputFilePath, "");
-
-  // read marker side length
   auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  read(markerSideNode, options.markerSideMeters, 0.1);
-
-  // read aruco dictionary option
   auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
-
   auto cameraCalibrationNode {configFile["camera_calibration"]};
+
+  cv::read(camIDNode, options.camID, 0);
+  cv::read(inputFileNode, options.inputFilePath, "");
+  cv::read(markerSideNode, options.markerSideMeters, 0.1);
+  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
 
   // read camera calibration parameters
   if (!cameraCalibrationNode.empty() && cameraCalibrationNode.isMap()) {
-    // read camera matrix
     auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
-    cv::read(cameraMatrixNode, options.camMatrix);
-
-    // read distortion coefficients
     auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
+
+    cv::read(cameraMatrixNode, options.camMatrix);
     cv::read(distortionCoefficientNode, options.distCoeffs);
   }
 }
