@@ -87,5 +87,6 @@
       "csetjmp": "cpp",
       "any": "cpp"
     },
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "git.enableCommitSigning": true
   }
