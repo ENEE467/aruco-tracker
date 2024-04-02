@@ -2,6 +2,54 @@
 
 #include "tracker.hpp"
 
+void tracker::generateLineFollowerBoardPoints(
+  const boardOptions& boardOptions,
+  std::vector<std::vector<cv::Point3f>>& outputBoardPoints)
+{
+  std::vector<cv::Point3f> markerObjPoints {
+    cv::Point3f(-boardOptions.markerSideMeters/2.f,
+                 boardOptions.markerSideMeters/2.f,
+                 0),
+
+    cv::Point3f(boardOptions.markerSideMeters/2.f,
+                boardOptions.markerSideMeters/2.f,
+                0),
+
+    cv::Point3f(boardOptions.markerSideMeters/2.f,
+                -boardOptions.markerSideMeters/2.f,
+                0),
+
+    cv::Point3f(-boardOptions.markerSideMeters/2.f,
+                -boardOptions.markerSideMeters/2.f,
+                0)
+  };
+
+  auto translateMarkerObjpoints = [markerObjPoints]
+                                  (float xDisplacement, float yDisplacement)
+  {
+    std::vector<cv::Point3f> translatedPoints {};
+
+    for (const auto& markerObjPoint: markerObjPoints) {
+      translatedPoints.push_back(
+        markerObjPoint + cv::Point3f(xDisplacement, yDisplacement, 0));
+    }
+
+    return translatedPoints;
+  };
+
+  outputBoardPoints.push_back(
+    translateMarkerObjpoints(0, boardOptions.markerSeperationMetersY));
+
+  outputBoardPoints.push_back(
+    translateMarkerObjpoints(boardOptions.markerSeperationMetersX,
+                             boardOptions.markerSeperationMetersY));
+
+  outputBoardPoints.push_back(
+    translateMarkerObjpoints(boardOptions.markerSeperationMetersX, 0));
+
+  outputBoardPoints.push_back(translateMarkerObjpoints(0, 0));
+}
+
 void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
 {
   cv::FileStorage configFile(filename, cv::FileStorage::READ);
