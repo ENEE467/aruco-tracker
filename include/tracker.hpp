@@ -145,9 +145,13 @@ std::stringstream createTimeStampedFileName(
   const std::string& prefix,
   const std::string& extension);
 
+// TODO: Implement a method to detect just the board
+//       Maybe would have to separate board and line follower detection...
+
 void trackLineFollower(
-  const detectionOptions& options,
-  const std::string& output_file = "none");
+  const detectionOptions& detectionOptions,
+  const boardOptions& boardOptions,
+  const std::string& outputFileName = "none");
 
 void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
 }
