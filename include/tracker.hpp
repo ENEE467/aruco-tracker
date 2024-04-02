@@ -131,7 +131,6 @@ void readConfigFile(const std::string& filename, detectionOptions& options);
 void readConfigFile(const std::string& filename, boardOptions& options);
 void readConfigFile(const std::string& filename, calibrationOptions& options);
 
-// TODO: Finish implementing this method
 void writeConfigFile(
   const std::string& filename,
   const detectionOptions& detection_options,
