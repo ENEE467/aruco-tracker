@@ -222,6 +222,18 @@ bool tracker::LineFollowerDetector::estimateLineFollowerPose()
   _lineFollowerPoseEstimated = true;
   return _lineFollowerPoseEstimated;
 }
+
+void tracker::LineFollowerDetector::visualize(cv::Mat& frame)
+{
+  cv::aruco::drawDetectedMarkers(frame, _detectedMarkersCorners, _detectedMarkerIDs);
+
+  if (!_lineFollowerPoseEstimated)
+    return;
+
+  cv::drawFrameAxes(
+    frame, _camMatrix, _distortionCoeffs, _lineFollowerRVec, _lineFollowerTVec,
+    _markerSide * 1.5f, 2);
+}
 }
 
 void tracker::trackLineFollower(
