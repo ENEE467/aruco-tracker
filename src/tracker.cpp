@@ -183,6 +183,25 @@ tracker::LineFollowerDetector::LineFollowerDetector(
     cv::Vec3f(-_markerSide / 2.f, -_markerSide / 2.f, 0)
   }
 {}
+
+bool tracker::LineFollowerDetector::detectLineFollower(const cv::Mat& frame)
+{
+  reset();
+
+  _lineFollowerDetector.detectMarkers(
+    frame, _detectedMarkersCorners, _detectedMarkerIDs, _rejectedMarkersCorners);
+
+  _lineFollowerDetected = hasCorrectID();
+
+  std::cout << "Detected IDs: ";
+  for (const auto& markerID: _detectedMarkerIDs)
+    std::cout << markerID << " ";
+  std::cout << '\n';
+
+  std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
+
+  return _lineFollowerDetected;
+}
 }
 
 void tracker::trackLineFollower(
