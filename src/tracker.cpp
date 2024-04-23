@@ -103,17 +103,18 @@ bool tracker::BoardDetector::hasEnoughBoardIDs()
 
   return true;
 }
+
+bool tracker::BoardDetector::detectBoard(const cv::Mat& frame)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  reset();
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  _boardDetector.detectMarkers(
+    frame, _detectedMarkerCorners, _detectedMarkerIDs, _rejectedMarkerCorners);
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-  auto boardParametersNode {configFile["board_markers"]};
+  _boardDetected = hasEnoughBoardIDs();
 
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+  return _boardDetected;
+}
 
   if (boardParametersNode.empty() || !boardParametersNode.isMap())
     throw Error::INCOMPLETE_INFORMATION;
