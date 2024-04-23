@@ -111,6 +111,64 @@ private:
 
 };
 
+class LineFollowerDetector {
+
+public:
+  LineFollowerDetector(
+    const options::MarkerDetection& detectionOptions,
+    const options::LineFollowerMarker& lineFollowerOptions,
+    bool canEstimatePose = false);
+
+  bool detectLineFollower(const cv::Mat& frame);
+  bool estimateLineFollowerPose();
+  void visualize(cv::Mat& frame);
+
+  std::pair<cv::Vec3d, cv::Vec3d> getLineFollowerPose() const
+  {
+    return {_lineFollowerRVec, _lineFollowerTVec};
+  }
+  const cv::Vec3d& getRVec() const {return _lineFollowerRVec;}
+  const cv::Vec3d& getTVec() const {return _lineFollowerTVec;}
+
+private:
+  void reset()
+  {
+    _detectedMarkerCornersIterator = _detectedMarkersCorners.begin();
+    _detectedMarkersCorners.clear();
+    _detectedMarkerIDs.clear();
+    _rejectedMarkersCorners.clear();
+    _lineFollowerDetected = false;
+    _lineFollowerPoseEstimated = false;
+    _lineFollowerTVec = {0.0, 0.0, 0.0};
+    _lineFollowerRVec = {0.0, 0.0, 0.0};
+  }
+
+
+  bool hasCorrectID();
+
+  bool _canEstimatePose;
+  bool _lineFollowerDetected;
+  bool _lineFollowerPoseEstimated;
+  int _markerID;
+  float _markerSide;
+  std::vector<std::vector<cv::Point2f>>::iterator _detectedMarkerCornersIterator;
+
+  cv::Vec3d _lineFollowerTVec;
+  cv::Vec3d _lineFollowerRVec;
+
+  cv::Mat _camMatrix;
+  cv::Mat _distortionCoeffs;
+
+  cv::aruco::ArucoDetector _lineFollowerDetector;
+
+  std::vector<cv::Vec3f> _markerObjPoints;
+  // cv::Mat _markerImgPoints;
+  std::vector<int> _detectedMarkerIDs;
+  std::vector<std::vector<cv::Point2f>> _detectedMarkersCorners;
+  std::vector<std::vector<cv::Point2f>> _rejectedMarkersCorners;
+
+};
+
 bool isNonZeroMatrix(const cv::Mat& matrix);
 
 void trackLineFollower(
