@@ -1,5 +1,15 @@
-#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <opencv2/highgui.hpp>
+#include <opencv2/aruco.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect/aruco_detector.hpp>
+#include <opencv2/objdetect.hpp>
+#include <opencv2/calib3d.hpp>
 
+#include "errors.hpp"
+#include "fileio.hpp"
 #include "tracker.hpp"
 
 void tracker::generateLineFollowerBoardPoints(
