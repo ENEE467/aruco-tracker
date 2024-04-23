@@ -116,20 +116,17 @@ bool tracker::BoardDetector::detectBoard(const cv::Mat& frame)
   return _boardDetected;
 }
 
-  if (boardParametersNode.empty() || !boardParametersNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+void tracker::BoardDetector::visualize(cv::Mat& frame)
+{
+  cv::aruco::drawDetectedMarkers(frame, _detectedMarkerCorners, _detectedMarkerIDs);
 
-  auto markerSideMetersNode {boardParametersNode["marker_side_meters"]};
-  auto markerSeperationMetersXNode {boardParametersNode["marker_seperation_meters_x"]};
-  auto markerSeperationMetersYNode {boardParametersNode["marker_seperation_meters_y"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto markerIDsNode {boardParametersNode["marker_ids"]};
+  if (!_boardPoseEstimated)
+    return;
 
-  cv::read(markerSideMetersNode, options.markerSideMeters, 0.F);
-  cv::read(markerSeperationMetersXNode, options.markerSeperationMetersX, 0.F);
-  cv::read(markerSeperationMetersYNode, options.markerSeperationMetersY, 0.F);
-  cv::read(dictionaryIDNode, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
-  cv::read(markerIDsNode, options.markerIDs, {});
+  cv::drawFrameAxes(
+    frame, _camMatrix, _distortionCoeffs, _boardRVec, _boardTVec,
+    _boardMarkerSide * 1.5f, 2);
+}
 }
 
 void tracker::readConfigFile(const std::string& filename, tracker::calibrationOptions& options)
