@@ -127,52 +127,26 @@ void tracker::BoardDetector::visualize(cv::Mat& frame)
     frame, _camMatrix, _distortionCoeffs, _boardRVec, _boardTVec,
     _boardMarkerSide * 1.5f, 2);
 }
-}
 
-void tracker::readConfigFile(const std::string& filename, tracker::calibrationOptions& options)
+bool tracker::BoardDetector::estimateBoardPose()
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  if (!_boardDetected || !_canEstimatePose) {
+    _boardPoseEstimated = false;
+    return _boardPoseEstimated;
+  }
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  _lineFollowerBoard.matchImagePoints(
+    _detectedMarkerCorners, _detectedMarkerIDs, _boardObjPoints,
+    _boardImgPoints);
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-  auto cameraCalibrationNode {configFile["camera_calibration"]};
+  cv::solvePnP(
+    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _boardRVec,
+    _boardTVec);
 
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+  _boardPoseEstimated = true;
 
-  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
-  auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto squareSideNode {cameraCalibrationNode["square_side_meters"]};
-  auto squaresQuantityXNode {cameraCalibrationNode["squares_quantity_x"]};
-  auto squaresQuantityYNode {cameraCalibrationNode["squares_quantity_y"]};
-
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(markerSideNode, options.markerSideMeters, 0.F);
-  cv::read(squareSideNode, options.squareSideMeters, 0.F);
-  cv::read(squaresQuantityXNode, options.squaresQuantityX, 0);
-  cv::read(squaresQuantityYNode, options.squaresQuantityY, 0);
-  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  return _boardPoseEstimated;
 }
-
-std::stringstream tracker::createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension)
-{
-  std::stringstream filenameStream;
-  std::time_t t = std::time(nullptr);
-  std::tm tm = *std::localtime(&t);
-  filenameStream << filedir << prefix << "-"
-                 << std::put_time(&tm, "%Y%m%d-%H%M%S")
-                 << "." << extension;
 
   return filenameStream;
 }
