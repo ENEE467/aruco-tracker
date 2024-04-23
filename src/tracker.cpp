@@ -34,27 +34,34 @@ tracker::BoardDetector::BoardDetector(
     cv::aruco::getPredefinedDictionary(boardMarkersOptions.markerDictionaryID),
     detectionOptions.detectorParameters}
 {}
+
+std::vector<std::vector<cv::Point3f>> tracker::BoardDetector::getBoardMarkersPoints(
+  const options::BoardMarkers& boardMarkersOptions)
 {
   std::vector<cv::Point3f> markerObjPoints {
-    cv::Point3f(-boardOptions.markerSideMeters/2.f,
-                 boardOptions.markerSideMeters/2.f,
-                 0),
+    cv::Point3f(
+      -boardMarkersOptions.markerSideMeters/2.f,
+      boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(boardOptions.markerSideMeters/2.f,
-                boardOptions.markerSideMeters/2.f,
-                0),
+    cv::Point3f(
+      boardMarkersOptions.markerSideMeters/2.f,
+      boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(boardOptions.markerSideMeters/2.f,
-                -boardOptions.markerSideMeters/2.f,
-                0),
+    cv::Point3f(
+      boardMarkersOptions.markerSideMeters/2.f,
+      -boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(-boardOptions.markerSideMeters/2.f,
-                -boardOptions.markerSideMeters/2.f,
-                0)
+    cv::Point3f(
+      -boardMarkersOptions.markerSideMeters/2.f,
+      -boardMarkersOptions.markerSideMeters/2.f,
+      0)
   };
 
-  auto translateMarkerObjpoints = [markerObjPoints]
-                                  (float xDisplacement, float yDisplacement)
+  auto translateMarkerObjpoints =
+    [markerObjPoints] (float xDisplacement, float yDisplacement)
   {
     std::vector<cv::Point3f> translatedPoints {};
 
@@ -66,17 +73,16 @@ tracker::BoardDetector::BoardDetector(
     return translatedPoints;
   };
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(0, boardOptions.markerSeperationMetersY));
+  return {
+    translateMarkerObjpoints(0, boardMarkersOptions.markerSeperationMetersY),
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(boardOptions.markerSeperationMetersX,
-                             boardOptions.markerSeperationMetersY));
+    translateMarkerObjpoints(
+      boardMarkersOptions.markerSeperationMetersX,
+      boardMarkersOptions.markerSeperationMetersY),
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(boardOptions.markerSeperationMetersX, 0));
-
-  outputBoardPoints.push_back(translateMarkerObjpoints(0, 0));
+    translateMarkerObjpoints(boardMarkersOptions.markerSeperationMetersX, 0),
+    translateMarkerObjpoints(0, 0)
+  };
 }
 
 void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
