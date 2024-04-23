@@ -1,3 +1,6 @@
+#include <iostream>
+
+#include "fileio.hpp"
 #include "tracker.hpp"
 
 using namespace std;
