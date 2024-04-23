@@ -1,31 +1,67 @@
-#include <iomanip>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <opencv2/highgui.hpp>
+#include <opencv2/aruco.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/objdetect/aruco_detector.hpp>
+#include <opencv2/objdetect.hpp>
+#include <opencv2/calib3d.hpp>
 
+#include "errors.hpp"
+#include "fileio.hpp"
 #include "tracker.hpp"
 
-void tracker::generateLineFollowerBoardPoints(
-  const boardOptions& boardOptions,
-  std::vector<std::vector<cv::Point3f>>& outputBoardPoints)
+tracker::BoardDetector::BoardDetector(
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  bool canEstimatePose)
+: _canEstimatePose {canEstimatePose},
+  _boardDetected {false},
+  _boardPoseEstimated {false},
+  _boardMarkerSide {boardMarkersOptions.markerSideMeters},
+  _boardTVec {0.0, 0.0, 0.0},
+  _boardRVec {0.0, 0.0, 0.0},
+  _camMatrix {detectionOptions.camMatrix},
+  _distortionCoeffs {detectionOptions.distCoeffs},
+
+  _lineFollowerBoard {
+    getBoardMarkersPoints(boardMarkersOptions),
+    cv::aruco::getPredefinedDictionary(boardMarkersOptions.markerDictionaryID),
+    boardMarkersOptions.markerIDs},
+
+  _boardDetector {
+    cv::aruco::getPredefinedDictionary(boardMarkersOptions.markerDictionaryID),
+    detectionOptions.detectorParameters}
+{}
+
+std::vector<std::vector<cv::Point3f>> tracker::BoardDetector::getBoardMarkersPoints(
+  const options::BoardMarkers& boardMarkersOptions)
 {
   std::vector<cv::Point3f> markerObjPoints {
-    cv::Point3f(-boardOptions.markerSideMeters/2.f,
-                 boardOptions.markerSideMeters/2.f,
-                 0),
+    cv::Point3f(
+      -boardMarkersOptions.markerSideMeters/2.f,
+      boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(boardOptions.markerSideMeters/2.f,
-                boardOptions.markerSideMeters/2.f,
-                0),
+    cv::Point3f(
+      boardMarkersOptions.markerSideMeters/2.f,
+      boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(boardOptions.markerSideMeters/2.f,
-                -boardOptions.markerSideMeters/2.f,
-                0),
+    cv::Point3f(
+      boardMarkersOptions.markerSideMeters/2.f,
+      -boardMarkersOptions.markerSideMeters/2.f,
+      0),
 
-    cv::Point3f(-boardOptions.markerSideMeters/2.f,
-                -boardOptions.markerSideMeters/2.f,
-                0)
+    cv::Point3f(
+      -boardMarkersOptions.markerSideMeters/2.f,
+      -boardMarkersOptions.markerSideMeters/2.f,
+      0)
   };
 
-  auto translateMarkerObjpoints = [markerObjPoints]
-                                  (float xDisplacement, float yDisplacement)
+  auto translateMarkerObjpoints =
+    [markerObjPoints] (float xDisplacement, float yDisplacement)
   {
     std::vector<cv::Point3f> translatedPoints {};
 
@@ -37,178 +73,190 @@ void tracker::generateLineFollowerBoardPoints(
     return translatedPoints;
   };
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(0, boardOptions.markerSeperationMetersY));
+  return {
+    translateMarkerObjpoints(0, boardMarkersOptions.markerSeperationMetersY),
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(boardOptions.markerSeperationMetersX,
-                             boardOptions.markerSeperationMetersY));
+    translateMarkerObjpoints(
+      boardMarkersOptions.markerSeperationMetersX,
+      boardMarkersOptions.markerSeperationMetersY),
 
-  outputBoardPoints.push_back(
-    translateMarkerObjpoints(boardOptions.markerSeperationMetersX, 0));
-
-  outputBoardPoints.push_back(translateMarkerObjpoints(0, 0));
+    translateMarkerObjpoints(boardMarkersOptions.markerSeperationMetersX, 0),
+    translateMarkerObjpoints(0, 0)
+  };
 }
 
-void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
+bool tracker::BoardDetector::hasEnoughBoardIDs()
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  int foundMarkersCount {0};
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  for (const auto& boardMarkerID: _lineFollowerBoard.getIds()) {
+    auto foundMarkerID {
+      std::find(
+        _detectedMarkerIDs.begin(), _detectedMarkerIDs.end(), boardMarkerID)};
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
-  auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto cameraCalibrationNode {configFile["camera_calibration"]};
-
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(markerSideNode, options.markerSideMeters, 0.1);
-  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
-
-  // read camera calibration parameters
-  if (!cameraCalibrationNode.empty() && cameraCalibrationNode.isMap()) {
-    auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
-    auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
-
-    cv::read(cameraMatrixNode, options.camMatrix);
-    cv::read(distortionCoefficientNode, options.distCoeffs);
+    if (foundMarkerID != _detectedMarkerIDs.end())
+      foundMarkersCount++;
   }
+
+  if (foundMarkersCount < 3)
+    return false;
+
+  return true;
 }
 
-void tracker::readConfigFile(const std::string& filename, tracker::boardOptions& options)
+bool tracker::BoardDetector::detectBoard(const cv::Mat& frame)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  reset();
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  _boardDetector.detectMarkers(
+    frame, _detectedMarkerCorners, _detectedMarkerIDs, _rejectedMarkerCorners);
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-  auto boardParametersNode {configFile["board_markers"]};
+  _boardDetected = hasEnoughBoardIDs();
 
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  if (boardParametersNode.empty() || !boardParametersNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  auto markerSideMetersNode {boardParametersNode["marker_side_meters"]};
-  auto markerSeperationMetersXNode {boardParametersNode["marker_seperation_meters_x"]};
-  auto markerSeperationMetersYNode {boardParametersNode["marker_seperation_meters_y"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto markerIDsNode {boardParametersNode["marker_ids"]};
-
-  cv::read(markerSideMetersNode, options.markerSideMeters, 0.F);
-  cv::read(markerSeperationMetersXNode, options.markerSeperationMetersX, 0.F);
-  cv::read(markerSeperationMetersYNode, options.markerSeperationMetersY, 0.F);
-  cv::read(dictionaryIDNode, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
-  cv::read(markerIDsNode, options.markerIDs, {});
+  return _boardDetected;
 }
 
-void tracker::readConfigFile(const std::string& filename, tracker::calibrationOptions& options)
+void tracker::BoardDetector::visualize(cv::Mat& frame)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  cv::aruco::drawDetectedMarkers(frame, _detectedMarkerCorners, _detectedMarkerIDs);
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  if (!_boardPoseEstimated)
+    return;
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-  auto cameraCalibrationNode {configFile["camera_calibration"]};
-
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
-  auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto squareSideNode {cameraCalibrationNode["square_side_meters"]};
-  auto squaresQuantityXNode {cameraCalibrationNode["squares_quantity_x"]};
-  auto squaresQuantityYNode {cameraCalibrationNode["squares_quantity_y"]};
-
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(markerSideNode, options.markerSideMeters, 0.F);
-  cv::read(squareSideNode, options.squareSideMeters, 0.F);
-  cv::read(squaresQuantityXNode, options.squaresQuantityX, 0);
-  cv::read(squaresQuantityYNode, options.squaresQuantityY, 0);
-  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  cv::drawFrameAxes(
+    frame, _camMatrix, _distortionCoeffs, _boardRVec, _boardTVec,
+    _boardMarkerSide * 1.5f, 2);
 }
 
-std::stringstream tracker::createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension)
+bool tracker::BoardDetector::estimateBoardPose()
 {
-  std::stringstream filenameStream;
-  std::time_t t = std::time(nullptr);
-  std::tm tm = *std::localtime(&t);
-  filenameStream << filedir << prefix << "-"
-                 << std::put_time(&tm, "%Y%m%d-%H%M%S")
-                 << "." << extension;
+  if (!_boardDetected || !_canEstimatePose) {
+    _boardPoseEstimated = false;
+    return _boardPoseEstimated;
+  }
 
-  return filenameStream;
+  _lineFollowerBoard.matchImagePoints(
+    _detectedMarkerCorners, _detectedMarkerIDs, _boardObjPoints,
+    _boardImgPoints);
+
+  cv::solvePnP(
+    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _boardRVec,
+    _boardTVec);
+
+  _boardPoseEstimated = true;
+
+  return _boardPoseEstimated;
 }
 
-void tracker::writeConfigFile(
-  const std::string& filename,
-  const detectionOptions& detection_options,
-  const boardOptions& board_options,
-  const calibrationOptions& calibration_options,
-  const calibrationOutput& calibration_output)
+bool tracker::isNonZeroMatrix(const cv::Mat& matrix)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::WRITE);
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  cv::Mat zeroMatrix {cv::Mat::zeros(matrix.rows, matrix.cols, matrix.type())};
+  auto comparisonMatrix {matrix != zeroMatrix};
 
-  configFile.startWriteStruct("marker_detection", cv::FileNode::MAP);
-    configFile << "input_source_path" << detection_options.inputFilePath;
-    configFile << "camera_id" << detection_options.camID;
-    configFile << "marker_dictionary" << detection_options.arucoDictionaryID;
-    configFile << "marker_side_meters" << detection_options.markerSideMeters;
-  configFile.endWriteStruct();
-
-  configFile.startWriteStruct("board_markers", cv::FileNode::MAP);
-    configFile << "marker_side_meters" << board_options.markerSideMeters;
-    configFile << "marker_seperation_meters_x" << board_options.markerSeperationMetersX;
-    configFile << "marker_seperation_meters_y" << board_options.markerSeperationMetersY;
-    configFile << "marker_dictionary_id" << board_options.markerDictionaryID;
-    configFile << "marker_ids" << board_options.markerIDs;
-  configFile.endWriteStruct();
-
-  configFile.startWriteStruct("camera_calibration", cv::FileNode::MAP);
-    configFile << "squares_quantity_x" << calibration_options.squaresQuantityX;
-    configFile << "squares_quantity_y" << calibration_options.squaresQuantityY;
-    configFile << "square_side_meters" << calibration_options.squareSideMeters;
-    configFile << "camera_matrix" << calibration_output.cameraMatrix;
-    configFile << "distortion_coefficients" << calibration_output.distCoeffs;
-  configFile.endWriteStruct();
-
-  configFile.release();
+  return cv::countNonZero(comparisonMatrix);
 }
 
-void tracker::writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec)
+tracker::LineFollowerDetector::LineFollowerDetector(
+  const options::MarkerDetection& detectionOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
+  bool canEstimatePose
+)
+: _canEstimatePose {canEstimatePose},
+  _lineFollowerDetected {false},
+  _lineFollowerPoseEstimated {false},
+  _markerID {lineFollowerOptions.markerID},
+  _markerSide {lineFollowerOptions.markerSideMeters},
+  _detectedMarkerCornersIterator {_detectedMarkersCorners.begin()},
+  _lineFollowerTVec {0.0, 0.0, 0.0},
+  _lineFollowerRVec {0.0, 0.0, 0.0},
+  _camMatrix {detectionOptions.camMatrix},
+  _distortionCoeffs {detectionOptions.distCoeffs},
+
+  _lineFollowerDetector {
+    cv::aruco::getPredefinedDictionary(lineFollowerOptions.markerDictionaryID),
+    detectionOptions.detectorParameters},
+
+  _markerObjPoints {
+    cv::Vec3f(-_markerSide / 2.f, _markerSide / 2.f, 0),
+    cv::Vec3f(_markerSide / 2.f, _markerSide / 2.f, 0),
+    cv::Vec3f(_markerSide / 2.f, -_markerSide / 2.f, 0),
+    cv::Vec3f(-_markerSide / 2.f, -_markerSide / 2.f, 0)
+  }
+{}
+
+bool tracker::LineFollowerDetector::detectLineFollower(const cv::Mat& frame)
 {
-  csv_file << tvec[0] << ", " << tvec[1] << ", " << tvec[2] << ", "
-           << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << std::endl;
+  reset();
+
+  _lineFollowerDetector.detectMarkers(
+    frame, _detectedMarkersCorners, _detectedMarkerIDs, _rejectedMarkersCorners);
+
+  _lineFollowerDetected = hasCorrectID();
+
+  std::cout << "Detected IDs: ";
+  for (const auto& markerID: _detectedMarkerIDs)
+    std::cout << markerID << " ";
+  std::cout << '\n';
+
+  std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
+
+  return _lineFollowerDetected;
+}
+
+bool tracker::LineFollowerDetector::estimateLineFollowerPose()
+{
+  if (!_lineFollowerDetected || !_canEstimatePose) {
+    _lineFollowerPoseEstimated = false;
+    return _lineFollowerPoseEstimated;
+  }
+
+  std::cout << "Marker corners: ";
+  for (const auto& corner: *_detectedMarkerCornersIterator)
+    std::cout << " " << corner.x << ", " << corner.y << " ";
+  std::cout << '\n';
+
+  cv::solvePnP(
+    _markerObjPoints, *_detectedMarkerCornersIterator, _camMatrix,
+    _distortionCoeffs, _lineFollowerRVec, _lineFollowerTVec);
+
+  _lineFollowerPoseEstimated = true;
+  return _lineFollowerPoseEstimated;
+}
+
+void tracker::LineFollowerDetector::visualize(cv::Mat& frame)
+{
+  cv::aruco::drawDetectedMarkers(frame, _detectedMarkersCorners, _detectedMarkerIDs);
+
+  if (!_lineFollowerPoseEstimated)
+    return;
+
+  cv::drawFrameAxes(
+    frame, _camMatrix, _distortionCoeffs, _lineFollowerRVec, _lineFollowerTVec,
+    _markerSide * 1.5f, 2);
+}
+
+bool tracker::LineFollowerDetector::hasCorrectID()
+{
+  auto foundID {
+    std::find(_detectedMarkerIDs.begin(), _detectedMarkerIDs.end(), _markerID)};
+
+  if (foundID == _detectedMarkerIDs.end()) {
+    _lineFollowerDetected = false;
+    return _lineFollowerDetected;
+  }
+
+  auto index = foundID - _detectedMarkerIDs.begin();
+  std::cout << "Index: " << index << '\n';
+  _detectedMarkerCornersIterator = _detectedMarkersCorners.begin() + index;
+
+  _lineFollowerDetected = true;
+  return _lineFollowerDetected;
 }
 
 void tracker::trackLineFollower(
-  const tracker::detectionOptions& detectionOptions,
-  const boardOptions& boardOptions,
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName)
 {
   bool hasOutputFile {outputFileName != "none"};
@@ -221,15 +269,26 @@ void tracker::trackLineFollower(
   }
   else {
     std::cout << "No output directory given, poses will not be recorded."
-              << std::endl;
+              << '\n';
   }
+
+  bool estimatePose {false};
+
+  if (tracker::isNonZeroMatrix(detectionOptions.camMatrix)
+      && tracker::isNonZeroMatrix(detectionOptions.distCoeffs)) {
+
+    std::cout << "Marker pose estimation is active" << '\n';
+    estimatePose = true;
+  }
+
+  std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << '\n';
 
   cv::VideoCapture inputVideo;
   int waitTime;
 
   if(detectionOptions.inputFilePath != "none") {
     inputVideo.open(detectionOptions.inputFilePath);
-    std::cout << "Using input source file instead of camera stream" << std::endl;
+    std::cout << "Using input source file instead of camera stream" << '\n';
     waitTime = 0;
   }
   else {
@@ -240,102 +299,34 @@ void tracker::trackLineFollower(
     waitTime = 10;
   }
 
-  bool estimatePose {false};
+  tracker::BoardDetector lineFollowerBoardDetector {
+    detectionOptions, boardMarkersOptions, estimatePose};
 
-  cv::Mat zero_cam_matrix {
-    cv::Mat::zeros(
-      detectionOptions.camMatrix.rows,
-      detectionOptions.camMatrix.cols,
-      detectionOptions.camMatrix.type()
-    )
-  };
-  cv::Mat cam_matrix_comp {detectionOptions.camMatrix != zero_cam_matrix};
+  tracker::LineFollowerDetector lineFollowerDetector {
+    detectionOptions, lineFollowerOptions, estimatePose};
 
-  cv::Mat zero_dist_coeff {
-    cv::Mat::zeros(
-      detectionOptions.distCoeffs.rows,
-      detectionOptions.distCoeffs.cols,
-      detectionOptions.camMatrix.type()
-    )
-  };
-  cv::Mat dist_coeff_comp {detectionOptions.distCoeffs != zero_dist_coeff};
-
-  if (cv::countNonZero(cam_matrix_comp) && cv::countNonZero(dist_coeff_comp)) {
-    std::cout << "Marker pose estimation is active" << std::endl;
-    estimatePose = true;
-  }
-
-  double totalTime = 0;
-  int totalIterations = 0;
-
-  auto arucoDictionary {cv::aruco::getPredefinedDictionary(detectionOptions.arucoDictionaryID)};
-
-  std::vector<std::vector<cv::Point3f>> lineFollowerBoardPoints {};
-  tracker::generateLineFollowerBoardPoints(
-    boardOptions, lineFollowerBoardPoints);
-
-  cv::aruco::Board lineFollowerBoard(
-    lineFollowerBoardPoints, arucoDictionary, boardOptions.markerIDs);
-
-  cv::aruco::ArucoDetector detector(arucoDictionary, detectionOptions.detectorParameters);
-
-  std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << std::endl;
-
+  cv::Mat frame;
   while(inputVideo.grab()) {
-    cv::Mat image, imageCopy;
-    inputVideo.retrieve(image);
+    inputVideo.retrieve(frame);
 
     double tick = (double)cv::getTickCount();
 
-    std::vector<int> ids {};
-    std::vector<std::vector<cv::Point2f>> corners, rejected;
+    lineFollowerBoardDetector.detectBoard(frame);
+    lineFollowerBoardDetector.estimateBoardPose();
 
-    // TODO: Make the board detection robust.
-    // detect markers and estimate pose
-    detector.detectMarkers(image, corners, ids, rejected);
+    lineFollowerDetector.detectLineFollower(frame);
+    lineFollowerDetector.estimateLineFollowerPose();
 
-    cv::Vec3d tvec, rvec;
+    lineFollowerBoardDetector.visualize(frame);
+    lineFollowerDetector.visualize(frame);
 
-    // TODO: Board pose should be estimated only after it's properly detected.
-    if(estimatePose && !ids.empty()) {
-      cv::Mat objPoints, imgPoints;
-      lineFollowerBoard.matchImagePoints(corners, ids, objPoints, imgPoints);
-      cv::solvePnP(objPoints, imgPoints, detectionOptions.camMatrix,
-                   detectionOptions.distCoeffs, rvec, tvec);
-
-      // Record the poses if there's an output file
-      // if (hasOutputFile)
-        // tracker::writePoseToCSV(posesOutputFile, tvec, rvec);
-    }
-
-    double currentTime = ((double)cv::getTickCount() - tick) / cv::getTickFrequency();
-    totalTime += currentTime;
-    totalIterations++;
-    if(totalIterations % 30 == 0) {
-      std::cout << "Detection Time = " << currentTime * 1000 << " ms "
-        << "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << std::endl;
-    }
-
-    // draw results
-    image.copyTo(imageCopy);
-    if(!ids.empty()) {
-      cv::aruco::drawDetectedMarkers(imageCopy, corners, ids);
-
-      if(estimatePose && !ids.empty()) {
-        cv::drawFrameAxes(imageCopy, detectionOptions.camMatrix, detectionOptions.distCoeffs, rvec, tvec, boardOptions.markerSideMeters * 1.5f, 2);
-      }
-    }
-
-    if(detectionOptions.showRejectedMarkers == true && !rejected.empty())
-      cv::aruco::drawDetectedMarkers(imageCopy, rejected, cv::noArray(), cv::Scalar(100, 0, 255));
-
-    cv::imshow("out", imageCopy);
+    cv::imshow("out", frame);
     char key = (char)cv::waitKey(waitTime);
     if(key == 27) break;
   }
 }
 
-void tracker::calibrateCamera(const tracker::calibrationOptions& options, const tracker::calibrationOutput& output)
+void tracker::calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output)
 {
   bool showChessboardCorners {true};
   int calibrationFlags {0};
@@ -346,7 +337,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
 
   if(options.inputFilePath != "none") {
     inputVideo.open(options.inputFilePath);
-    std::cout << "Using input source file instead of camera stream" << std::endl;
+    std::cout << "Using input source file instead of camera stream" << '\n';
     waitTime = 0;
   }
   else {
@@ -357,7 +348,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
     waitTime = 10;
   }
 
-  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.arucoDictionaryID)};
+  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.markerDictionaryID)};
   cv::aruco::CharucoBoard board(
     cv::Size(options.squaresQuantityX, options.squaresQuantityY),
     options.squareSideMeters,
@@ -418,11 +409,11 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
       board.matchImagePoints(currentCharucoCorners, currentCharucoIds, currentObjectPoints, currentImagePoints);
 
       if(currentImagePoints.empty() || currentObjectPoints.empty()) {
-        std::cout << "Point matching failed, try again." << std::endl;
+        std::cout << "Point matching failed, try again." << '\n';
         continue;
       }
 
-      std::cout << "Frame captured" << std::endl;
+      std::cout << "Frame captured" << '\n';
 
       allCharucoCorners.push_back(currentCharucoCorners);
       allCharucoIds.push_back(currentCharucoIds);
@@ -435,7 +426,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
   }
 
   if(allCharucoCorners.size() < 4) {
-    std::cerr << "Not enough corners for calibration" << std::endl;
+    std::cerr << "Not enough corners for calibration" << '\n';
     return;
   }
 

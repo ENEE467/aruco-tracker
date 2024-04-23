@@ -11,6 +11,7 @@ add_compile_options(-lopencv_calib3d)
 add_compile_options(-lopencv_aruco)
 
 add_executable(line-follower-tracker
+  src/fileio.cpp
   src/tracker.cpp
   src/main.cpp)
 

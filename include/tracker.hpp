@@ -38,123 +38,151 @@ the use of this software, even if advised of the possibility of such damage.
 
 #pragma once
 
-#include <iostream>
-#include <fstream>
-#include <ctime>
+// #include <iostream>
+// #include <fstream>
+// #include <ctime>
 
-#include <opencv2/highgui.hpp>
-#include <opencv2/aruco.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/objdetect/aruco_detector.hpp>
-#include <opencv2/objdetect.hpp>
-#include <opencv2/calib3d.hpp>
+// #include <opencv2/highgui.hpp>
+// #include <opencv2/aruco.hpp>
+// #include <opencv2/imgproc.hpp>
+// #include <opencv2/objdetect/aruco_detector.hpp>
+// #include <opencv2/objdetect.hpp>
+// #include <opencv2/calib3d.hpp>
+
+#include "options.hpp"
 
 namespace tracker {
 
-struct detectionOptions {
-  detectionOptions()
-  : camID {0},
-    inputFilePath {"none"},
-    markerSideMeters {0},
-    showRejectedMarkers {false},
-    detectorParameters {cv::aruco::DetectorParameters()},
-    arucoDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
-    {}
+class BoardDetector {
 
-  int camID;
-  cv::String inputFilePath;
-  cv::Mat camMatrix;
-  cv::Mat distCoeffs;
-  float markerSideMeters;
-  bool showRejectedMarkers;
-  cv::aruco::DetectorParameters detectorParameters;
-  int arucoDictionaryID;
+public:
+  BoardDetector(
+    const options::MarkerDetection& detectionOptions,
+    const options::BoardMarkers& boardMarkersOptions,
+    bool canEstimatePose = false);
+
+  bool detectBoard(const cv::Mat& frame);
+  bool estimateBoardPose();
+  void visualize(cv::Mat& frame);
+
+  std::pair<cv::Vec3d, cv::Vec3d> getBoardPose() const
+  {
+    return {_boardRVec, _boardTVec};
+  }
+  const cv::Vec3d& getRVec() const {return _boardRVec;}
+  const cv::Vec3d& getTVec() const {return _boardTVec;}
+
+private:
+  void reset()
+  {
+    _detectedMarkerCorners.clear();
+    _detectedMarkerIDs.clear();
+    _rejectedMarkerCorners.clear();
+    _boardDetected = false;
+    _boardPoseEstimated = false;
+    _boardTVec = {0.0, 0.0, 0.0};
+    _boardRVec = {0.0, 0.0, 0.0};
+  }
+
+  std::vector<std::vector<cv::Point3f>> getBoardMarkersPoints(
+    const options::BoardMarkers& boardMarkersOptions);
+
+  bool hasEnoughBoardIDs();
+
+  bool _canEstimatePose;
+  bool _boardDetected;
+  bool _boardPoseEstimated;
+  float _boardMarkerSide;
+
+  cv::Vec3d _boardTVec;
+  cv::Vec3d _boardRVec;
+
+  cv::Mat _camMatrix;
+  cv::Mat _distortionCoeffs;
+
+  cv::aruco::Board _lineFollowerBoard;
+  cv::aruco::ArucoDetector _boardDetector;
+
+  std::vector<int> _detectedMarkerIDs;
+  std::vector<std::vector<cv::Point2f>> _detectedMarkerCorners;
+  std::vector<std::vector<cv::Point2f>> _rejectedMarkerCorners;
+  cv::Mat _boardObjPoints;
+  cv::Mat _boardImgPoints;
+
 };
 
-struct boardOptions {
-  boardOptions()
-  : markerSideMeters {0},
-    markerSeperationMetersX {0},
-    markerSeperationMetersY {0},
-    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL},
-    markerIDs {}
-  {}
+class LineFollowerDetector {
 
-  float markerSideMeters;
-  float markerSeperationMetersX;
-  float markerSeperationMetersY;
-  int markerDictionaryID;
-  std::vector<int> markerIDs;
+public:
+  LineFollowerDetector(
+    const options::MarkerDetection& detectionOptions,
+    const options::LineFollowerMarker& lineFollowerOptions,
+    bool canEstimatePose = false);
+
+  bool detectLineFollower(const cv::Mat& frame);
+  bool estimateLineFollowerPose();
+  void visualize(cv::Mat& frame);
+
+  std::pair<cv::Vec3d, cv::Vec3d> getLineFollowerPose() const
+  {
+    return {_lineFollowerRVec, _lineFollowerTVec};
+  }
+  const cv::Vec3d& getRVec() const {return _lineFollowerRVec;}
+  const cv::Vec3d& getTVec() const {return _lineFollowerTVec;}
+
+private:
+  void reset()
+  {
+    _detectedMarkerCornersIterator = _detectedMarkersCorners.begin();
+    _detectedMarkersCorners.clear();
+    _detectedMarkerIDs.clear();
+    _rejectedMarkersCorners.clear();
+    _lineFollowerDetected = false;
+    _lineFollowerPoseEstimated = false;
+    _lineFollowerTVec = {0.0, 0.0, 0.0};
+    _lineFollowerRVec = {0.0, 0.0, 0.0};
+  }
+
+  bool hasCorrectID();
+
+  bool _canEstimatePose;
+  bool _lineFollowerDetected;
+  bool _lineFollowerPoseEstimated;
+  int _markerID;
+  float _markerSide;
+  std::vector<std::vector<cv::Point2f>>::iterator _detectedMarkerCornersIterator;
+
+  cv::Vec3d _lineFollowerTVec;
+  cv::Vec3d _lineFollowerRVec;
+
+  cv::Mat _camMatrix;
+  cv::Mat _distortionCoeffs;
+
+  cv::aruco::ArucoDetector _lineFollowerDetector;
+
+  std::vector<cv::Vec3f> _markerObjPoints;
+  // cv::Mat _markerImgPoints;
+  std::vector<int> _detectedMarkerIDs;
+  std::vector<std::vector<cv::Point2f>> _detectedMarkersCorners;
+  std::vector<std::vector<cv::Point2f>> _rejectedMarkersCorners;
+
 };
 
-struct calibrationOptions {
-  calibrationOptions()
-  : camID {0},
-    inputFilePath {"none"},
-    markerSideMeters {0},
-    squareSideMeters {0},
-    squaresQuantityX {0},
-    squaresQuantityY {0},
-    arucoDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
-    {}
+// void generateLineFollowerBoardPoints(
+//   const options::BoardMarkers& boardMarkersOptions,
+//   std::vector<std::vector<cv::Point3f>>& outputBoardObjPoints);
 
-  int camID;
-  cv::String inputFilePath;
-  float markerSideMeters;
-  float squareSideMeters;
-  int squaresQuantityX;
-  int squaresQuantityY;
-  int arucoDictionaryID;
-};
-
-struct calibrationOutput {
-  calibrationOutput()
-  : cameraMatrix {cv::Mat::zeros(cv::Size(3, 3), CV_32F)},
-    distCoeffs {cv::Mat::zeros(cv::Size(5, 1), CV_32F)}
-    {}
-
-  cv::Mat cameraMatrix;
-  cv::Mat distCoeffs;
-};
-
-// TODO: Define error codes and implement error handling
-enum class Error {
-  CANNOT_OPEN_FILE = 401,
-  INCOMPLETE_INFORMATION = 402
-};
-
-void generateLineFollowerBoardPoints(
-  const boardOptions& board_options,
-  std::vector<std::vector<cv::Point3f>>& output_board_obj_points);
-
-void readConfigFile(const std::string& filename, detectionOptions& options);
-void readConfigFile(const std::string& filename, boardOptions& options);
-void readConfigFile(const std::string& filename, calibrationOptions& options);
-
-void writeConfigFile(
-  const std::string& filename,
-  const detectionOptions& detection_options,
-  const boardOptions& board_options,
-  const calibrationOptions& calibration_options,
-  const calibrationOutput& calibration_output);
-
-void writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec);
-
-std::stringstream createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension);
-
-// TODO: Implement a method to detect just the board
-//       Maybe would have to separate board and line follower detection...
+bool isNonZeroMatrix(const cv::Mat& matrix);
 
 void trackLineFollower(
-  const detectionOptions& detectionOptions,
-  const boardOptions& boardOptions,
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName = "none");
 
-void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
+// bool hasEnoughBoardIDs(
+//   const std::vector<int>& detected_ids,
+//   const std::vector<int>& board_ids);
+
+void calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output);
 }
