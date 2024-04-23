@@ -146,9 +146,10 @@ std::stringstream createTimeStampedFileName(
 bool isNonZeroMatrix(const cv::Mat& matrix);
 
 void trackLineFollower(
-  const detectionOptions& detectionOptions,
-  const boardOptions& boardOptions,
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName = "none");
 
-void calibrateCamera(const calibrationOptions& options, const calibrationOutput& output);
+void calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output);
 }
