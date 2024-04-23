@@ -143,7 +143,6 @@ private:
     _lineFollowerRVec = {0.0, 0.0, 0.0};
   }
 
-
   bool hasCorrectID();
 
   bool _canEstimatePose;
