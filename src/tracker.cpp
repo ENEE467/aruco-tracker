@@ -234,6 +234,23 @@ void tracker::LineFollowerDetector::visualize(cv::Mat& frame)
     frame, _camMatrix, _distortionCoeffs, _lineFollowerRVec, _lineFollowerTVec,
     _markerSide * 1.5f, 2);
 }
+
+bool tracker::LineFollowerDetector::hasCorrectID()
+{
+  auto foundID {
+    std::find(_detectedMarkerIDs.begin(), _detectedMarkerIDs.end(), _markerID)};
+
+  if (foundID == _detectedMarkerIDs.end()) {
+    _lineFollowerDetected = false;
+    return _lineFollowerDetected;
+  }
+
+  auto index = foundID - _detectedMarkerIDs.begin();
+  std::cout << "Index: " << index << '\n';
+  _detectedMarkerCornersIterator = _detectedMarkersCorners.begin() + index;
+
+  _lineFollowerDetected = true;
+  return _lineFollowerDetected;
 }
 
 void tracker::trackLineFollower(
