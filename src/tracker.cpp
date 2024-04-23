@@ -85,40 +85,24 @@ std::vector<std::vector<cv::Point3f>> tracker::BoardDetector::getBoardMarkersPoi
   };
 }
 
-void tracker::readConfigFile(const std::string& filename, tracker::detectionOptions& options)
+bool tracker::BoardDetector::hasEnoughBoardIDs()
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  int foundMarkersCount {0};
 
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  for (const auto& boardMarkerID: _lineFollowerBoard.getIds()) {
+    auto foundMarkerID {
+      std::find(
+        _detectedMarkerIDs.begin(), _detectedMarkerIDs.end(), boardMarkerID)};
 
-  auto markerDetectionNode {configFile["marker_detection"]};
-
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
-  auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
-  auto markerSideNode {markerDetectionNode["marker_side_meters"]};
-  auto dictionaryIDNode {markerDetectionNode["marker_dictionary"]};
-  auto cameraCalibrationNode {configFile["camera_calibration"]};
-
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(markerSideNode, options.markerSideMeters, 0.1);
-  cv::read(dictionaryIDNode, options.arucoDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
-
-  // read camera calibration parameters
-  if (!cameraCalibrationNode.empty() && cameraCalibrationNode.isMap()) {
-    auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
-    auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
-
-    cv::read(cameraMatrixNode, options.camMatrix);
-    cv::read(distortionCoefficientNode, options.distCoeffs);
+    if (foundMarkerID != _detectedMarkerIDs.end())
+      foundMarkersCount++;
   }
-}
 
-void tracker::readConfigFile(const std::string& filename, tracker::boardOptions& options)
+  if (foundMarkersCount < 3)
+    return false;
+
+  return true;
+}
 {
   cv::FileStorage configFile(filename, cv::FileStorage::READ);
 
