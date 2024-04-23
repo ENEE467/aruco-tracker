@@ -155,15 +155,34 @@ bool tracker::isNonZeroMatrix(const cv::Mat& matrix)
 
   return cv::countNonZero(comparisonMatrix);
 }
-}
 
-void tracker::writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec)
-{
-  csv_file << tvec[0] << ", " << tvec[1] << ", " << tvec[2] << ", "
-           << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << std::endl;
+tracker::LineFollowerDetector::LineFollowerDetector(
+  const options::MarkerDetection& detectionOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
+  bool canEstimatePose
+)
+: _canEstimatePose {canEstimatePose},
+  _lineFollowerDetected {false},
+  _lineFollowerPoseEstimated {false},
+  _markerID {lineFollowerOptions.markerID},
+  _markerSide {lineFollowerOptions.markerSideMeters},
+  _detectedMarkerCornersIterator {_detectedMarkersCorners.begin()},
+  _lineFollowerTVec {0.0, 0.0, 0.0},
+  _lineFollowerRVec {0.0, 0.0, 0.0},
+  _camMatrix {detectionOptions.camMatrix},
+  _distortionCoeffs {detectionOptions.distCoeffs},
+
+  _lineFollowerDetector {
+    cv::aruco::getPredefinedDictionary(lineFollowerOptions.markerDictionaryID),
+    detectionOptions.detectorParameters},
+
+  _markerObjPoints {
+    cv::Vec3f(-_markerSide / 2.f, _markerSide / 2.f, 0),
+    cv::Vec3f(_markerSide / 2.f, _markerSide / 2.f, 0),
+    cv::Vec3f(_markerSide / 2.f, -_markerSide / 2.f, 0),
+    cv::Vec3f(-_markerSide / 2.f, -_markerSide / 2.f, 0)
+  }
+{}
 }
 
 void tracker::trackLineFollower(
