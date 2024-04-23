@@ -47,41 +47,45 @@ int main(int argc, char *argv[]) {
   }
 
   // TODO: Finish this.
-  tracker::boardOptions boardOptions{};
-  tracker::detectionOptions detectionOptions {};
-  tracker::calibrationOptions calibrationOptions {};
-  tracker::calibrationOutput calibrationOutput {};
+  options::MarkerDetection detectionOptions {};
+  options::LineFollowerMarker lineFollowerMarkerOptions {};
+  options::BoardMarkers boardMarkersOptions{};
+  options::Calibration calibrationOptions {};
+  options::CalibrationOutput calibrationOutput {};
 
   if (!calibrationMode) {
     auto fileName {parser.get<std::string>("config")};
-    tracker::readConfigFile(fileName, detectionOptions);
-    tracker::readConfigFile(fileName, boardOptions);
+    fileio::readConfigFile(fileName, detectionOptions);
+    fileio::readConfigFile(fileName, lineFollowerMarkerOptions);
+    fileio::readConfigFile(fileName, boardMarkersOptions);
 
     if (hasOutputDir) {
       auto outputDir {parser.get<std::string>("output")};
-      auto fileName {tracker::createTimeStampedFileName(outputDir, "run", "csv")};
-      tracker::trackLineFollower(detectionOptions, boardOptions, fileName.str());
+      auto fileName {fileio::createTimeStampedFileName(outputDir, "run", "csv")};
+      tracker::trackLineFollower(
+        detectionOptions, boardMarkersOptions, lineFollowerMarkerOptions, fileName.str());
     }
     else {
-      tracker::trackLineFollower(detectionOptions, boardOptions);
+      tracker::trackLineFollower(
+        detectionOptions, boardMarkersOptions, lineFollowerMarkerOptions);
     }
   }
   else {
     if (hasConfigFile) {
       auto fileName {parser.get<std::string>("config")};
-      tracker::readConfigFile(fileName, detectionOptions);
-      tracker::readConfigFile(fileName, boardOptions);
-      tracker::readConfigFile(fileName, calibrationOptions);
+      fileio::readConfigFile(fileName, detectionOptions);
+      fileio::readConfigFile(fileName, boardMarkersOptions);
+      fileio::readConfigFile(fileName, calibrationOptions);
       tracker::calibrateCamera(calibrationOptions, calibrationOutput);
 
       if (hasOutputDir) {
         auto outputDir {parser.get<std::string>("output")};
-        auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
-        tracker::writeConfigFile(fileNameStream.str(), detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
+        auto fileNameStream {fileio::createTimeStampedFileName(outputDir, "config", "yaml")};
+        fileio::writeConfigFile(fileNameStream.str(), detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
       }
       else {
         std::remove(fileName.c_str());
-        tracker::writeConfigFile(fileName, detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
+        fileio::writeConfigFile(fileName, detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
       }
 
       return 0;
@@ -90,9 +94,9 @@ int main(int argc, char *argv[]) {
       std::cout << "Creating a new config file in the output directory..." << std::endl;
       auto outputDir {parser.get<std::string>("output")};
 
-      auto fileNameStream {tracker::createTimeStampedFileName(outputDir, "config", "yaml")};
+      auto fileNameStream {fileio::createTimeStampedFileName(outputDir, "config", "yaml")};
 
-      tracker::writeConfigFile(fileNameStream.str(), detectionOptions, boardOptions, calibrationOptions, calibrationOutput);
+      fileio::writeConfigFile(fileNameStream.str(), detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
       std::cout << "Config file created: " << fileNameStream.str() << std::endl;
 
       return 0;
