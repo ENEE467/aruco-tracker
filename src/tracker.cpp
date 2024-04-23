@@ -148,44 +148,13 @@ bool tracker::BoardDetector::estimateBoardPose()
   return _boardPoseEstimated;
 }
 
-  return filenameStream;
-}
-
-void tracker::writeConfigFile(
-  const std::string& filename,
-  const detectionOptions& detection_options,
-  const boardOptions& board_options,
-  const calibrationOptions& calibration_options,
-  const calibrationOutput& calibration_output)
+bool tracker::isNonZeroMatrix(const cv::Mat& matrix)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::WRITE);
-  if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+  cv::Mat zeroMatrix {cv::Mat::zeros(matrix.rows, matrix.cols, matrix.type())};
+  auto comparisonMatrix {matrix != zeroMatrix};
 
-  configFile.startWriteStruct("marker_detection", cv::FileNode::MAP);
-    configFile << "input_source_path" << detection_options.inputFilePath;
-    configFile << "camera_id" << detection_options.camID;
-    configFile << "marker_dictionary" << detection_options.arucoDictionaryID;
-    configFile << "marker_side_meters" << detection_options.markerSideMeters;
-  configFile.endWriteStruct();
-
-  configFile.startWriteStruct("board_markers", cv::FileNode::MAP);
-    configFile << "marker_side_meters" << board_options.markerSideMeters;
-    configFile << "marker_seperation_meters_x" << board_options.markerSeperationMetersX;
-    configFile << "marker_seperation_meters_y" << board_options.markerSeperationMetersY;
-    configFile << "marker_dictionary_id" << board_options.markerDictionaryID;
-    configFile << "marker_ids" << board_options.markerIDs;
-  configFile.endWriteStruct();
-
-  configFile.startWriteStruct("camera_calibration", cv::FileNode::MAP);
-    configFile << "squares_quantity_x" << calibration_options.squaresQuantityX;
-    configFile << "squares_quantity_y" << calibration_options.squaresQuantityY;
-    configFile << "square_side_meters" << calibration_options.squareSideMeters;
-    configFile << "camera_matrix" << calibration_output.cameraMatrix;
-    configFile << "distortion_coefficients" << calibration_output.distCoeffs;
-  configFile.endWriteStruct();
-
-  configFile.release();
+  return cv::countNonZero(comparisonMatrix);
+}
 }
 
 void tracker::writePoseToCSV(
