@@ -12,9 +12,28 @@
 #include "fileio.hpp"
 #include "tracker.hpp"
 
-void tracker::generateLineFollowerBoardPoints(
-  const boardOptions& boardOptions,
-  std::vector<std::vector<cv::Point3f>>& outputBoardPoints)
+tracker::BoardDetector::BoardDetector(
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  bool canEstimatePose)
+: _canEstimatePose {canEstimatePose},
+  _boardDetected {false},
+  _boardPoseEstimated {false},
+  _boardMarkerSide {boardMarkersOptions.markerSideMeters},
+  _boardTVec {0.0, 0.0, 0.0},
+  _boardRVec {0.0, 0.0, 0.0},
+  _camMatrix {detectionOptions.camMatrix},
+  _distortionCoeffs {detectionOptions.distCoeffs},
+
+  _lineFollowerBoard {
+    getBoardMarkersPoints(boardMarkersOptions),
+    cv::aruco::getPredefinedDictionary(boardMarkersOptions.markerDictionaryID),
+    boardMarkersOptions.markerIDs},
+
+  _boardDetector {
+    cv::aruco::getPredefinedDictionary(boardMarkersOptions.markerDictionaryID),
+    detectionOptions.detectorParameters}
+{}
 {
   std::vector<cv::Point3f> markerObjPoints {
     cv::Point3f(-boardOptions.markerSideMeters/2.f,
