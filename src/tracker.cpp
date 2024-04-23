@@ -202,6 +202,26 @@ bool tracker::LineFollowerDetector::detectLineFollower(const cv::Mat& frame)
 
   return _lineFollowerDetected;
 }
+
+bool tracker::LineFollowerDetector::estimateLineFollowerPose()
+{
+  if (!_lineFollowerDetected || !_canEstimatePose) {
+    _lineFollowerPoseEstimated = false;
+    return _lineFollowerPoseEstimated;
+  }
+
+  std::cout << "Marker corners: ";
+  for (const auto& corner: *_detectedMarkerCornersIterator)
+    std::cout << " " << corner.x << ", " << corner.y << " ";
+  std::cout << '\n';
+
+  cv::solvePnP(
+    _markerObjPoints, *_detectedMarkerCornersIterator, _camMatrix,
+    _distortionCoeffs, _lineFollowerRVec, _lineFollowerTVec);
+
+  _lineFollowerPoseEstimated = true;
+  return _lineFollowerPoseEstimated;
+}
 }
 
 void tracker::trackLineFollower(
