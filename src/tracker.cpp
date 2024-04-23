@@ -326,7 +326,7 @@ void tracker::trackLineFollower(
   }
 }
 
-void tracker::calibrateCamera(const tracker::calibrationOptions& options, const tracker::calibrationOutput& output)
+void tracker::calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output)
 {
   bool showChessboardCorners {true};
   int calibrationFlags {0};
@@ -337,7 +337,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
 
   if(options.inputFilePath != "none") {
     inputVideo.open(options.inputFilePath);
-    std::cout << "Using input source file instead of camera stream" << std::endl;
+    std::cout << "Using input source file instead of camera stream" << '\n';
     waitTime = 0;
   }
   else {
@@ -348,7 +348,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
     waitTime = 10;
   }
 
-  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.arucoDictionaryID)};
+  auto arucoDictionary {cv::aruco::getPredefinedDictionary(options.markerDictionaryID)};
   cv::aruco::CharucoBoard board(
     cv::Size(options.squaresQuantityX, options.squaresQuantityY),
     options.squareSideMeters,
@@ -409,11 +409,11 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
       board.matchImagePoints(currentCharucoCorners, currentCharucoIds, currentObjectPoints, currentImagePoints);
 
       if(currentImagePoints.empty() || currentObjectPoints.empty()) {
-        std::cout << "Point matching failed, try again." << std::endl;
+        std::cout << "Point matching failed, try again." << '\n';
         continue;
       }
 
-      std::cout << "Frame captured" << std::endl;
+      std::cout << "Frame captured" << '\n';
 
       allCharucoCorners.push_back(currentCharucoCorners);
       allCharucoIds.push_back(currentCharucoIds);
@@ -426,7 +426,7 @@ void tracker::calibrateCamera(const tracker::calibrationOptions& options, const 
   }
 
   if(allCharucoCorners.size() < 4) {
-    std::cerr << "Not enough corners for calibration" << std::endl;
+    std::cerr << "Not enough corners for calibration" << '\n';
     return;
   }
 
