@@ -143,8 +143,7 @@ std::stringstream createTimeStampedFileName(
   const std::string& prefix,
   const std::string& extension);
 
-// TODO: Implement a method to detect just the board
-//       Maybe would have to separate board and line follower detection...
+bool isNonZeroMatrix(const cv::Mat& matrix);
 
 void trackLineFollower(
   const detectionOptions& detectionOptions,
