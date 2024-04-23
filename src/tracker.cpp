@@ -254,8 +254,9 @@ bool tracker::LineFollowerDetector::hasCorrectID()
 }
 
 void tracker::trackLineFollower(
-  const tracker::detectionOptions& detectionOptions,
-  const boardOptions& boardOptions,
+  const options::MarkerDetection& detectionOptions,
+  const options::BoardMarkers& boardMarkersOptions,
+  const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName)
 {
   bool hasOutputFile {outputFileName != "none"};
@@ -268,15 +269,26 @@ void tracker::trackLineFollower(
   }
   else {
     std::cout << "No output directory given, poses will not be recorded."
-              << std::endl;
+              << '\n';
   }
+
+  bool estimatePose {false};
+
+  if (tracker::isNonZeroMatrix(detectionOptions.camMatrix)
+      && tracker::isNonZeroMatrix(detectionOptions.distCoeffs)) {
+
+    std::cout << "Marker pose estimation is active" << '\n';
+    estimatePose = true;
+  }
+
+  std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << '\n';
 
   cv::VideoCapture inputVideo;
   int waitTime;
 
   if(detectionOptions.inputFilePath != "none") {
     inputVideo.open(detectionOptions.inputFilePath);
-    std::cout << "Using input source file instead of camera stream" << std::endl;
+    std::cout << "Using input source file instead of camera stream" << '\n';
     waitTime = 0;
   }
   else {
@@ -287,96 +299,28 @@ void tracker::trackLineFollower(
     waitTime = 10;
   }
 
-  bool estimatePose {false};
+  tracker::BoardDetector lineFollowerBoardDetector {
+    detectionOptions, boardMarkersOptions, estimatePose};
 
-  cv::Mat zero_cam_matrix {
-    cv::Mat::zeros(
-      detectionOptions.camMatrix.rows,
-      detectionOptions.camMatrix.cols,
-      detectionOptions.camMatrix.type()
-    )
-  };
-  cv::Mat cam_matrix_comp {detectionOptions.camMatrix != zero_cam_matrix};
+  tracker::LineFollowerDetector lineFollowerDetector {
+    detectionOptions, lineFollowerOptions, estimatePose};
 
-  cv::Mat zero_dist_coeff {
-    cv::Mat::zeros(
-      detectionOptions.distCoeffs.rows,
-      detectionOptions.distCoeffs.cols,
-      detectionOptions.camMatrix.type()
-    )
-  };
-  cv::Mat dist_coeff_comp {detectionOptions.distCoeffs != zero_dist_coeff};
-
-  if (cv::countNonZero(cam_matrix_comp) && cv::countNonZero(dist_coeff_comp)) {
-    std::cout << "Marker pose estimation is active" << std::endl;
-    estimatePose = true;
-  }
-
-  double totalTime = 0;
-  int totalIterations = 0;
-
-  auto arucoDictionary {cv::aruco::getPredefinedDictionary(detectionOptions.arucoDictionaryID)};
-
-  std::vector<std::vector<cv::Point3f>> lineFollowerBoardPoints {};
-  tracker::generateLineFollowerBoardPoints(
-    boardOptions, lineFollowerBoardPoints);
-
-  cv::aruco::Board lineFollowerBoard(
-    lineFollowerBoardPoints, arucoDictionary, boardOptions.markerIDs);
-
-  cv::aruco::ArucoDetector detector(arucoDictionary, detectionOptions.detectorParameters);
-
-  std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << std::endl;
-
+  cv::Mat frame;
   while(inputVideo.grab()) {
-    cv::Mat image, imageCopy;
-    inputVideo.retrieve(image);
+    inputVideo.retrieve(frame);
 
     double tick = (double)cv::getTickCount();
 
-    std::vector<int> ids {};
-    std::vector<std::vector<cv::Point2f>> corners, rejected;
+    lineFollowerBoardDetector.detectBoard(frame);
+    lineFollowerBoardDetector.estimateBoardPose();
 
-    // TODO: Make the board detection robust.
-    // detect markers and estimate pose
-    detector.detectMarkers(image, corners, ids, rejected);
+    lineFollowerDetector.detectLineFollower(frame);
+    lineFollowerDetector.estimateLineFollowerPose();
 
-    cv::Vec3d tvec, rvec;
+    lineFollowerBoardDetector.visualize(frame);
+    lineFollowerDetector.visualize(frame);
 
-    // TODO: Board pose should be estimated only after it's properly detected.
-    if(estimatePose && !ids.empty()) {
-      cv::Mat objPoints, imgPoints;
-      lineFollowerBoard.matchImagePoints(corners, ids, objPoints, imgPoints);
-      cv::solvePnP(objPoints, imgPoints, detectionOptions.camMatrix,
-                   detectionOptions.distCoeffs, rvec, tvec);
-
-      // Record the poses if there's an output file
-      // if (hasOutputFile)
-        // tracker::writePoseToCSV(posesOutputFile, tvec, rvec);
-    }
-
-    double currentTime = ((double)cv::getTickCount() - tick) / cv::getTickFrequency();
-    totalTime += currentTime;
-    totalIterations++;
-    if(totalIterations % 30 == 0) {
-      std::cout << "Detection Time = " << currentTime * 1000 << " ms "
-        << "(Mean = " << 1000 * totalTime / double(totalIterations) << " ms)" << std::endl;
-    }
-
-    // draw results
-    image.copyTo(imageCopy);
-    if(!ids.empty()) {
-      cv::aruco::drawDetectedMarkers(imageCopy, corners, ids);
-
-      if(estimatePose && !ids.empty()) {
-        cv::drawFrameAxes(imageCopy, detectionOptions.camMatrix, detectionOptions.distCoeffs, rvec, tvec, boardOptions.markerSideMeters * 1.5f, 2);
-      }
-    }
-
-    if(detectionOptions.showRejectedMarkers == true && !rejected.empty())
-      cv::aruco::drawDetectedMarkers(imageCopy, rejected, cv::noArray(), cv::Scalar(100, 0, 255));
-
-    cv::imshow("out", imageCopy);
+    cv::imshow("out", frame);
     char key = (char)cv::waitKey(waitTime);
     if(key == 27) break;
   }
