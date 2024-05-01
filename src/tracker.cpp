@@ -344,7 +344,11 @@ void tracker::trackLineFollower(
     lineFollowerBoardDetector.estimateBoardPose();
 
     lineFollowerDetector.detectLineFollower(frame);
-    lineFollowerDetector.estimateLineFollowerPose();
+
+    if (lineFollowerDetector.estimateLineFollowerPose()) {
+      lineFollowerBoardDetector.estimateObjectRelativePose(
+        lineFollowerDetector.getTVec(), lineFollowerDetector.getRVec());
+    }
 
     lineFollowerBoardDetector.visualize(frame);
     lineFollowerDetector.visualize(frame);
