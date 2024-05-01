@@ -69,8 +69,11 @@ private:
     _rejectedMarkerCorners.clear();
     _boardDetected = false;
     _boardPoseEstimated = false;
-    _boardTVec = {0.0, 0.0, 0.0};
-    _boardRVec = {0.0, 0.0, 0.0};
+    _tVecBoardCamera = {0.0, 0.0, 0.0};
+    _rVecBoardCamera = {0.0, 0.0, 0.0};
+    _tVecObjectBoard = {0.0, 0.0, 0.0};
+    _rVecObjectBoard = {0.0, 0.0, 0.0};
+    _eulerAnglesObjectBoard = {0.0, 0.0, 0.0};
   }
 
   std::vector<std::vector<cv::Point3f>> getBoardMarkersPoints(
@@ -83,8 +86,14 @@ private:
   bool _boardPoseEstimated;
   float _boardMarkerSide;
 
-  cv::Vec3d _boardTVec;
-  cv::Vec3d _boardRVec;
+  std::pair<cv::Vec3d, cv::Vec3d> _poseBoardCamera;
+  cv::Vec3d& _tVecBoardCamera {_poseBoardCamera.first};
+  cv::Vec3d& _rVecBoardCamera {_poseBoardCamera.second};
+
+  std::pair<cv::Vec3d, cv::Vec3d> _poseObjectBoard;
+  cv::Vec3d& _tVecObjectBoard {_poseObjectBoard.first};
+  cv::Vec3d& _rVecObjectBoard {_poseObjectBoard.second};
+  cv::Vec3d _eulerAnglesObjectBoard;
 
   cv::Mat _camMatrix;
   cv::Mat _distortionCoeffs;

@@ -20,8 +20,9 @@ tracker::BoardDetector::BoardDetector(
   _boardDetected {false},
   _boardPoseEstimated {false},
   _boardMarkerSide {boardMarkersOptions.markerSideMeters},
-  _boardTVec {0.0, 0.0, 0.0},
-  _boardRVec {0.0, 0.0, 0.0},
+  _poseBoardCamera {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}},
+  _poseObjectBoard {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}},
+  _eulerAnglesObjectBoard {0.0, 0.0, 0.0},
   _camMatrix {detectionOptions.camMatrix},
   _distortionCoeffs {detectionOptions.distCoeffs},
 
