@@ -52,6 +52,10 @@ public:
 
   bool detectBoard(const cv::Mat& frame);
   bool estimateBoardPose();
+  bool estimateObjectRelativePose(
+    const cv::Vec3d& tVecObjectCamera,
+    const cv::Vec3d& rVecObjectCamera);
+
   void visualize(cv::Mat& frame);
 
   const std::pair<cv::Vec3d, cv::Vec3d>& getBoardPose() const
