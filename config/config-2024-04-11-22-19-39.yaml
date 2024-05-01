@@ -5,9 +5,9 @@ marker_detection:
    camera_id: 0
    show_rejected_markers: 0
 line_follower_marker:
-   marker_side_meters: 2.20e-02
-   marker_id: 5
-   marker_dictionary_id: 0
+   marker_side_meters: 5.00e-02
+   marker_id: 3
+   marker_dictionary_id: 21
 board_markers:
    marker_side_meters: 4.00e-02
    marker_seperation_meters_x: 17.40e-02
