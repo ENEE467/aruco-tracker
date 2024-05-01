@@ -1,0 +1,34 @@
+%YAML:1.0
+---
+marker_detection:
+   input_source_path: none
+   camera_id: 0
+   show_rejected_markers: 0
+line_follower_marker:
+   marker_side_meters: 5.0e-02
+   marker_id: 1
+   marker_dictionary_id: 21
+board_markers:
+   marker_side_meters: 5.0e-02
+   marker_seperation_meters_x: 14.70e-02
+   marker_seperation_meters_y: 8.65e-02
+   marker_ids: [ 0, 1, 2, 3 ]
+   marker_dictionary_id: 8
+camera_calibration:
+   marker_side_meters: 1.7999999225139618e-02
+   square_side_meters: 2.5000000372529030e-02
+   squares_quantity_x: 10
+   squares_quantity_y: 8
+   marker_dictionary_id: 11
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: f
+      data: [ 2.04584534e+02, 0., 2.64721497e+02, 0., 2.13043365e+02,
+          2.69035065e+02, 0., 0., 1. ]
+   distortion_coefficients: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: f
+      data: [ -9.69446599e-02, 2.76150357e-04, -1.90949477e-02,
+          1.52173266e-01, 1.26807345e-03 ]
