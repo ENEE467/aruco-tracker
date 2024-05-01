@@ -222,12 +222,12 @@ bool tracker::LineFollowerDetector::detectLineFollower(const cv::Mat& frame)
 
   _lineFollowerDetected = hasCorrectID();
 
-  std::cout << "Detected IDs: ";
-  for (const auto& markerID: _detectedMarkerIDs)
-    std::cout << markerID << " ";
-  std::cout << '\n';
+  // std::cout << "Detected IDs: ";
+  // for (const auto& markerID: _detectedMarkerIDs)
+  //   std::cout << markerID << " ";
+  // std::cout << '\n';
 
-  std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
+  // std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
 
   return _lineFollowerDetected;
 }
@@ -239,10 +239,10 @@ bool tracker::LineFollowerDetector::estimateLineFollowerPose()
     return _lineFollowerPoseEstimated;
   }
 
-  std::cout << "Marker corners: ";
-  for (const auto& corner: *_detectedMarkerCornersIterator)
-    std::cout << " " << corner.x << ", " << corner.y << " ";
-  std::cout << '\n';
+  // std::cout << "Marker corners: ";
+  // for (const auto& corner: *_detectedMarkerCornersIterator)
+  //   std::cout << " " << corner.x << ", " << corner.y << " ";
+  // std::cout << '\n';
 
   cv::solvePnP(
     _markerObjPoints, *_detectedMarkerCornersIterator, _camMatrix,
@@ -275,7 +275,7 @@ bool tracker::LineFollowerDetector::hasCorrectID()
   }
 
   auto index = foundID - _detectedMarkerIDs.begin();
-  std::cout << "Index: " << index << '\n';
+  // std::cout << "Index: " << index << '\n';
   _detectedMarkerCornersIterator = _detectedMarkersCorners.begin() + index;
 
   _lineFollowerDetected = true;
