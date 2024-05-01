@@ -38,17 +38,6 @@ the use of this software, even if advised of the possibility of such damage.
 
 #pragma once
 
-// #include <iostream>
-// #include <fstream>
-// #include <ctime>
-
-// #include <opencv2/highgui.hpp>
-// #include <opencv2/aruco.hpp>
-// #include <opencv2/imgproc.hpp>
-// #include <opencv2/objdetect/aruco_detector.hpp>
-// #include <opencv2/objdetect.hpp>
-// #include <opencv2/calib3d.hpp>
-
 #include "options.hpp"
 
 namespace tracker {
@@ -63,14 +52,16 @@ public:
 
   bool detectBoard(const cv::Mat& frame);
   bool estimateBoardPose();
+  bool estimateObjectRelativePose(
+    const cv::Vec3d& tVecObjectCamera,
+    const cv::Vec3d& rVecObjectCamera);
+
   void visualize(cv::Mat& frame);
 
-  std::pair<cv::Vec3d, cv::Vec3d> getBoardPose() const
+  const std::pair<cv::Vec3d, cv::Vec3d>& getBoardPose() const
   {
-    return {_boardRVec, _boardTVec};
+    return _poseBoardCamera;
   }
-  const cv::Vec3d& getRVec() const {return _boardRVec;}
-  const cv::Vec3d& getTVec() const {return _boardTVec;}
 
 private:
   void reset()
@@ -80,8 +71,11 @@ private:
     _rejectedMarkerCorners.clear();
     _boardDetected = false;
     _boardPoseEstimated = false;
-    _boardTVec = {0.0, 0.0, 0.0};
-    _boardRVec = {0.0, 0.0, 0.0};
+    _tVecBoardCamera = {0.0, 0.0, 0.0};
+    _rVecBoardCamera = {0.0, 0.0, 0.0};
+    _tVecObjectBoard = {0.0, 0.0, 0.0};
+    _rVecObjectBoard = {0.0, 0.0, 0.0};
+    _eulerAnglesObjectBoard = {0.0, 0.0, 0.0};
   }
 
   std::vector<std::vector<cv::Point3f>> getBoardMarkersPoints(
@@ -94,8 +88,14 @@ private:
   bool _boardPoseEstimated;
   float _boardMarkerSide;
 
-  cv::Vec3d _boardTVec;
-  cv::Vec3d _boardRVec;
+  std::pair<cv::Vec3d, cv::Vec3d> _poseBoardCamera;
+  cv::Vec3d& _tVecBoardCamera {_poseBoardCamera.first};
+  cv::Vec3d& _rVecBoardCamera {_poseBoardCamera.second};
+
+  std::pair<cv::Vec3d, cv::Vec3d> _poseObjectBoard;
+  cv::Vec3d& _tVecObjectBoard {_poseObjectBoard.first};
+  cv::Vec3d& _rVecObjectBoard {_poseObjectBoard.second};
+  cv::Vec3d _eulerAnglesObjectBoard;
 
   cv::Mat _camMatrix;
   cv::Mat _distortionCoeffs;
@@ -161,16 +161,11 @@ private:
   cv::aruco::ArucoDetector _lineFollowerDetector;
 
   std::vector<cv::Vec3f> _markerObjPoints;
-  // cv::Mat _markerImgPoints;
   std::vector<int> _detectedMarkerIDs;
   std::vector<std::vector<cv::Point2f>> _detectedMarkersCorners;
   std::vector<std::vector<cv::Point2f>> _rejectedMarkersCorners;
 
 };
-
-// void generateLineFollowerBoardPoints(
-//   const options::BoardMarkers& boardMarkersOptions,
-//   std::vector<std::vector<cv::Point3f>>& outputBoardObjPoints);
 
 bool isNonZeroMatrix(const cv::Mat& matrix);
 
@@ -179,10 +174,6 @@ void trackLineFollower(
   const options::BoardMarkers& boardMarkersOptions,
   const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName = "none");
-
-// bool hasEnoughBoardIDs(
-//   const std::vector<int>& detected_ids,
-//   const std::vector<int>& board_ids);
 
 void calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output);
 }

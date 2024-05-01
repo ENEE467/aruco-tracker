@@ -1,12 +1,16 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+
+#include <Eigen/Dense>
+
 #include <opencv2/highgui.hpp>
 #include <opencv2/aruco.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/objdetect/aruco_detector.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/calib3d.hpp>
+#include <opencv2/core/eigen.hpp>
 
 #include "errors.hpp"
 #include "fileio.hpp"
@@ -20,8 +24,9 @@ tracker::BoardDetector::BoardDetector(
   _boardDetected {false},
   _boardPoseEstimated {false},
   _boardMarkerSide {boardMarkersOptions.markerSideMeters},
-  _boardTVec {0.0, 0.0, 0.0},
-  _boardRVec {0.0, 0.0, 0.0},
+  _poseBoardCamera {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}},
+  _poseObjectBoard {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}},
+  _eulerAnglesObjectBoard {0.0, 0.0, 0.0},
   _camMatrix {detectionOptions.camMatrix},
   _distortionCoeffs {detectionOptions.distCoeffs},
 
@@ -124,7 +129,7 @@ void tracker::BoardDetector::visualize(cv::Mat& frame)
     return;
 
   cv::drawFrameAxes(
-    frame, _camMatrix, _distortionCoeffs, _boardRVec, _boardTVec,
+    frame, _camMatrix, _distortionCoeffs, _rVecBoardCamera, _tVecBoardCamera,
     _boardMarkerSide * 1.5f, 2);
 }
 
@@ -140,12 +145,36 @@ bool tracker::BoardDetector::estimateBoardPose()
     _boardImgPoints);
 
   cv::solvePnP(
-    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _boardRVec,
-    _boardTVec);
+    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _rVecBoardCamera,
+    _tVecBoardCamera);
 
   _boardPoseEstimated = true;
 
   return _boardPoseEstimated;
+}
+
+bool tracker::BoardDetector::estimateObjectRelativePose(
+  const cv::Vec3d& tVecObjectCamera,
+  const cv::Vec3d& rVecObjectCamera)
+{
+  if (!_boardPoseEstimated)
+    return false;
+
+  auto objectCameraFrame {cv::Affine3d(rVecObjectCamera, tVecObjectCamera)};
+  auto boardCameraFrame {cv::Affine3d(_rVecBoardCamera, _tVecBoardCamera)};
+
+  auto objectBoardFrame {boardCameraFrame * objectCameraFrame.inv()};
+  _tVecObjectBoard = objectBoardFrame.translation();
+  _rVecObjectBoard = objectBoardFrame.rvec();
+
+  Eigen::Matrix3d rotationMatrix;
+  cv::cv2eigen(objectBoardFrame.rotation(), rotationMatrix);
+
+  Eigen::Vector3d eulerAngles;
+  eulerAngles = rotationMatrix.eulerAngles(0, 1, 2);
+  _eulerAnglesObjectBoard = {eulerAngles(0), eulerAngles(1), eulerAngles(2)};
+
+  return true;
 }
 
 bool tracker::isNonZeroMatrix(const cv::Mat& matrix)
@@ -193,12 +222,12 @@ bool tracker::LineFollowerDetector::detectLineFollower(const cv::Mat& frame)
 
   _lineFollowerDetected = hasCorrectID();
 
-  std::cout << "Detected IDs: ";
-  for (const auto& markerID: _detectedMarkerIDs)
-    std::cout << markerID << " ";
-  std::cout << '\n';
+  // std::cout << "Detected IDs: ";
+  // for (const auto& markerID: _detectedMarkerIDs)
+  //   std::cout << markerID << " ";
+  // std::cout << '\n';
 
-  std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
+  // std::cout << "Line follower " << _markerID << " detected: " << _lineFollowerDetected << '\n';
 
   return _lineFollowerDetected;
 }
@@ -210,10 +239,10 @@ bool tracker::LineFollowerDetector::estimateLineFollowerPose()
     return _lineFollowerPoseEstimated;
   }
 
-  std::cout << "Marker corners: ";
-  for (const auto& corner: *_detectedMarkerCornersIterator)
-    std::cout << " " << corner.x << ", " << corner.y << " ";
-  std::cout << '\n';
+  // std::cout << "Marker corners: ";
+  // for (const auto& corner: *_detectedMarkerCornersIterator)
+  //   std::cout << " " << corner.x << ", " << corner.y << " ";
+  // std::cout << '\n';
 
   cv::solvePnP(
     _markerObjPoints, *_detectedMarkerCornersIterator, _camMatrix,
@@ -246,7 +275,7 @@ bool tracker::LineFollowerDetector::hasCorrectID()
   }
 
   auto index = foundID - _detectedMarkerIDs.begin();
-  std::cout << "Index: " << index << '\n';
+  // std::cout << "Index: " << index << '\n';
   _detectedMarkerCornersIterator = _detectedMarkersCorners.begin() + index;
 
   _lineFollowerDetected = true;
@@ -315,7 +344,11 @@ void tracker::trackLineFollower(
     lineFollowerBoardDetector.estimateBoardPose();
 
     lineFollowerDetector.detectLineFollower(frame);
-    lineFollowerDetector.estimateLineFollowerPose();
+
+    if (lineFollowerDetector.estimateLineFollowerPose()) {
+      lineFollowerBoardDetector.estimateObjectRelativePose(
+        lineFollowerDetector.getTVec(), lineFollowerDetector.getRVec());
+    }
 
     lineFollowerBoardDetector.visualize(frame);
     lineFollowerDetector.visualize(frame);
