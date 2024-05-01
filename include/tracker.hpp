@@ -54,12 +54,10 @@ public:
   bool estimateBoardPose();
   void visualize(cv::Mat& frame);
 
-  std::pair<cv::Vec3d, cv::Vec3d> getBoardPose() const
+  const std::pair<cv::Vec3d, cv::Vec3d>& getBoardPose() const
   {
-    return {_boardRVec, _boardTVec};
+    return _poseBoardCamera;
   }
-  const cv::Vec3d& getRVec() const {return _boardRVec;}
-  const cv::Vec3d& getTVec() const {return _boardTVec;}
 
 private:
   void reset()
