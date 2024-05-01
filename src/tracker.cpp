@@ -153,6 +153,30 @@ bool tracker::BoardDetector::estimateBoardPose()
   return _boardPoseEstimated;
 }
 
+bool tracker::BoardDetector::estimateObjectRelativePose(
+  const cv::Vec3d& tVecObjectCamera,
+  const cv::Vec3d& rVecObjectCamera)
+{
+  if (!_boardPoseEstimated)
+    return false;
+
+  auto objectCameraFrame {cv::Affine3d(rVecObjectCamera, tVecObjectCamera)};
+  auto boardCameraFrame {cv::Affine3d(_rVecBoardCamera, _tVecBoardCamera)};
+
+  auto objectBoardFrame {boardCameraFrame * objectCameraFrame.inv()};
+  _tVecObjectBoard = objectBoardFrame.translation();
+  _rVecObjectBoard = objectBoardFrame.rvec();
+
+  Eigen::Matrix3d rotationMatrix;
+  cv::cv2eigen(objectBoardFrame.rotation(), rotationMatrix);
+
+  Eigen::Vector3d eulerAngles;
+  eulerAngles = rotationMatrix.eulerAngles(0, 1, 2);
+  _eulerAnglesObjectBoard = {eulerAngles(0), eulerAngles(1), eulerAngles(2)};
+
+  return true;
+}
+
 bool tracker::isNonZeroMatrix(const cv::Mat& matrix)
 {
   cv::Mat zeroMatrix {cv::Mat::zeros(matrix.rows, matrix.cols, matrix.type())};
