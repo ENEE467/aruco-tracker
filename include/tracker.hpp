@@ -161,7 +161,6 @@ private:
   cv::aruco::ArucoDetector _lineFollowerDetector;
 
   std::vector<cv::Vec3f> _markerObjPoints;
-  // cv::Mat _markerImgPoints;
   std::vector<int> _detectedMarkerIDs;
   std::vector<std::vector<cv::Point2f>> _detectedMarkersCorners;
   std::vector<std::vector<cv::Point2f>> _rejectedMarkersCorners;
