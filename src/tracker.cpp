@@ -129,7 +129,7 @@ void tracker::BoardDetector::visualize(cv::Mat& frame)
     return;
 
   cv::drawFrameAxes(
-    frame, _camMatrix, _distortionCoeffs, _boardRVec, _boardTVec,
+    frame, _camMatrix, _distortionCoeffs, _rVecBoardCamera, _tVecBoardCamera,
     _boardMarkerSide * 1.5f, 2);
 }
 
@@ -145,8 +145,8 @@ bool tracker::BoardDetector::estimateBoardPose()
     _boardImgPoints);
 
   cv::solvePnP(
-    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _boardRVec,
-    _boardTVec);
+    _boardObjPoints, _boardImgPoints, _camMatrix, _distortionCoeffs, _rVecBoardCamera,
+    _tVecBoardCamera);
 
   _boardPoseEstimated = true;
 
