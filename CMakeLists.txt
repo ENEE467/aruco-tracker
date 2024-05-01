@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.1.0)
-project( DetectMarkers )
-find_package( OpenCV REQUIRED )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+project(LineFollowerTracker)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
