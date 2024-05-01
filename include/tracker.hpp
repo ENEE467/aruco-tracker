@@ -168,10 +168,6 @@ private:
 
 };
 
-// void generateLineFollowerBoardPoints(
-//   const options::BoardMarkers& boardMarkersOptions,
-//   std::vector<std::vector<cv::Point3f>>& outputBoardObjPoints);
-
 bool isNonZeroMatrix(const cv::Mat& matrix);
 
 void trackLineFollower(
@@ -179,10 +175,6 @@ void trackLineFollower(
   const options::BoardMarkers& boardMarkersOptions,
   const options::LineFollowerMarker& lineFollowerOptions,
   const std::string& outputFileName = "none");
-
-// bool hasEnoughBoardIDs(
-//   const std::vector<int>& detected_ids,
-//   const std::vector<int>& board_ids);
 
 void calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output);
 }
