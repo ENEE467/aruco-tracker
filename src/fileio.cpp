@@ -6,41 +6,36 @@
 #include "errors.hpp"
 #include "fileio.hpp"
 
-// TODO: Update read config methods
-void fileio::readConfigFile(const std::string& filename, options::MarkerDetection& options)
+void fileio::readConfigFile(const std::string& filenameIn, options::MarkerDetection& optionsOut)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
     throw Error::CANNOT_OPEN_FILE;
 
   auto markerDetectionNode {configFile["marker_detection"]};
-  auto cameraCalibrationNode {configFile["camera_calibration"]};
 
   if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+    throw Error::MISSING_MARKER_DETECTION_CONFIG;
+
+  // TODO: Make it more robust by adding read checks for individual parameters
 
   auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
+  auto frameWidth {markerDetectionNode["frame_width_pixels"]};
+  auto frameHeight {markerDetectionNode["frame_height_pixels"]};
+  auto frameRate {markerDetectionNode["frame_rate_fps"]};
   auto rejectedMarkersNode {configFile["rejected_markers"]};
 
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(rejectedMarkersNode, options.showRejectedMarkers, false);
-
-  // read camera calibration parameters
-  if (!cameraCalibrationNode.empty() && cameraCalibrationNode.isMap()) {
-    auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
-    auto distortionCoefficientNode {cameraCalibrationNode["distortion_coefficients"]};
-
-    cv::read(cameraMatrixNode, options.camMatrix);
-    cv::read(distortionCoefficientNode, options.distCoeffs);
-  }
+  cv::read(camIDNode, optionsOut.camID, 0);
+  cv::read(frameWidth, optionsOut.frameWidthPixels, 640);
+  cv::read(frameHeight, optionsOut.frameHeightPixels, 480);
+  cv::read(frameRate, optionsOut.frameRateFPS, 30);
+  cv::read(rejectedMarkersNode, optionsOut.showRejectedMarkers, false);
 }
 
-void fileio::readConfigFile(const std::string& filename, options::LineFollowerMarker& options)
+void fileio::readConfigFile(const std::string& filenameIn, options::LineFollowerMarker& optionsOut)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
     throw Error::CANNOT_OPEN_FILE;
@@ -48,20 +43,22 @@ void fileio::readConfigFile(const std::string& filename, options::LineFollowerMa
   auto lineFollowerMarkerNode {configFile["line_follower_marker"]};
 
   if (lineFollowerMarkerNode.empty() || !lineFollowerMarkerNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+    throw Error::MISSING_LINE_FOLLOWER_MARKER_CONFIG;
+
+  // TODO: Make it more robust by adding read checks for individual parameters
 
   auto markerSideMetersNode {lineFollowerMarkerNode["marker_side_meters"]};
   auto markerIDNode {lineFollowerMarkerNode["marker_id"]};
   auto markerDictionaryID {lineFollowerMarkerNode["marker_dictionary_id"]};
 
-  cv::read(markerSideMetersNode, options.markerSideMeters, 0.0);
-  cv::read(markerIDNode, options.markerID, 4);
-  cv::read(markerDictionaryID, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  cv::read(markerSideMetersNode, optionsOut.markerSideMeters, 0.0);
+  cv::read(markerIDNode, optionsOut.markerID, 4);
+  cv::read(markerDictionaryID, optionsOut.markerDictionaryID, cv::aruco::DICT_ARUCO_MIP_36h12);
 }
 
-void fileio::readConfigFile(const std::string& filename, options::BoardMarkers& options)
+void fileio::readConfigFile(const std::string& filenameIn, options::BoardMarkers& optionsOut)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
     throw Error::CANNOT_OPEN_FILE;
@@ -70,7 +67,9 @@ void fileio::readConfigFile(const std::string& filename, options::BoardMarkers& 
   auto boardParametersNode {configFile["board_markers"]};
 
   if (boardParametersNode.empty() || !boardParametersNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+    throw Error::MISSING_BOARD_MARKERS_CONFIG;
+
+  // TODO: Make it more robust by adding read checks for individual parameters
 
   auto markerSideMetersNode {boardParametersNode["marker_side_meters"]};
   auto markerSeperationMetersXNode {boardParametersNode["marker_seperation_meters_x"]};
@@ -78,11 +77,12 @@ void fileio::readConfigFile(const std::string& filename, options::BoardMarkers& 
   auto markerIDsNode {boardParametersNode["marker_ids"]};
   auto dictionaryIDNode {boardParametersNode["marker_dictionary_id"]};
 
-  cv::read(markerSideMetersNode, options.markerSideMeters, 0.F);
-  cv::read(markerSeperationMetersXNode, options.markerSeperationMetersX, 0.F);
-  cv::read(markerSeperationMetersYNode, options.markerSeperationMetersY, 0.F);
-  cv::read(markerIDsNode, options.markerIDs, {});
-  cv::read(dictionaryIDNode, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  cv::read(markerSideMetersNode, optionsOut.markerSideMeters, 0.F);
+  cv::read(markerSeperationMetersXNode, optionsOut.markerSeperationMetersX, 0.F);
+  cv::read(markerSeperationMetersYNode, optionsOut.markerSeperationMetersY, 0.F);
+  cv::read(markerIDsNode, optionsOut.markerIDs, {});
+  cv::read(dictionaryIDNode, optionsOut.markerDictionaryID, cv::aruco::DICT_ARUCO_MIP_36h12);
+}
 }
 
 void fileio::readConfigFile(const std::string& filename, options::Calibration& options)
