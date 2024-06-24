@@ -59,6 +59,7 @@ then
 fi
 
 cd $PROJECT_ROOT/libs
+if [ ! -d opencv-4.9.0 ]
 then
     wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip
     unzip opencv.zip && rm opencv.zip
@@ -77,7 +78,7 @@ then
 fi
 
 mkdir -p opencv-4.9.0/build && cd opencv-4.9.0/build
-cmake -D OPENCV_EXTRA_MODULES_PATH=~/line-follower-tracker/opencv_contrib/modules \
+cmake -D OPENCV_EXTRA_MODULES_PATH=$PROJECT_ROOT/libs/opencv_contrib/modules \
       -D BUILD_LIST=calib3d,highgui,objdetect,aruco,videoio \
       -D WITH_OPENGL=ON \
       -D WITH_QT=ON \
@@ -85,3 +86,5 @@ cmake -D OPENCV_EXTRA_MODULES_PATH=~/line-follower-tracker/opencv_contrib/module
 
 make -j$(nproc)
 sudo make install
+
+cd $PROJECT_ROOT/libs
