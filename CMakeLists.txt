@@ -30,8 +30,10 @@ add_compile_options(-lopencv_aruco)
 add_executable(line-follower-tracker
   src/calibration.cpp
   src/fileio.cpp
-  src/tracker.cpp
-  src/main.cpp)
+  src/plotting.cpp
+  src/tracking.cpp
+  src/main.cpp
+)
 
 target_include_directories(line-follower-tracker PUBLIC
   ${CMAKE_SOURCE_DIR}/include
