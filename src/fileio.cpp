@@ -195,11 +195,15 @@ void fileio::readConfigFile(const std::string& filenameIn, options::CameraIntrin
   paramsOut.evaluateNonZero(); // Don't forget to check if either of the parameters are still zero
                                // matrices even after reading.
 }
-{
-  char filedirEndChar {};
 
-  if (filedir.back() != '/')
-    filedirEndChar = '/';
+void fileio::readConfigFile(const std::string& filenameIn, options::Tracking& optionsOut)
+{
+  readConfigFile(filenameIn, optionsOut.detection);
+  readConfigFile(filenameIn, optionsOut.lineFollowerMarker);
+  readConfigFile(filenameIn, optionsOut.boardMarkers);
+  readConfigFile(filenameIn, optionsOut.track);
+  readConfigFile(filenameIn, optionsOut.calibrationParams);
+}
 
   std::stringstream filenameStream;
   std::time_t t = std::time(nullptr);
