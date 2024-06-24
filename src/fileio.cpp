@@ -142,36 +142,33 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
 
   }
 }
+
+void fileio::readConfigFile(const std::string& filenameIn, options::CalibrationBoard& optionsOut)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::READ);
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
     throw Error::CANNOT_OPEN_FILE;
 
-  auto markerDetectionNode {configFile["marker_detection"]};
   auto cameraCalibrationNode {configFile["camera_calibration"]};
 
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
-
   if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
-    throw Error::INCOMPLETE_INFORMATION;
+    throw Error::MISSING_CALIBRATION_CONFIG;
 
-  auto camIDNode {markerDetectionNode["camera_id"]};
-  auto inputFileNode {markerDetectionNode["input_source_path"]};
+  // TODO: Make it more robust by adding read checks for individual parameters
+
   auto markerSideNode {cameraCalibrationNode["marker_side_meters"]};
   auto dictionaryIDNode {cameraCalibrationNode["marker_dictionary_id"]};
   auto squareSideNode {cameraCalibrationNode["square_side_meters"]};
   auto squaresQuantityXNode {cameraCalibrationNode["squares_quantity_x"]};
   auto squaresQuantityYNode {cameraCalibrationNode["squares_quantity_y"]};
 
-  cv::read(camIDNode, options.camID, 0);
-  cv::read(inputFileNode, options.inputFilePath, "");
-  cv::read(markerSideNode, options.markerSideMeters, 0.F);
-  cv::read(squareSideNode, options.squareSideMeters, 0.F);
-  cv::read(squaresQuantityXNode, options.squaresQuantityX, 0);
-  cv::read(squaresQuantityYNode, options.squaresQuantityY, 0);
-  cv::read(dictionaryIDNode, options.markerDictionaryID, cv::aruco::DICT_ARUCO_ORIGINAL);
+  cv::read(markerSideNode, optionsOut.markerSideMeters, 0.F);
+  cv::read(dictionaryIDNode, optionsOut.markerDictionaryID, cv::aruco::DICT_ARUCO_MIP_36h12);
+  cv::read(squareSideNode, optionsOut.squareSideMeters, 0.F);
+  cv::read(squaresQuantityXNode, optionsOut.squaresQuantityX, 0);
+  cv::read(squaresQuantityYNode, optionsOut.squaresQuantityY, 0);
+}
 }
 
 std::stringstream fileio::createTimeStampedFileName(
