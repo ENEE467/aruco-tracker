@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <opencv2/aruco.hpp>
+#include <opencv2/objdetect/aruco_detector.hpp>
 
 namespace options {
 
