@@ -205,12 +205,12 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Tracking& op
   readConfigFile(filenameIn, optionsOut.calibrationParams);
 }
 
-  std::stringstream filenameStream;
-  std::time_t t = std::time(nullptr);
-  std::tm tm = *std::localtime(&t);
-  filenameStream << filedir << filedirEndChar << prefix << "-"
-                 << std::put_time(&tm, "%Y-%m-%d-%H-%M-%S")
-                 << "." << extension;
+void fileio::readConfigFile(const std::string& filenameIn, options::Calibration& optionsOut)
+{
+  readConfigFile(filenameIn, optionsOut.detection);
+  readConfigFile(filenameIn, optionsOut.calibrationBoard);
+  readConfigFile(filenameIn, optionsOut.calibrationParams);
+}
 
   return filenameStream;
 }
