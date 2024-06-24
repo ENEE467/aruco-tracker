@@ -83,9 +83,65 @@ void fileio::readConfigFile(const std::string& filenameIn, options::BoardMarkers
   cv::read(markerIDsNode, optionsOut.markerIDs, {});
   cv::read(dictionaryIDNode, optionsOut.markerDictionaryID, cv::aruco::DICT_ARUCO_MIP_36h12);
 }
-}
 
-void fileio::readConfigFile(const std::string& filename, options::Calibration& options)
+void fileio::readConfigFile(const std::string& filenameIn, options::Track& optionsOut)
+{
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
+
+  if (!configFile.isOpened())
+    throw Error::CANNOT_OPEN_FILE;
+
+  options::TrackSelection trackSelection {static_cast<int>(configFile["track_selection"])};
+  auto lineTrackNode {configFile["line_track"]};
+  auto roundTrackNode {configFile["round_track"]};
+
+  // TODO: Make it more robust by adding read checks for individual parameters
+
+  // Configuration error checking
+  switch (trackSelection) {
+
+  case options::TrackSelection::LINE:
+    if (lineTrackNode.empty() || !lineTrackNode.isMap())
+      throw Error::MISSING_LINE_TRACK_CONFIG;
+    break;
+
+  case options::TrackSelection::ROUND:
+    if (roundTrackNode.empty() || !roundTrackNode.isMap())
+      throw Error::MISSING_ROUND_TRACK_CONFIG;
+    break;
+
+  default:
+    throw::Error::INVALID_TRACK_OPTION;
+
+  }
+
+  optionsOut.selection = trackSelection;
+
+  // Read config file
+  switch (optionsOut.selection) {
+
+  case options::TrackSelection::LINE:
+    cv::read(lineTrackNode["point1"]["x_meters"], optionsOut.lineTrack.point1.x, 0.0);
+    cv::read(lineTrackNode["point1"]["y_meters"], optionsOut.lineTrack.point1.y, 0.0);
+    cv::read(lineTrackNode["point2"]["x_meters"], optionsOut.lineTrack.point2.x, 0.0);
+    cv::read(lineTrackNode["point2"]["y_meters"], optionsOut.lineTrack.point2.y, 0.0);
+
+    optionsOut.lineTrack.updateLength(); // Don't forget to update the length after reading the
+                                         // new points.
+    break;
+
+  case options::TrackSelection::ROUND:
+    cv::read(roundTrackNode["center"]["x_meters"], optionsOut.roundTrack.center.x, 0.0);
+    cv::read(roundTrackNode["center"]["y_meters"], optionsOut.roundTrack.center.y, 0.0);
+    cv::read(roundTrackNode["major_axis_meters"], optionsOut.roundTrack.majorAxis, 0.0);
+    cv::read(roundTrackNode["minor_axis_meters"], optionsOut.roundTrack.minorAxis, 0.0);
+    break;
+
+  default:
+    throw Error::INVALID_TRACK_OPTION;
+
+  }
+}
 {
   cv::FileStorage configFile(filename, cv::FileStorage::READ);
 
