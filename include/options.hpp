@@ -118,6 +118,27 @@ struct RoundTrack {
   double semiMinorAxis() const {return minorAxis * 0.5;}
 
 };
+
+enum class TrackSelection {
+
+  ROUND = 0,
+  LINE = 1
+
+};
+
+struct Track {
+
+  TrackSelection selection;
+  LineTrack lineTrack;
+  RoundTrack roundTrack;
+
+  Track()
+  : selection {TrackSelection::LINE},
+    lineTrack {},
+    roundTrack {}
+  {}
+
+};
   float markerSideMeters;
   float squareSideMeters;
   int squaresQuantityX;
