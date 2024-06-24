@@ -7,6 +7,34 @@
 #include "errors.hpp"
 #include "fileio.hpp"
 
+fileio::OutputPath::OutputPath()
+: directoryPath {},
+  outputName {}
+{}
+
+fileio::OutputPath::OutputPath(
+  const std::string& parentDirectoryIn,
+  const std::string& outputNameIn
+)
+: directoryPath {createPath(parentDirectoryIn, "run", outputNameIn, "")},
+  outputName {outputNameIn}
+{
+  std::filesystem::create_directory(directoryPath.str());
+}
+
+void fileio::OutputPath::setPath(
+  const std::string& parentDirectoryIn,
+  const std::string& outputNameIn)
+{
+  if (parentDirectoryIn.empty())
+    return;
+
+  directoryPath = createPath(parentDirectoryIn, "run", outputNameIn, "");
+  outputName = outputNameIn;
+
+  std::filesystem::create_directory(directoryPath.str());
+}
+
 void fileio::readConfigFile(const std::string& filenameIn, options::MarkerDetection& optionsOut)
 {
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
