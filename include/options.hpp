@@ -199,6 +199,13 @@ struct Tracking {
   CameraIntrinsic calibrationParams;
 
 };
+
+struct Calibration {
+
+  MarkerDetection detection;
+  CalibrationBoard calibrationBoard;
+  CameraIntrinsic calibrationParams;
+
 };
 
 }
