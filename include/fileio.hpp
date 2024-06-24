@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <fstream>
 
 #include "options.hpp"
 
@@ -51,4 +52,20 @@ struct OutputPath {
     const std::string& outputNameIn = "");
 
 };
+
+class CSVFile {
+
+public:
+  CSVFile();
+  CSVFile(const OutputPath& outputPathIn, const std::string& prefixIn = "");
+
+  void setOutputPath(const OutputPath& outputPathIn, const std::string& prefixIn = "");
+  void writePosition(const cv::Point2d& positionIn, int timeSecondsIn = 0);
+  void writeError(const double& errorIn, const double& timeSecondsIn);
+
+private:
+  std::ofstream _outputCSVFile;
+
+};
+
 }
