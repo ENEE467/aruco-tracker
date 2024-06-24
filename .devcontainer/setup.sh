@@ -2,7 +2,12 @@
 
 set -e
 
-# Add the current user to video usergroup to access webcam
+PROJECT_ROOT=$HOME/line-follower-tracker
+
+if [ ! -d $PROJECT_ROOT ]
+then
+  printf "Setup failed: Project root directory not found\n"
+fi
 sudo usermod -aG video 467-dev
 
 # Install some dependencies for OpenCV and its modules
