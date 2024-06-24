@@ -212,7 +212,32 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Calibration&
   readConfigFile(filenameIn, optionsOut.calibrationParams);
 }
 
-  return filenameStream;
+std::stringstream fileio::createTimeStampedPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& extensionIn)
+{
+  std::string parentDirectory {parentDirectoryIn};
+  if (parentDirectory.back() != '/')
+    parentDirectory.push_back('/');
+
+  std::string prefix {prefixIn};
+  if (!prefix.empty())
+    prefix.push_back('-');
+
+  std::string fileExtension {};
+  if (!extensionIn.empty())
+    fileExtension = extensionIn.front() == '.' ? "" : '.' + extensionIn;
+
+  std::stringstream nameStream;
+  std::time_t t {std::time(nullptr)};
+  std::tm tm {*std::localtime(&t)};
+
+  nameStream << parentDirectory << prefix << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S")
+             << fileExtension;
+
+  return nameStream;
+}
 }
 
 void fileio::writeConfigFile(
