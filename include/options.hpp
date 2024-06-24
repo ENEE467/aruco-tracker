@@ -27,15 +27,17 @@ struct MarkerDetection {
 
 // TODO: Integrate this struct into the program
 struct LineFollowerMarker {
-  LineFollowerMarker()
-  : markerSideMeters {0},
-    markerID {0},
-    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
-  {}
 
   float markerSideMeters;
   int markerID;
   int markerDictionaryID;
+
+  LineFollowerMarker()
+  : markerSideMeters {0},
+    markerID {0},
+    markerDictionaryID {cv::aruco::DICT_ARUCO_MIP_36h12}
+  {}
+
 };
 
 struct BoardMarkers {
