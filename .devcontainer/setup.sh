@@ -48,7 +48,8 @@ sudo apt update && sudo apt install -y \
   libopenjpip-server \
   libopenjpip-viewer \
   libopenjpip7 \
-  openjpeg-doc
+  openjpeg-doc \
+  libglfw3-dev
 
 pip3 install pylint flake8 vtk
 
