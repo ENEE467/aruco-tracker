@@ -216,45 +216,84 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Calibration&
 }
 
 void fileio::writeConfigFile(
-  const std::string& filename,
-  const options::MarkerDetection& detection_options,
-  const options::LineFollowerMarker& line_follower_options,
-  const options::BoardMarkers& board_options,
-  const options::Calibration& calibration_options,
-  const options::CalibrationOutput& calibration_output)
+  const std::string& outputFileNameIn,
+  const options::MarkerDetection& detectionOptionsIn,
+  const options::LineFollowerMarker& lineFollowerOptionsIn,
+  const options::BoardMarkers& boardOptionsIn,
+  const options::Track& trackOptionsIn,
+  const options::CalibrationBoard& calibrationBoardOptionsIn,
+  const options::CameraIntrinsic& cameraCalibrationParamsIn)
 {
-  cv::FileStorage configFile(filename, cv::FileStorage::WRITE);
+  cv::FileStorage configFile(outputFileNameIn, cv::FileStorage::WRITE);
   if (!configFile.isOpened())
     throw Error::CANNOT_OPEN_FILE;
 
+  configFile.writeComment(
+    "\nCommon detection parameters that apply to both detection and calibration modes.");
   configFile.startWriteStruct("marker_detection", cv::FileNode::MAP);
-    configFile << "input_source_path" << detection_options.inputFilePath;
-    configFile << "camera_id" << detection_options.camID;
-    configFile << "show_rejected_markers" << detection_options.showRejectedMarkers;
+    configFile << "camera_id" << detectionOptionsIn.camID;
+    configFile << "frame_width_pixels" << detectionOptionsIn.frameWidthPixels;
+    configFile << "frame_height_pixels" << detectionOptionsIn.frameHeightPixels;
+    configFile << "frame_rate_fps" << detectionOptionsIn.frameRateFPS;
+    configFile << "show_rejected_markers" << detectionOptionsIn.showRejectedMarkers;
   configFile.endWriteStruct();
 
+  configFile.writeComment("\nParameters specific to line follower marker.");
   configFile.startWriteStruct("line_follower_marker", cv::FileNode::MAP);
-    configFile << "marker_side_meters" << line_follower_options.markerSideMeters;
-    configFile << "marker_id" << line_follower_options.markerID;
-    configFile << "marker_dictionary_id" << line_follower_options.markerDictionaryID;
+    configFile << "marker_side_meters" << lineFollowerOptionsIn.markerSideMeters;
+    configFile << "marker_id" << lineFollowerOptionsIn.markerID;
+    configFile << "marker_dictionary_id" << lineFollowerOptionsIn.markerDictionaryID;
   configFile.endWriteStruct();
 
+  configFile.writeComment("\nParameters specific to board markers.");
   configFile.startWriteStruct("board_markers", cv::FileNode::MAP);
-    configFile << "marker_side_meters" << board_options.markerSideMeters;
-    configFile << "marker_seperation_meters_x" << board_options.markerSeperationMetersX;
-    configFile << "marker_seperation_meters_y" << board_options.markerSeperationMetersY;
-    configFile << "marker_ids" << board_options.markerIDs;
-    configFile << "marker_dictionary_id" << board_options.markerDictionaryID;
+    configFile << "marker_side_meters" << boardOptionsIn.markerSideMeters;
+    configFile << "marker_seperation_meters_x" << boardOptionsIn.markerSeperationMetersX;
+    configFile << "marker_seperation_meters_y" << boardOptionsIn.markerSeperationMetersY;
+    configFile << "marker_ids" << boardOptionsIn.markerIDs;
+    configFile << "marker_dictionary_id" << boardOptionsIn.markerDictionaryID;
   configFile.endWriteStruct();
 
+  configFile.writeComment("\nParameters specific to track specifications.");
+  configFile << "track_selection" << static_cast<int>(trackOptionsIn.selection);
+
+  configFile.writeComment("");
+  configFile.startWriteStruct("line_track", cv::FileNode::MAP);
+
+    configFile.startWriteStruct("point1", cv::FileNode::MAP);
+      configFile << "x_meters" << trackOptionsIn.lineTrack.point1.x;
+      configFile << "y_meters" << trackOptionsIn.lineTrack.point1.y;
+    configFile.endWriteStruct();
+
+    configFile.startWriteStruct("point2", cv::FileNode::MAP);
+      configFile << "x_meters" << trackOptionsIn.lineTrack.point2.x;
+      configFile << "y_meters" << trackOptionsIn.lineTrack.point2.y;
+    configFile.endWriteStruct();
+
+  configFile.endWriteStruct();
+
+  configFile.writeComment("");
+  configFile.startWriteStruct("round_track", cv::FileNode::MAP);
+
+    configFile.startWriteStruct("center", cv::FileNode::MAP);
+      configFile << "x_meters" << trackOptionsIn.roundTrack.center.x;
+      configFile << "y_meters" << trackOptionsIn.roundTrack.center.y;
+    configFile.endWriteStruct();
+
+    configFile << "major_axis_meters" << trackOptionsIn.roundTrack.majorAxis;
+    configFile << "minor_axis_meters" << trackOptionsIn.roundTrack.minorAxis;
+
+  configFile.endWriteStruct();
+
+  configFile.writeComment("\nParameters specific to camera calibration.");
   configFile.startWriteStruct("camera_calibration", cv::FileNode::MAP);
-    configFile << "marker_side_meters" << calibration_options.markerSideMeters;
-    configFile << "square_side_meters" << calibration_options.squareSideMeters;
-    configFile << "squares_quantity_x" << calibration_options.squaresQuantityX;
-    configFile << "squares_quantity_y" << calibration_options.squaresQuantityY;
-    configFile << "marker_dictionary_id" << calibration_options.markerDictionaryID;
-    configFile << "camera_matrix" << calibration_output.cameraMatrix;
-    configFile << "distortion_coefficients" << calibration_output.distCoeffs;
+    configFile << "marker_side_meters" << calibrationBoardOptionsIn.markerSideMeters;
+    configFile << "square_side_meters" << calibrationBoardOptionsIn.squareSideMeters;
+    configFile << "squares_quantity_x" << calibrationBoardOptionsIn.squaresQuantityX;
+    configFile << "squares_quantity_y" << calibrationBoardOptionsIn.squaresQuantityY;
+    configFile << "marker_dictionary_id" << calibrationBoardOptionsIn.markerDictionaryID;
+    configFile << "camera_matrix" << cameraCalibrationParamsIn.cameraMatrix;
+    configFile << "distortion_coefficients" << cameraCalibrationParamsIn.distortionCoefficients;
   configFile.endWriteStruct();
 
   configFile.release();
