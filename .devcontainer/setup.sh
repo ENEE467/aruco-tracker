@@ -9,6 +9,7 @@ then
   printf "Setup failed: Project root directory not found\n"
 fi
 sudo usermod -aG video 467-dev
+echo $'\nexport XAUTHORITY=$(ls /run/user/$UID/.mutter-*)' >> ~/.bashrc
 
 # Install some dependencies for OpenCV and its modules
 sudo apt update && sudo apt install -y \
