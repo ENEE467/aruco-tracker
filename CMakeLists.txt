@@ -43,3 +43,5 @@ target_link_libraries(line-follower-tracker
   ${OpenCV_LIBS}
   Matplot++::matplot
 )
+
+add_subdirectory(test)
