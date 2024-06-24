@@ -53,8 +53,12 @@ sudo apt update && sudo apt install -y \
 
 pip3 install pylint flake8 vtk
 
-# Clone OpenCV Project ------------------------------------------------------
-if [ ! -d opencv-* ]
+if [ ! -d $PROJECT_ROOT/libs ]
+then
+  mkdir -p $PROJECT_ROOT/libs
+fi
+
+cd $PROJECT_ROOT/libs
 then
     wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip
     unzip opencv.zip && rm opencv.zip
