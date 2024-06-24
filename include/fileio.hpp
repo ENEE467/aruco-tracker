@@ -17,12 +17,13 @@ void readConfigFile(const std::string& filenameIn, options::Tracking& optionsOut
 void readConfigFile(const std::string& filenameIn, options::Calibration& optionsOut);
 
 void writeConfigFile(
-  const std::string& filename,
-  const options::MarkerDetection& detection_options,
-  const options::LineFollowerMarker& line_follower_options,
-  const options::BoardMarkers& board_options,
-  const options::Calibration& calibration_options,
-  const options::CalibrationOutput& calibration_output);
+  const std::string& outputFileNameIn,
+  const options::MarkerDetection& detectionOptionsIn,
+  const options::LineFollowerMarker& lineFollowerOptionsIn,
+  const options::BoardMarkers& boardOptionsIn,
+  const options::Track& trackOptionsIn,
+  const options::CalibrationBoard& calibrationBoardOptionsIn,
+  const options::CameraIntrinsic& cameraCalibrationParamsIn);
 
 void writePoseToCSV(
   std::ofstream& csv_file,
