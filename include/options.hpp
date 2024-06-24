@@ -189,6 +189,16 @@ private:
   }
 
 };
+
+struct Tracking {
+
+  MarkerDetection detection;
+  LineFollowerMarker lineFollowerMarker;
+  BoardMarkers boardMarkers;
+  Track track;
+  CameraIntrinsic calibrationParams;
+
+};
 };
 
 }
