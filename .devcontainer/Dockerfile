@@ -16,7 +16,7 @@ RUN apt update && apt install -y \
   python3-numpy \
   python3-matplotlib \
   gnuplot \
-  unzip 
+  unzip
 
 ARG USERNAME=467-dev
 ARG USER_UID=1003
