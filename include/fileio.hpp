@@ -36,4 +36,19 @@ std::stringstream createPath(
   const std::string& nameIn,
   const std::string& extensionIn);
 
+struct OutputPath {
+
+  std::stringstream directoryPath;
+  std::string outputName;
+
+  OutputPath();
+  OutputPath(
+    const std::string& parentDirectoryIn,
+    const std::string& outputNameIn = "");
+
+  void setPath(
+    const std::string& parentDirectoryIn,
+    const std::string& outputNameIn = "");
+
+};
 }
