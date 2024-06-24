@@ -25,10 +25,10 @@ void writeConfigFile(
   const options::CalibrationBoard& calibrationBoardOptionsIn,
   const options::CameraIntrinsic& cameraCalibrationParamsIn);
 
-void writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec);
+std::stringstream createTimeStampedPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& extensionIn);
 
 std::stringstream createTimeStampedFileName(
   const std::string& filedir,
