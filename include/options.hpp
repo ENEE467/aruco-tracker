@@ -41,19 +41,21 @@ struct LineFollowerMarker {
 };
 
 struct BoardMarkers {
-  BoardMarkers()
-  : markerSideMeters {0},
-    markerSeperationMetersX {0},
-    markerSeperationMetersY {0},
-    markerIDs {},
-    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
-  {}
 
   float markerSideMeters;
   float markerSeperationMetersX;
   float markerSeperationMetersY;
   std::vector<int> markerIDs;
   int markerDictionaryID;
+
+  BoardMarkers()
+  : markerSideMeters {0},
+    markerSeperationMetersX {0},
+    markerSeperationMetersY {0},
+    markerIDs {},
+    markerDictionaryID {cv::aruco::DICT_ARUCO_MIP_36h12}
+  {}
+
 };
 
 struct Calibration {
