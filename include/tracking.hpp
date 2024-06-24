@@ -164,5 +164,6 @@ private:
 };
 
 void trackLineFollower(const options::Tracking& optionsIn, const fileio::OutputPath& outputPathIn);
+double calculateTrackingError(const cv::Point2d& positionIn, const options::Track& trackOptionsIn);
 
 }

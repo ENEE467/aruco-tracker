@@ -290,6 +290,34 @@ bool tracking::LineFollowerDetector::hasCorrectID()
   return _lineFollowerDetected;
 }
 
+double tracking::calculateTrackingError(
+  const cv::Point2d& positionIn,
+  const options::Track& trackOptionsIn)
+{
+  double trackingError {0.0};
+
+  switch (trackOptionsIn.selection) {
+
+  case options::TrackSelection::LINE:
+    if (trackOptionsIn.lineTrack.length == 0)
+      break;
+
+    trackingError = trackOptionsIn.lineTrack.calculatePerpendicularDistance(positionIn);
+    break;
+
+  case options::TrackSelection::ROUND:
+    // TODO: Call the perpendicular distance method here
+    break;
+
+  default:
+    throw Error::INVALID_TRACK_OPTION;
+    break;
+
+  }
+
+  return trackingError;
+}
+
 void tracking::trackLineFollower(
   const options::Tracking& optionsIn,
   const fileio::OutputPath& outputPathIn)
@@ -344,6 +372,10 @@ void tracking::trackLineFollower(
         lineFollowerDetector.getFrameLineFollower_Camera());
     }
 
+    double trackingError {
+      calculateTrackingError(
+        lineFollowerBoardDetector.getPositionXYLineFollower_Board(), optionsIn.track)};
+
     lineFollowerBoardDetector.visualize(frame);
     lineFollowerDetector.visualize(frame);
 
@@ -369,10 +401,13 @@ void tracking::trackLineFollower(
     positionsOutput.writePosition(
       lineFollowerBoardDetector.getPositionXYLineFollower_Board(), totalTime);
 
+    errorsOutput.writeError(trackingError, totalTime);
+
     plotter.savePosition(lineFollowerBoardDetector.getPositionXYLineFollower_Board());
+    plotter.saveError(trackingError, totalTime);
   }
 
   if (hasOutputDir) {
     plotter.savePlots(outputPathIn);
-    }
-    }
+  }
+}
