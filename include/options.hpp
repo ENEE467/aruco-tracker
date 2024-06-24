@@ -139,11 +139,23 @@ struct Track {
   {}
 
 };
+
+struct CalibrationBoard {
+
   float markerSideMeters;
+  int markerDictionaryID;
   float squareSideMeters;
   int squaresQuantityX;
   int squaresQuantityY;
-  int markerDictionaryID;
+
+  CalibrationBoard()
+  : markerSideMeters {0},
+    markerDictionaryID {cv::aruco::DICT_ARUCO_MIP_36h12},
+    squareSideMeters {0},
+    squaresQuantityX {0},
+    squaresQuantityY {0}
+  {}
+
 };
 
 struct CalibrationOutput {
