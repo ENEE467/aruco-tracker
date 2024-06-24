@@ -91,4 +91,5 @@
     },
     "editor.detectIndentation": false,
     "git.enableCommitSigning": true,
+    "files.autoSave": "afterDelay",
   }
