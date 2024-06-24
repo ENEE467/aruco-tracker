@@ -1,19 +1,20 @@
 #include <iostream>
 
-#include "fileio.hpp"
-#include "tracker.hpp"
+#include "tracking.hpp"
+#include "calibration.hpp"
 
 using namespace std;
 using namespace cv;
 
 namespace {
-const char* about = "Line follower tracker using ArUco markers";
+const char* about = "Line follower tracking using ArUco markers";
 
 //! [aruco_detect_markers_keys]
 const char* keys  =
   "{config               |       | Configuration file path for the program }"
   "{calibration          | false | Enable calibration mode }"
-  "{output               |       | Output file directory for a new configuration file }";
+  "{output               |       | Output file directory for a new configuration file }"
+  "{name                 |       | Name of the output}";
 }
 //! [aruco_detect_markers_keys]
 
@@ -28,6 +29,7 @@ int main(int argc, char *argv[]) {
 
   bool hasConfigFile {parser.has("config")};
   bool hasOutputDir {parser.has("output")};
+  bool hasOutputName {parser.has("name")};
   bool calibrationMode {parser.get<bool>("calibration")};
 
   if(!parser.check()) {
@@ -36,71 +38,66 @@ int main(int argc, char *argv[]) {
   }
 
   if (!hasConfigFile && !calibrationMode) {
-    std::cerr << "A configuration file is required for tracking." << std::endl;
+    std::cerr << "A configuration file is required for tracking." << '\n';
     parser.printMessage();
     return 1;
   }
   else if (!hasConfigFile && !hasOutputDir && calibrationMode) {
-    std::cerr << "At least an output directory is required for calibration.";
+    std::cerr << "At least an output directory is required for calibration." << '\n';
     parser.printMessage();
     return 1;
   }
 
-  // TODO: Finish this.
-  options::MarkerDetection detectionOptions {};
-  options::LineFollowerMarker lineFollowerMarkerOptions {};
-  options::BoardMarkers boardMarkersOptions{};
+  std::string configFilePath {};
+  if (hasConfigFile)
+    configFilePath = parser.get<std::string>("config");
+
+  std::string outputDir {};
+  if (hasOutputDir)
+    outputDir = parser.get<std::string>("output");
+
+  std::string outputName {};
+  if (hasOutputName)
+    outputName = parser.get<std::string>("name");
+
+  options::Tracking trackingOptions {};
   options::Calibration calibrationOptions {};
-  options::CalibrationOutput calibrationOutput {};
 
   if (!calibrationMode) {
-    auto fileName {parser.get<std::string>("config")};
-    fileio::readConfigFile(fileName, detectionOptions);
-    fileio::readConfigFile(fileName, lineFollowerMarkerOptions);
-    fileio::readConfigFile(fileName, boardMarkersOptions);
+    fileio::readConfigFile(configFilePath, trackingOptions);
+    fileio::OutputPath trackingOutput {};
+    trackingOutput.setPath(outputDir, outputName);
 
-    if (hasOutputDir) {
-      auto outputDir {parser.get<std::string>("output")};
-      auto fileName {fileio::createTimeStampedFileName(outputDir, "run", "csv")};
-      tracker::trackLineFollower(
-        detectionOptions, boardMarkersOptions, lineFollowerMarkerOptions, fileName.str());
-    }
-    else {
-      tracker::trackLineFollower(
-        detectionOptions, boardMarkersOptions, lineFollowerMarkerOptions);
-    }
+    tracking::trackLineFollower(trackingOptions, trackingOutput);
   }
   else {
+    std::string outputConfigPath {};
     if (hasConfigFile) {
-      auto fileName {parser.get<std::string>("config")};
-      fileio::readConfigFile(fileName, detectionOptions);
-      fileio::readConfigFile(fileName, boardMarkersOptions);
-      fileio::readConfigFile(fileName, calibrationOptions);
-      tracker::calibrateCamera(calibrationOptions, calibrationOutput);
+      outputConfigPath = configFilePath;
+      fileio::readConfigFile(configFilePath, trackingOptions);
+      fileio::readConfigFile(configFilePath, calibrationOptions);
 
-      if (hasOutputDir) {
-        auto outputDir {parser.get<std::string>("output")};
-        auto fileNameStream {fileio::createTimeStampedFileName(outputDir, "config", "yaml")};
-        fileio::writeConfigFile(fileNameStream.str(), detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
-      }
-      else {
-        std::remove(fileName.c_str());
-        fileio::writeConfigFile(fileName, detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
-      }
-
-      return 0;
+      calibration::calibrateCamera(calibrationOptions);
     }
-    else if (!hasConfigFile && hasOutputDir) {
-      std::cout << "Creating a new config file in the output directory..." << std::endl;
-      auto outputDir {parser.get<std::string>("output")};
 
-      auto fileNameStream {fileio::createTimeStampedFileName(outputDir, "config", "yaml")};
+    // std::string outputConfigPath {configFilePath};
+    if (hasOutputDir) {
+      outputConfigPath = fileio::createPath(outputDir, "config", outputName, "yaml").str();
 
-      fileio::writeConfigFile(fileNameStream.str(), detectionOptions, lineFollowerMarkerOptions, boardMarkersOptions, calibrationOptions, calibrationOutput);
-      std::cout << "Config file created: " << fileNameStream.str() << std::endl;
-
-      return 0;
+      std::cout << "Creating a new config file at: " << outputConfigPath << '\n';
     }
+    else if (hasConfigFile && !hasOutputDir) {
+      std::remove(outputConfigPath.c_str());
+    }
+
+    fileio::writeConfigFile(
+      outputConfigPath,
+      trackingOptions.detection,
+      trackingOptions.lineFollowerMarker,
+      trackingOptions.boardMarkers,
+      trackingOptions.track,
+      calibrationOptions.calibrationBoard,
+      calibrationOptions.calibrationParams);
   }
 
   return 0;
