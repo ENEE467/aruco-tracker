@@ -6,19 +6,23 @@
 namespace options {
 
 struct MarkerDetection {
+
+  int camID;
+  int frameWidthPixels;
+  int frameHeightPixels;
+  int frameRateFPS;
+  bool showRejectedMarkers;
+  cv::aruco::DetectorParameters detectorParameters;
+
   MarkerDetection()
   : camID {0},
-    inputFilePath {"none"},
+    frameWidthPixels {640},
+    frameHeightPixels {480},
+    frameRateFPS {30},
     showRejectedMarkers {false},
     detectorParameters {cv::aruco::DetectorParameters()}
   {}
 
-  int camID;
-  cv::String inputFilePath;
-  cv::Mat camMatrix;
-  cv::Mat distCoeffs;
-  bool showRejectedMarkers;
-  cv::aruco::DetectorParameters detectorParameters;
 };
 
 // TODO: Integrate this struct into the program
