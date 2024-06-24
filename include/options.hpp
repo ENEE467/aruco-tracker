@@ -95,6 +95,29 @@ struct LineTrack {
   }
 
 };
+
+struct RoundTrack {
+
+  cv::Point2d center;
+  double majorAxis;
+  double minorAxis;
+
+  RoundTrack()
+  : center {0, 0},
+    majorAxis {0},
+    minorAxis {0}
+  {}
+
+  RoundTrack(double xIn, double yIn, double majorAxisIn, double minorAxisIn)
+  : center {xIn, yIn},
+    majorAxis {majorAxisIn},
+    minorAxis {minorAxisIn}
+  {}
+
+  double semiMajorAxis() const {return majorAxis * 0.5;}
+  double semiMinorAxis() const {return minorAxis * 0.5;}
+
+};
   float markerSideMeters;
   float squareSideMeters;
   int squaresQuantityX;
