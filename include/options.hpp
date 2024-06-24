@@ -58,19 +58,43 @@ struct BoardMarkers {
 
 };
 
-struct Calibration {
-  Calibration()
-  : camID {0},
-    inputFilePath {"none"},
-    markerSideMeters {0},
-    squareSideMeters {0},
-    squaresQuantityX {0},
-    squaresQuantityY {0},
-    markerDictionaryID {cv::aruco::DICT_ARUCO_ORIGINAL}
-    {}
+struct LineTrack {
 
-  int camID;
-  cv::String inputFilePath;
+  cv::Point2d point1;
+  cv::Point2d point2;
+  double length;
+  double length_inv;
+
+  LineTrack()
+  : point1 {0, 0},
+    point2 {0, 0},
+    length {0},
+    length_inv {0}
+  {}
+
+  LineTrack(double x1In, double y1In, double x2In, double y2In)
+  : point1 {x1In, y1In},
+    point2 {x2In, y2In},
+    length {std::hypot(x2In - x1In, y2In - y1In)},
+    length_inv {length ? 1 / length : 0}
+  {}
+
+  void updateLength()
+  {
+    length = std::hypot(point2.x - point1.x, point2.y - point1.y);
+    length_inv = length ? 1 / length : 0;
+  }
+
+  double calculatePerpendicularDistance(const cv::Point2d& positionIn) const
+  {
+    double y_diff {point2.y - point1.y};
+    double x_diff {point2.x - point1.x};
+    double c {point2.x * point1.y - point2.y * point1.x};
+
+    return std::abs(y_diff * positionIn.x - x_diff * positionIn.y + c) * length_inv;
+  }
+
+};
   float markerSideMeters;
   float squareSideMeters;
   int squaresQuantityX;
