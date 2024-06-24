@@ -1,6 +1,7 @@
 #include <fstream>
 #include <ctime>
 #include <iomanip>
+#include <filesystem>
 #include <opencv2/core/persistence.hpp>
 
 #include "errors.hpp"
@@ -238,6 +239,49 @@ std::stringstream fileio::createTimeStampedPath(
 
   return nameStream;
 }
+
+std::stringstream fileio::createPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& nameIn,
+  const std::string& extensionIn)
+{
+  if (nameIn.empty())
+    return createTimeStampedPath(parentDirectoryIn, prefixIn, extensionIn);
+
+  std::string parentDirectory {parentDirectoryIn};
+  if (parentDirectory.back() != '/')
+    parentDirectory.push_back('/');
+
+  std::string prefix {prefixIn};
+  if (!prefix.empty() && prefix.back() != '-')
+    prefix.push_back('-');
+
+  bool isPathToDirectory {true};
+  std::string fileExtension {};
+  if (!extensionIn.empty()) {
+    isPathToDirectory = false;
+    fileExtension = extensionIn.front() == '.' ? "" : '.' + extensionIn;
+  }
+
+  auto pathAlreadyExists = [&isPathToDirectory](const std::stringstream& outputPathIn)
+  {
+    return ( isPathToDirectory && std::filesystem::is_directory(outputPathIn.str()) )
+      || ( !isPathToDirectory && std::filesystem::is_regular_file(outputPathIn.str()) );
+  };
+
+  int duplicateCounter {1};
+  std::stringstream outputPathStream;
+  outputPathStream << parentDirectory << prefix << nameIn << fileExtension;
+
+  while (pathAlreadyExists(outputPathStream)) {
+    outputPathStream.str(std::string());  // clears/resets the stream object to write new path
+    outputPathStream << parentDirectory << prefix << nameIn << duplicateCounter << fileExtension;
+
+    duplicateCounter++;
+  }
+
+  return outputPathStream;
 }
 
 void fileio::writeConfigFile(
