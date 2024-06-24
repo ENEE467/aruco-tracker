@@ -158,14 +158,37 @@ struct CalibrationBoard {
 
 };
 
-struct CalibrationOutput {
-  CalibrationOutput()
-  : cameraMatrix {cv::Mat::zeros(cv::Size(3, 3), CV_32F)},
-    distCoeffs {cv::Mat::zeros(cv::Size(5, 1), CV_32F)}
-    {}
+struct CameraIntrinsic {
 
+public:
   cv::Mat cameraMatrix;
-  cv::Mat distCoeffs;
+  cv::Mat distortionCoefficients;
+
+  CameraIntrinsic()
+  : cameraMatrix {cv::Mat::zeros(cv::Size(3, 3), CV_32F)},
+    distortionCoefficients {cv::Mat::zeros(cv::Size(5, 1), CV_32F)},
+    _isNonZero {isNonZeroMatrix(cameraMatrix) && isNonZeroMatrix(distortionCoefficients)}
+  {}
+
+  const bool isNonZero() const {return _isNonZero;}
+
+  void evaluateNonZero()
+  {
+    _isNonZero = (isNonZeroMatrix(cameraMatrix) && isNonZeroMatrix(distortionCoefficients));
+  }
+
+private:
+  bool _isNonZero;
+
+  bool isNonZeroMatrix(const cv::Mat& matrix)
+  {
+    cv::Mat zeroMatrix {cv::Mat::zeros(matrix.rows, matrix.cols, matrix.type())};
+    auto comparisonMatrix {matrix != zeroMatrix};
+
+    return cv::countNonZero(comparisonMatrix);
+  }
+
+};
 };
 
 }
