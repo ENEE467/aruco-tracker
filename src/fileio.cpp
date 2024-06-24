@@ -396,11 +396,38 @@ void fileio::writeConfigFile(
   configFile.release();
 }
 
-void fileio::writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec)
+fileio::CSVFile::CSVFile()
+: _outputCSVFile {}
+{}
+
+fileio::CSVFile::CSVFile(const OutputPath& outputPathIn, const std::string& prefixIn)
+: _outputCSVFile {
+    createPath(outputPathIn.directoryPath.str(), prefixIn, outputPathIn.outputName, "csv").str()}
 {
-  csv_file << tvec[0] << ", " << tvec[1] << ", " << tvec[2] << ", "
-           << rvec[0] << ", " << rvec[1] << ", " << rvec[2] << '\n';
+  if (!_outputCSVFile.is_open())
+    throw Error::CANNOT_OPEN_FILE;
+}
+
+void fileio::CSVFile::setOutputPath(
+  const OutputPath& outputPathIn,
+  const std::string& prefixIn)
+{
+  if (outputPathIn.directoryPath.str().empty())
+    return;
+
+  _outputCSVFile.open(
+    createPath(outputPathIn.directoryPath.str(), prefixIn, outputPathIn.outputName, "csv").str());
+
+  if (!_outputCSVFile.is_open())
+    throw Error::CANNOT_OPEN_FILE;
+}
+
+void fileio::CSVFile::writePosition(const cv::Point2d& positionIn, int timeSecondsIn)
+{
+  _outputCSVFile << positionIn.x << ", " << positionIn.y << ", " << timeSecondsIn << '\n';
+}
+
+void fileio::CSVFile::writeError(const double& errorIn, const double& timeSecondsIn)
+{
+  _outputCSVFile << errorIn << ", " << timeSecondsIn << '\n';
 }
