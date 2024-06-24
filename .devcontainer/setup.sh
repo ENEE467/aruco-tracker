@@ -88,3 +88,13 @@ make -j$(nproc)
 sudo make install
 
 cd $PROJECT_ROOT/libs
+if [ ! -d matplotplusplus ]
+then
+  git clone https://github.com/alandefreitas/matplotplusplus.git
+fi
+
+cd matplotplusplus
+cmake --build build/system
+sudo cmake --install build/system
+
+printf "\nSetup complete, environment is now ready to use! \n"
