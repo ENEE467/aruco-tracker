@@ -17,7 +17,6 @@
 		"--device=/dev/video1:/dev/video1"
 	],
 	"containerEnv": {
-		"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
 		"DISPLAY": "${localEnv:DISPLAY}",
 		"XDG_RUNTIME_DIR": "${localEnv:XDG_RUNTIME_DIR}",
 		"PULSE_SERVER": "${localEnv:PULSE_SERVER}",
