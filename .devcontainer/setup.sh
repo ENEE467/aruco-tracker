@@ -8,7 +8,11 @@ if [ ! -d $PROJECT_ROOT ]
 then
   printf "Setup failed: Project root directory not found\n"
 fi
+
+# Grants webcam access
 sudo usermod -aG video 467-dev
+
+# Sets the XAUTHORITY variable correctly everytime a new shell opens
 echo $'\nexport XAUTHORITY=$(ls /run/user/$UID/.mutter-*)' >> ~/.bashrc
 
 # Install some dependencies for OpenCV and its modules
@@ -53,19 +57,24 @@ sudo apt update && sudo apt install -y \
 
 pip3 install pylint flake8 vtk
 
+# Create a libs directory to clone the source code of libraries ----------------
 if [ ! -d $PROJECT_ROOT/libs ]
 then
   mkdir -p $PROJECT_ROOT/libs
 fi
 
 cd $PROJECT_ROOT/libs
+
+# $PROJECT_ROOT/libs is now the current working directory
+
+# Clone OpenCV Source ----------------------------------------------------------
 if [ ! -d opencv-4.9.0 ]
 then
     wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip
     unzip opencv.zip && rm opencv.zip
 fi
 
-# Clone the modules ------------------------------------------------------
+# Clone OpenCV modules source --------------------------------------------------
 if [ ! -d opencv_contrib ]
 then
     git clone -b 4.x https://github.com/opencv/opencv_contrib.git
@@ -78,6 +87,9 @@ then
 fi
 
 mkdir -p opencv-4.9.0/build && cd opencv-4.9.0/build
+
+# $PROJECT_ROOT/libs/opencv-4.9.0/build is now the current working directory
+
 cmake -D OPENCV_EXTRA_MODULES_PATH=$PROJECT_ROOT/libs/opencv_contrib/modules \
       -D BUILD_LIST=calib3d,highgui,objdetect,aruco,videoio \
       -D WITH_OPENGL=ON \
@@ -88,12 +100,20 @@ make -j$(nproc)
 sudo make install
 
 cd $PROJECT_ROOT/libs
+
+# $PROJECT_ROOT/libs is now the current working directory
+
+# Clone matplot++ source -------------------------------------------------------
 if [ ! -d matplotplusplus ]
 then
   git clone https://github.com/alandefreitas/matplotplusplus.git
 fi
 
 cd matplotplusplus
+
+# $PROJECT_ROOT/libs/matplotplusplus is now the current working directory
+
+# Build the library and install it
 cmake --build build/system
 sudo cmake --install build/system
 
