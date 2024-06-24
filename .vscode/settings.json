@@ -92,4 +92,5 @@
     "editor.detectIndentation": false,
     "git.enableCommitSigning": true,
     "files.autoSave": "afterDelay",
+    "terminal.integrated.defaultProfile.linux": "bash",
   }
