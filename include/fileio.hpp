@@ -30,9 +30,10 @@ std::stringstream createTimeStampedPath(
   const std::string& prefixIn,
   const std::string& extensionIn);
 
-std::stringstream createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension);
+std::stringstream createPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& nameIn,
+  const std::string& extensionIn);
 
 }
