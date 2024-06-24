@@ -2,7 +2,7 @@
     "configurations": [
         {
             "name": "Linux",
-            "compileCommands": "../line-follower-tracker/build/compile_commands.json"
+            "compileCommands": "build/compile_commands.json"
         }
     ],
     "version": 4

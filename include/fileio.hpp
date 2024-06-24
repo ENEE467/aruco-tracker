@@ -1,32 +1,71 @@
 #pragma once
 
 #include <string>
+#include <fstream>
 
 #include "options.hpp"
 
 namespace fileio {
 
-void readConfigFile(const std::string& filename, options::MarkerDetection& options);
-void readConfigFile(const std::string& filename, options::LineFollowerMarker& options);
-void readConfigFile(const std::string& filename, options::BoardMarkers& options);
-void readConfigFile(const std::string& filename, options::Calibration& options);
+void readConfigFile(const std::string& filenameIn, options::MarkerDetection& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::LineFollowerMarker& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::BoardMarkers& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::Track& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::CalibrationBoard& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::CameraIntrinsic& parametersOut);
+
+void readConfigFile(const std::string& filenameIn, options::Tracking& optionsOut);
+void readConfigFile(const std::string& filenameIn, options::Calibration& optionsOut);
 
 void writeConfigFile(
-  const std::string& filename,
-  const options::MarkerDetection& detection_options,
-  const options::LineFollowerMarker& line_follower_options,
-  const options::BoardMarkers& board_options,
-  const options::Calibration& calibration_options,
-  const options::CalibrationOutput& calibration_output);
+  const std::string& outputFileNameIn,
+  const options::MarkerDetection& detectionOptionsIn,
+  const options::LineFollowerMarker& lineFollowerOptionsIn,
+  const options::BoardMarkers& boardOptionsIn,
+  const options::Track& trackOptionsIn,
+  const options::CalibrationBoard& calibrationBoardOptionsIn,
+  const options::CameraIntrinsic& cameraCalibrationParamsIn);
 
-void writePoseToCSV(
-  std::ofstream& csv_file,
-  const cv::Vec3d& tvec,
-  const cv::Vec3d& rvec);
+std::stringstream createTimeStampedPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& extensionIn);
 
-std::stringstream createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension);
+std::stringstream createPath(
+  const std::string& parentDirectoryIn,
+  const std::string& prefixIn,
+  const std::string& nameIn,
+  const std::string& extensionIn);
+
+struct OutputPath {
+
+  std::stringstream directoryPath;
+  std::string outputName;
+
+  OutputPath();
+  OutputPath(
+    const std::string& parentDirectoryIn,
+    const std::string& outputNameIn = "");
+
+  void setPath(
+    const std::string& parentDirectoryIn,
+    const std::string& outputNameIn = "");
+
+};
+
+class CSVFile {
+
+public:
+  CSVFile();
+  CSVFile(const OutputPath& outputPathIn, const std::string& prefixIn = "");
+
+  void setOutputPath(const OutputPath& outputPathIn, const std::string& prefixIn = "");
+  void writePosition(const cv::Point2d& positionIn, int timeSecondsIn = 0);
+  void writeError(const double& errorIn, const double& timeSecondsIn);
+
+private:
+  std::ofstream _outputCSVFile;
+
+};
 
 }

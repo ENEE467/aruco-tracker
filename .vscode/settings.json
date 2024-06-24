@@ -1,6 +1,6 @@
 {
     "editor.rulers": [
-      {"column": 80}
+      {"column": 100}
     ],
     "editor.tabSize": 2,
     "files.trimTrailingWhitespace": true,
@@ -86,8 +86,26 @@
       "variant": "cpp",
       "csetjmp": "cpp",
       "any": "cpp",
-      "dense": "cpp"
+      "dense": "cpp",
+      "shared_mutex": "cpp"
     },
     "editor.detectIndentation": false,
-    "git.enableCommitSigning": true
+    "git.enableCommitSigning": true,
+    "files.autoSave": "afterDelay",
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "cmake.options.advanced": {
+      "build": {
+        "statusBarVisibility": "inherit",
+        "inheritDefault": "visible"
+      },
+      "launch": {
+        "statusBarVisibility": "inherit",
+        "inheritDefault": "visible"
+      },
+      "debug": {
+        "statusBarVisibility": "inherit",
+        "inheritDefault": "visible"
+      }
+    },
+    "cmake.options.statusBarVisibility": "icon"
   }

@@ -38,30 +38,30 @@ the use of this software, even if advised of the possibility of such damage.
 
 #pragma once
 
-#include "options.hpp"
+#include <opencv2/core/affine.hpp>
 
-namespace tracker {
+#include "options.hpp"
+#include "fileio.hpp"
+
+namespace tracking {
 
 class BoardDetector {
 
 public:
   BoardDetector(
-    const options::MarkerDetection& detectionOptions,
-    const options::BoardMarkers& boardMarkersOptions,
-    bool canEstimatePose = false);
+    const options::MarkerDetection& detectionOptionsIn,
+    const options::BoardMarkers& boardMarkersOptionsIn,
+    const options::CameraIntrinsic& calibrationParamsIn);
 
   bool detectBoard(const cv::Mat& frame);
-  bool estimateBoardPose();
-  bool estimateObjectRelativePose(
-    const cv::Vec3d& tVecObjectCamera,
-    const cv::Vec3d& rVecObjectCamera);
-
   void visualize(cv::Mat& frame);
 
-  const std::pair<cv::Vec3d, cv::Vec3d>& getBoardPose() const
-  {
-    return _poseBoardCamera;
-  }
+  bool estimateFrameBoard_Camera();
+  bool estimateFrameLineFollower_Board(const cv::Affine3d& frameLineFollower_Camera);
+
+  const cv::Affine3d& getFrameLineFollower_Board() const {return _frameLineFollower_Board;}
+  const cv::Point2d& getPositionXYLineFollower_Board() const {return _positionXYLineFollower_Board;}
+  const cv::Affine3d& getFrameBoard_Camera() const {return _frameBoard_Camera;}
 
 private:
   void reset()
@@ -71,11 +71,9 @@ private:
     _rejectedMarkerCorners.clear();
     _boardDetected = false;
     _boardPoseEstimated = false;
-    _tVecBoardCamera = {0.0, 0.0, 0.0};
-    _rVecBoardCamera = {0.0, 0.0, 0.0};
-    _tVecObjectBoard = {0.0, 0.0, 0.0};
-    _rVecObjectBoard = {0.0, 0.0, 0.0};
-    _eulerAnglesObjectBoard = {0.0, 0.0, 0.0};
+    _frameBoard_Camera = cv::Affine3d::Identity();
+    _frameLineFollower_Board = cv::Affine3d::Identity();
+    _positionXYLineFollower_Board = {0.0, 0.0};
   }
 
   std::vector<std::vector<cv::Point3f>> getBoardMarkersPoints(
@@ -88,14 +86,16 @@ private:
   bool _boardPoseEstimated;
   float _boardMarkerSide;
 
-  std::pair<cv::Vec3d, cv::Vec3d> _poseBoardCamera;
-  cv::Vec3d& _tVecBoardCamera {_poseBoardCamera.first};
-  cv::Vec3d& _rVecBoardCamera {_poseBoardCamera.second};
+  /**
+   * Variable name convention used here:
+   *
+   * _frame[of the object]_[relative to this frame]
+   * _position[of the object]_[relatvie to this frame]
+  **/
+  cv::Affine3d _frameBoard_Camera;
 
-  std::pair<cv::Vec3d, cv::Vec3d> _poseObjectBoard;
-  cv::Vec3d& _tVecObjectBoard {_poseObjectBoard.first};
-  cv::Vec3d& _rVecObjectBoard {_poseObjectBoard.second};
-  cv::Vec3d _eulerAnglesObjectBoard;
+  cv::Affine3d _frameLineFollower_Board;
+  cv::Point2d _positionXYLineFollower_Board;
 
   cv::Mat _camMatrix;
   cv::Mat _distortionCoeffs;
@@ -117,30 +117,27 @@ public:
   LineFollowerDetector(
     const options::MarkerDetection& detectionOptions,
     const options::LineFollowerMarker& lineFollowerOptions,
-    bool canEstimatePose = false);
+    const options::CameraIntrinsic& calibtrationParamsIn);
 
   bool detectLineFollower(const cv::Mat& frame);
-  bool estimateLineFollowerPose();
+  bool estimateFrameLineFollower_Camera();
   void visualize(cv::Mat& frame);
 
-  std::pair<cv::Vec3d, cv::Vec3d> getLineFollowerPose() const
+  const cv::Affine3d& getFrameLineFollower_Camera() const
   {
-    return {_lineFollowerRVec, _lineFollowerTVec};
+    return _frameLineFollower_Camera;
   }
-  const cv::Vec3d& getRVec() const {return _lineFollowerRVec;}
-  const cv::Vec3d& getTVec() const {return _lineFollowerTVec;}
 
 private:
   void reset()
   {
-    _detectedMarkerCornersIterator = _detectedMarkersCorners.begin();
+    _iteratorToLineFollowerMarkerCorners = _detectedMarkersCorners.begin();
     _detectedMarkersCorners.clear();
     _detectedMarkerIDs.clear();
     _rejectedMarkersCorners.clear();
     _lineFollowerDetected = false;
     _lineFollowerPoseEstimated = false;
-    _lineFollowerTVec = {0.0, 0.0, 0.0};
-    _lineFollowerRVec = {0.0, 0.0, 0.0};
+    _frameLineFollower_Camera = cv::Affine3d::Identity();
   }
 
   bool hasCorrectID();
@@ -150,15 +147,14 @@ private:
   bool _lineFollowerPoseEstimated;
   int _markerID;
   float _markerSide;
-  std::vector<std::vector<cv::Point2f>>::iterator _detectedMarkerCornersIterator;
+  std::vector<std::vector<cv::Point2f>>::iterator _iteratorToLineFollowerMarkerCorners;
 
-  cv::Vec3d _lineFollowerTVec;
-  cv::Vec3d _lineFollowerRVec;
+  cv::Affine3d _frameLineFollower_Camera;
 
   cv::Mat _camMatrix;
   cv::Mat _distortionCoeffs;
 
-  cv::aruco::ArucoDetector _lineFollowerDetector;
+  cv::aruco::ArucoDetector _lineFollowerMarkerDetector;
 
   std::vector<cv::Vec3f> _markerObjPoints;
   std::vector<int> _detectedMarkerIDs;
@@ -167,13 +163,7 @@ private:
 
 };
 
-bool isNonZeroMatrix(const cv::Mat& matrix);
+void trackLineFollower(const options::Tracking& optionsIn, const fileio::OutputPath& outputPathIn);
+double calculateTrackingError(const cv::Point2d& positionIn, const options::Track& trackOptionsIn);
 
-void trackLineFollower(
-  const options::MarkerDetection& detectionOptions,
-  const options::BoardMarkers& boardMarkersOptions,
-  const options::LineFollowerMarker& lineFollowerOptions,
-  const std::string& outputFileName = "none");
-
-void calibrateCamera(const options::Calibration& options, const options::CalibrationOutput& output);
 }
