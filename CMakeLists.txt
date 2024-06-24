@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.11)
 project(LineFollowerTracker)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
