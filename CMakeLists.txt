@@ -16,7 +16,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 find_package(OpenCV REQUIRED)
-find_package(Eigen3 REQUIRED)
+find_package(Matplot++ REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
@@ -37,4 +37,7 @@ target_include_directories(line-follower-tracker PUBLIC
   ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(line-follower-tracker ${OpenCV_LIBS} Eigen3::Eigen)
+target_link_libraries(line-follower-tracker
+  ${OpenCV_LIBS}
+  Matplot++::matplot
+)
