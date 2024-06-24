@@ -1,7 +1,7 @@
 #include <fstream>
 #include <ctime>
 #include <iomanip>
-#include <opencv2/core.hpp>
+#include <opencv2/core/persistence.hpp>
 
 #include "errors.hpp"
 #include "fileio.hpp"
