@@ -86,7 +86,8 @@
       "variant": "cpp",
       "csetjmp": "cpp",
       "any": "cpp",
-      "dense": "cpp"
+      "dense": "cpp",
+      "shared_mutex": "cpp"
     },
     "editor.detectIndentation": false,
     "git.enableCommitSigning": true
