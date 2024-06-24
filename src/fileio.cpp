@@ -169,12 +169,32 @@ void fileio::readConfigFile(const std::string& filenameIn, options::CalibrationB
   cv::read(squaresQuantityXNode, optionsOut.squaresQuantityX, 0);
   cv::read(squaresQuantityYNode, optionsOut.squaresQuantityY, 0);
 }
-}
 
-std::stringstream fileio::createTimeStampedFileName(
-  const std::string& filedir,
-  const std::string& prefix,
-  const std::string& extension)
+void fileio::readConfigFile(const std::string& filenameIn, options::CameraIntrinsic& paramsOut)
+{
+  cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
+
+  if (!configFile.isOpened())
+    throw Error::CANNOT_OPEN_FILE;
+
+  auto cameraCalibrationNode {configFile["camera_calibration"]};
+
+  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
+    throw Error::MISSING_CALIBRATION_CONFIG;
+
+  // TODO: Make it more robust by adding read checks for individual parameters
+
+  auto cameraMatrixNode {cameraCalibrationNode["camera_matrix"]};
+  auto distortionCoefficientsNode {cameraCalibrationNode["distortion_coefficients"]};
+
+  cv::read(cameraMatrixNode, paramsOut.cameraMatrix, cv::Mat::zeros(cv::Size(3, 3), CV_32F));
+  cv::read(
+    distortionCoefficientsNode, paramsOut.distortionCoefficients,
+    cv::Mat::zeros(cv::Size(5, 1), CV_32F));
+
+  paramsOut.evaluateNonZero(); // Don't forget to check if either of the parameters are still zero
+                               // matrices even after reading.
+}
 {
   char filedirEndChar {};
 
