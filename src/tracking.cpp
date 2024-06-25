@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
 
 #include <errno.h>
 
@@ -354,10 +355,10 @@ void tracking::trackLineFollower(
   tracking::LineFollowerDetector lineFollowerDetector {
     optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams};
 
-  int totalIterations {};
-  double totalTime {};
-
   cv::Mat frame;
+  auto startTime {std::chrono::high_resolution_clock::now()};
+  std::chrono::duration<double, std::ratio<1L, 1L>> elapsedTime {};
+
   while(inputVideo.grab()) {
     inputVideo.retrieve(frame);
 
@@ -386,26 +387,20 @@ void tracking::trackLineFollower(
     if(key == 27)
       break;
 
-    double currentTime {
-      1000 * (static_cast<double>(cv::getTickCount()) - tick) / cv::getTickFrequency()};
-
-    totalTime += currentTime;
-    totalIterations++;
+    auto currentTime {std::chrono::high_resolution_clock::now()};
+    elapsedTime = currentTime - startTime;
 
     // Output specific stuff only from here.
     if (!hasOutputDir)
       continue;
 
-    if (totalIterations % 10 != 0)
-      continue;
-
     positionsOutput.writePosition(
-      lineFollowerBoardDetector.getPositionXYLineFollower_Board(), totalTime);
+      lineFollowerBoardDetector.getPositionXYLineFollower_Board(), elapsedTime.count());
 
-    errorsOutput.writeError(trackingError, totalTime);
+    errorsOutput.writeError(trackingError, elapsedTime.count());
 
     plotter.savePosition(lineFollowerBoardDetector.getPositionXYLineFollower_Board());
-    plotter.saveError(trackingError, totalTime);
+    plotter.saveError(trackingError, elapsedTime.count());
   }
 
   if (hasOutputDir) {
