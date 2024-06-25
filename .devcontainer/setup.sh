@@ -115,7 +115,7 @@ cd matplotplusplus
 
 if [ -d build ]
 then
-  rm -r build
+  rm -rf build
 fi
 
 # Build the library and install it
