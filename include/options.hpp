@@ -117,6 +117,12 @@ struct RoundTrack {
   double semiMajorAxis() const {return majorAxis * 0.5;}
   double semiMinorAxis() const {return minorAxis * 0.5;}
 
+  double calculatePerpendicularDistance(const cv::Point2d& positionIn) const
+  {
+    // TODO: Implement this method.
+    return 0;
+  }
+
 };
 
 enum class TrackSelection {
