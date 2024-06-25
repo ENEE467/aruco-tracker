@@ -15,17 +15,16 @@ plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
   _errorPlotFigure->size(1000, 500);
   _positionPlotFigure->size(1000, 640);
 
-  _errorPlotAxesHandle->title("Error Plot");
   _errorPlotAxesHandle->xlabel("Time (seconds)");
+  _errorPlotAxesHandle->ylabel("Error (centimeters)");
   _errorPlotAxesHandle->ylim({0, 15});
   _errorPlotAxesHandle->axes_aspect_ratio(1 / 2); // Aspect ratio: Height / Width
 
-  _positionPlotAxesHandle->title("Line Follower Position");
-  _positionPlotAxesHandle->xlabel("X Position (meters)");
-  _positionPlotAxesHandle->ylabel("Y Position (meters)");
+  _positionPlotAxesHandle->xlabel("X Position (centimeters)");
+  _positionPlotAxesHandle->ylabel("Y Position (centimeters)");
 
-  _positionPlotAxesHandle->xlim({0, boardMarkersOptions.markerSeperationMetersX});
-  _positionPlotAxesHandle->ylim({0, boardMarkersOptions.markerSeperationMetersY});
+  _positionPlotAxesHandle->xlim({0, boardMarkersOptions.markerSeperationMetersX * 100});
+  _positionPlotAxesHandle->ylim({0, boardMarkersOptions.markerSeperationMetersY * 100});
   _positionPlotAxesHandle->axes_aspect_ratio(
     boardMarkersOptions.markerSeperationMetersY / boardMarkersOptions.markerSeperationMetersX);
 }
@@ -52,12 +51,11 @@ void plotting::Plotter::setReferenceLineTrack(const options::LineTrack& referenc
 {
   _referenceTrackPoints.first.clear();
   _referenceTrackPoints.second.clear();
-  _referenceTrackPoints.first.reserve(4);
-  _referenceTrackPoints.second.reserve(4);
+  _referenceTrackPoints.first.reserve(2);
+  _referenceTrackPoints.second.reserve(2);
 
-  _referenceTrackPoints = {
-    {referenceTrackIn.point1.x, referenceTrackIn.point2.x},
-    {referenceTrackIn.point1.y, referenceTrackIn.point2.y}};
+  _referenceTrackPoints.first = {referenceTrackIn.point1.x * 100, referenceTrackIn.point2.x * 100};
+  _referenceTrackPoints.second = {referenceTrackIn.point1.y * 100, referenceTrackIn.point2.y * 100};
 }
 
 void plotting::Plotter::setReferenceRoundTrack(const options::RoundTrack& referenceTrackIn)
@@ -68,21 +66,21 @@ void plotting::Plotter::setReferenceRoundTrack(const options::RoundTrack& refere
   _referenceTrackPoints.second.reserve(361);
 
   for (double theta {0.0}; theta < 2 * M_PI; theta += M_PI / 180) {
-    _referenceTrackPoints.first.push_back(referenceTrackIn.semiMajorAxis() * std::cos(theta));
-    _referenceTrackPoints.second.push_back(referenceTrackIn.semiMinorAxis() * std::sin(theta));
+    _referenceTrackPoints.first.push_back(100 * referenceTrackIn.semiMajorAxis() * std::cos(theta));
+    _referenceTrackPoints.second.push_back(100 * referenceTrackIn.semiMinorAxis() * std::sin(theta));
   }
 }
 
 void plotting::Plotter::savePosition(const cv::Point2d& positionIn)
 {
-  _lineFollowerPositions.first.push_back(positionIn.x);
-  _lineFollowerPositions.second.push_back(positionIn.y);
+  _lineFollowerPositions.first.push_back(100 * positionIn.x);
+  _lineFollowerPositions.second.push_back(100 * positionIn.y);
 }
 
 void plotting::Plotter::saveError(double errorIn, double timeIn)
 {
   _trackingErrors.first.push_back(timeIn);
-  _trackingErrors.second.push_back(errorIn);
+  _trackingErrors.second.push_back(100 * errorIn);
 }
 
 void plotting::Plotter::savePlots(const fileio::OutputPath& outputPathIn)
