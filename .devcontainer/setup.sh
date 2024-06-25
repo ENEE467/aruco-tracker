@@ -113,8 +113,14 @@ cd matplotplusplus
 
 # $PROJECT_ROOT/libs/matplotplusplus is now the current working directory
 
+if [ -d build ]
+then
+  rm -r build
+fi
+
 # Build the library and install it
-cmake --build build/system
+cmake --preset=system
+cmake --build --preset=system
 sudo cmake --install build/system
 
 printf "\nSetup complete, environment is now ready to use! \n"
