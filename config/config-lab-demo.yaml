@@ -4,6 +4,9 @@
 # Common detection parameters that apply to both detection and calibration modes.
 marker_detection:
    camera_id: 0
+   frame_width_pixels: 640
+   frame_height_pixels: 480
+   frame_rate_fps: 30
    show_rejected_markers: 0
 #
 # Parameters specific to line follower marker.
