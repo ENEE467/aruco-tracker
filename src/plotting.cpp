@@ -17,7 +17,7 @@ plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
 
   _errorPlotAxesHandle->title("Error Plot");
   _errorPlotAxesHandle->xlabel("Time (seconds)");
-  _errorPlotAxesHandle->ylabel("Error (meters)");
+  _errorPlotAxesHandle->ylim({0, 15});
   _errorPlotAxesHandle->axes_aspect_ratio(1 / 2); // Aspect ratio: Height / Width
 
   _positionPlotAxesHandle->title("Line Follower Position");
