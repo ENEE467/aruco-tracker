@@ -29,7 +29,7 @@ plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
     boardMarkersOptions.markerSeperationMetersY / boardMarkersOptions.markerSeperationMetersX);
 }
 
-void plotting::Plotter::setReferenceTrack(const options::LineTrack& referenceTrackIn)
+void plotting::Plotter::setReferenceLineTrack(const options::LineTrack& referenceTrackIn)
 {
   _referenceTrackPoints.first.clear();
   _referenceTrackPoints.second.clear();
@@ -41,7 +41,7 @@ void plotting::Plotter::setReferenceTrack(const options::LineTrack& referenceTra
     {referenceTrackIn.point1.y, referenceTrackIn.point2.y}};
 }
 
-void plotting::Plotter::setReferenceTrack(const options::RoundTrack& referenceTrackIn)
+void plotting::Plotter::setReferenceRoundTrack(const options::RoundTrack& referenceTrackIn)
 {
   _referenceTrackPoints.first.clear();
   _referenceTrackPoints.second.clear();
