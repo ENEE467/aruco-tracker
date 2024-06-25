@@ -109,5 +109,7 @@ void plotting::Plotter::savePlots(const fileio::OutputPath& outputPathIn)
   _positionPlotAxesHandle->hold(matplot::on);
   _positionPlotAxesHandle->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o");
   _positionPlotAxesHandle->hold(matplot::off);
+  _positionPlotAxesHandle->legend({"Reference Path", "Actual Path"});
+
   _positionPlotFigure->save(positionPlotPath.str());
 }
