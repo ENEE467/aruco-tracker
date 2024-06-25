@@ -337,6 +337,7 @@ void tracking::trackLineFollower(
   }
 
   plotting::Plotter plotter {optionsIn.boardMarkers};
+  plotter.setReferenceTrack(optionsIn.track);
 
   std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << '\n';
 
