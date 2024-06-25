@@ -3,7 +3,7 @@
 #
 # Common detection parameters that apply to both detection and calibration modes.
 marker_detection:
-   camera_id: 0
+   camera_id: 4
    frame_width_pixels: 640
    frame_height_pixels: 480
    frame_rate_fps: 30
@@ -11,7 +11,7 @@ marker_detection:
 #
 # Parameters specific to line follower marker.
 line_follower_marker:
-   marker_side_meters: 4.7200001776218414e-02
+   marker_side_meters: 10.00e-02
    marker_id: 5
    marker_dictionary_id: 17
 #
@@ -28,11 +28,11 @@ track_selection: 1
 #
 line_track:
    point1:
-      x_meters: 0.
-      y_meters: 0.
+      x_meters: 7.62e-02
+      y_meters: 20.955e-02
    point2:
-      x_meters: 0.
-      y_meters: 0.
+      x_meters: 62.23e-02
+      y_meters: 20.955e-02
 #
 round_track:
    center:
