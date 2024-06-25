@@ -15,6 +15,7 @@ class Plotter {
 public:
   Plotter(const options::BoardMarkers& boardMarkersOptions);
 
+  void setReferenceTrack(const options::Track& trackOptionsIn);
   void setReferenceLineTrack(const options::LineTrack& referenceTrackIn);
   void setReferenceRoundTrack(const options::RoundTrack& referenceTrackIn);
 
