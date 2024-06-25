@@ -1,4 +1,5 @@
 #include "plotting.hpp"
+#include "errors.hpp"
 
 plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
 : _errorPlotFigure {matplot::figure(true)},
@@ -27,6 +28,24 @@ plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
   _positionPlotAxesHandle->ylim({0, boardMarkersOptions.markerSeperationMetersY});
   _positionPlotAxesHandle->axes_aspect_ratio(
     boardMarkersOptions.markerSeperationMetersY / boardMarkersOptions.markerSeperationMetersX);
+}
+
+void plotting::Plotter::setReferenceTrack(const options::Track& trackOptionsIn)
+{
+  switch (trackOptionsIn.selection) {
+
+  case options::TrackSelection::LINE:
+    setReferenceLineTrack(trackOptionsIn.lineTrack);
+    break;
+
+  case options::TrackSelection::ROUND:
+    setReferenceRoundTrack(trackOptionsIn.roundTrack);
+    break;
+
+  default:
+    throw Error::INVALID_TRACK_OPTION;
+
+  }
 }
 
 void plotting::Plotter::setReferenceLineTrack(const options::LineTrack& referenceTrackIn)
