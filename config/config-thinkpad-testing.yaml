@@ -28,11 +28,11 @@ track_selection: 1
 #
 line_track:
    point1:
-      x_meters: 0.
-      y_meters: 0.
+      x_meters: 3.00e-02
+      y_meters: 3.00e-02
    point2:
-      x_meters: 0.
-      y_meters: 0.
+      x_meters: 14.4e-02
+      y_meters: 3.00e-02
 #
 round_track:
    center:
