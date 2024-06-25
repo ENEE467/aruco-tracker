@@ -91,14 +91,21 @@ void plotting::Plotter::savePlots(const fileio::OutputPath& outputPathIn)
     fileio::createPath(
       outputPathIn.directoryPath.str(), "error-plot", outputPathIn.outputName, "jpg")};
 
+  _errorPlotAxesHandle->title_enhanced(false);
+  _errorPlotAxesHandle->title("Error Plot " + outputPathIn.outputName);
+
   _errorPlotAxesHandle->plot(_trackingErrors.first, _trackingErrors.second, "-r");
+
   _errorPlotFigure->save(errorPlotPath.str());
 
   std::stringstream positionPlotPath {
     fileio::createPath(
       outputPathIn.directoryPath.str(), "positions-plot", outputPathIn.outputName, "jpg")};
 
-  _positionPlotAxesHandle->plot(_referenceTrackPoints.first, _referenceTrackPoints.second, "b");
+  _positionPlotAxesHandle->title_enhanced(false);
+  _positionPlotAxesHandle->title("Line Follower Position " + outputPathIn.outputName);
+
+  _positionPlotAxesHandle->plot(_referenceTrackPoints.first, _referenceTrackPoints.second, "g");
   _positionPlotAxesHandle->hold(matplot::on);
   _positionPlotAxesHandle->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o");
   _positionPlotFigure->save(positionPlotPath.str());
