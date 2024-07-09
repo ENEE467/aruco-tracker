@@ -186,4 +186,10 @@ private:
 
 double calculateTrackingError(const cv::Point2d& positionIn, const options::Track& trackOptionsIn);
 
+void trackLineFollower(
+  const options::Tracking& optionsIn,
+  const std::string& outputParentDirectoryPathIn,
+  const std::string& outputName);
+
+
 }
