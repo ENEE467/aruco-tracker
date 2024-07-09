@@ -64,10 +64,7 @@ int main(int argc, char *argv[]) {
 
   if (!calibrationMode) {
     fileio::readConfigFile(configFilePath, trackingOptions);
-    fileio::OutputPath trackingOutput {};
-    trackingOutput.setPath(outputDir, outputName);
-
-    tracking::trackLineFollower(trackingOptions, trackingOutput);
+    tracking::trackLineFollower(trackingOptions, outputDir, outputName);
   }
   else {
     std::string outputConfigPath {};
