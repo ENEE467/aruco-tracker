@@ -2,10 +2,8 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
-
-#include <errno.h>
-
-// #include <Eigen/Dense>
+#include <memory>
+#include <filesystem>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
@@ -289,6 +287,33 @@ bool tracking::LineFollowerDetector::hasCorrectID()
 
   _lineFollowerDetected = true;
   return _lineFollowerDetected;
+}
+
+void tracking::Output::open(
+  const options::Tracking& trackingOptionsIn,
+  const std::string& outputParentDirectoryPathIn,
+  const std::string& outputNameIn)
+{
+  _outputDirectoryPath = fileio::createPath(outputParentDirectoryPathIn, "run", outputNameIn, "").str();
+  std::filesystem::create_directory(_outputDirectoryPath);
+  _outputName = outputNameIn;
+
+  positionsOutput.reset(new fileio::CSVFile(_outputDirectoryPath, "positions", outputNameIn));
+  errorsOutput.reset(new fileio::CSVFile(_outputDirectoryPath, "errors", outputNameIn));
+  plotsOutput.reset(new plotting::Plotter(trackingOptionsIn.boardMarkers));
+  plotsOutput->setReferenceTrack(trackingOptionsIn.track);
+}
+
+void tracking::Output::close()
+{
+  positionsOutput.reset(nullptr);
+  errorsOutput.reset(nullptr);
+
+  plotsOutput->savePlots(_outputDirectoryPath, _outputName);
+  plotsOutput.reset(nullptr);
+
+  _outputDirectoryPath.clear();
+  _outputName.clear();
 }
 
 double tracking::calculateTrackingError(
