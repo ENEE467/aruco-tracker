@@ -159,24 +159,34 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
 
   optionsOut.selection = trackSelection;
 
+  cv::Point2d readLineTrackPoint1 {0, 0};
+  cv::Point2d readLineTrackPoint2 {0, 0};
+  cv::Point2d readRoundTrackCenter {0, 0};
+  double readRoundTrackMajorAxis {0};
+  double readRoundTrackMinorAxis {0};
+
   // Read config file
   switch (optionsOut.selection) {
 
   case options::TrackSelection::LINE:
-    cv::read(lineTrackNode["point1"]["x_meters"], optionsOut.lineTrack.point1.x, 0.0);
-    cv::read(lineTrackNode["point1"]["y_meters"], optionsOut.lineTrack.point1.y, 0.0);
-    cv::read(lineTrackNode["point2"]["x_meters"], optionsOut.lineTrack.point2.x, 0.0);
-    cv::read(lineTrackNode["point2"]["y_meters"], optionsOut.lineTrack.point2.y, 0.0);
+    cv::read(lineTrackNode["point1"]["x_meters"], readLineTrackPoint1.x, 0.0);
+    cv::read(lineTrackNode["point1"]["y_meters"], readLineTrackPoint1.y, 0.0);
+    cv::read(lineTrackNode["point2"]["x_meters"], readLineTrackPoint2.x, 0.0);
+    cv::read(lineTrackNode["point2"]["y_meters"], readLineTrackPoint2.y, 0.0);
 
-    optionsOut.lineTrack.updateLength(); // Don't forget to update the length after reading the
-                                         // new points.
+    optionsOut.lineTrack.setPoints(readLineTrackPoint1, readLineTrackPoint2);
+
     break;
 
   case options::TrackSelection::ROUND:
-    cv::read(roundTrackNode["center"]["x_meters"], optionsOut.roundTrack.center.x, 0.0);
-    cv::read(roundTrackNode["center"]["y_meters"], optionsOut.roundTrack.center.y, 0.0);
-    cv::read(roundTrackNode["major_axis_meters"], optionsOut.roundTrack.majorAxis, 0.0);
-    cv::read(roundTrackNode["minor_axis_meters"], optionsOut.roundTrack.minorAxis, 0.0);
+    cv::read(roundTrackNode["center"]["x_meters"], readRoundTrackCenter.x, 0.0);
+    cv::read(roundTrackNode["center"]["y_meters"], readRoundTrackCenter.y, 0.0);
+    cv::read(roundTrackNode["major_axis_meters"], readRoundTrackMajorAxis, 0.0);
+    cv::read(roundTrackNode["minor_axis_meters"], readRoundTrackMinorAxis, 0.0);
+
+    optionsOut.roundTrack.setParameters(
+      readRoundTrackCenter, readRoundTrackMajorAxis, readRoundTrackMinorAxis);
+
     break;
 
   default:
