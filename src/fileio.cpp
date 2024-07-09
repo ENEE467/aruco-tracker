@@ -381,13 +381,13 @@ void fileio::writeConfigFile(
   configFile.startWriteStruct("line_track", cv::FileNode::MAP);
 
     configFile.startWriteStruct("point1", cv::FileNode::MAP);
-      configFile << "x_meters" << trackOptionsIn.lineTrack.point1.x;
-      configFile << "y_meters" << trackOptionsIn.lineTrack.point1.y;
+      configFile << "x_meters" << trackOptionsIn.lineTrack.getPoint1().x;
+      configFile << "y_meters" << trackOptionsIn.lineTrack.getPoint1().y;
     configFile.endWriteStruct();
 
     configFile.startWriteStruct("point2", cv::FileNode::MAP);
-      configFile << "x_meters" << trackOptionsIn.lineTrack.point2.x;
-      configFile << "y_meters" << trackOptionsIn.lineTrack.point2.y;
+      configFile << "x_meters" << trackOptionsIn.lineTrack.getPoint2().x;
+      configFile << "y_meters" << trackOptionsIn.lineTrack.getPoint2().y;
     configFile.endWriteStruct();
 
   configFile.endWriteStruct();
@@ -396,12 +396,12 @@ void fileio::writeConfigFile(
   configFile.startWriteStruct("round_track", cv::FileNode::MAP);
 
     configFile.startWriteStruct("center", cv::FileNode::MAP);
-      configFile << "x_meters" << trackOptionsIn.roundTrack.center.x;
-      configFile << "y_meters" << trackOptionsIn.roundTrack.center.y;
+      configFile << "x_meters" << trackOptionsIn.roundTrack.getCenter().x;
+      configFile << "y_meters" << trackOptionsIn.roundTrack.getCenter().y;
     configFile.endWriteStruct();
 
-    configFile << "major_axis_meters" << trackOptionsIn.roundTrack.majorAxis;
-    configFile << "minor_axis_meters" << trackOptionsIn.roundTrack.minorAxis;
+    configFile << "major_axis_meters" << trackOptionsIn.roundTrack.getMajorAxisLength();
+    configFile << "minor_axis_meters" << trackOptionsIn.roundTrack.getMinorAxisLength();
 
   configFile.endWriteStruct();
 
