@@ -346,7 +346,8 @@ double tracking::calculateTrackingError(
 
 void tracking::trackLineFollower(
   const options::Tracking& optionsIn,
-  const fileio::OutputPath& outputPathIn)
+  const std::string& outputParentDirectoryPathIn,
+  const std::string& outputNameIn)
 {
   bool hasOutputDir {!outputPathIn.directoryPath.str().empty()};
   fileio::CSVFile positionsOutput {};
