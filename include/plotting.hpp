@@ -29,9 +29,10 @@ private:
   matplot::axes_handle _errorPlotAxesHandle;
   matplot::axes_handle _positionPlotAxesHandle;
 
+  matplot::line_handle _referenceTrack;
+
   std::pair<std::vector<double>, std::vector<double>> _lineFollowerPositions;
   std::pair<std::vector<double>, std::vector<double>> _trackingErrors;
-  std::pair<std::vector<double>, std::vector<double>> _referenceTrackPoints;
 
 };
 
