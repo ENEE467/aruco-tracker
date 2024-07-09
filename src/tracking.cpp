@@ -325,14 +325,11 @@ double tracking::calculateTrackingError(
   switch (trackOptionsIn.selection) {
 
   case options::TrackSelection::LINE:
-    if (trackOptionsIn.lineTrack.length == 0)
-      break;
-
     trackingError = trackOptionsIn.lineTrack.calculatePerpendicularDistance(positionIn);
     break;
 
   case options::TrackSelection::ROUND:
-    // TODO: Call the perpendicular distance method here
+    trackingError = trackOptionsIn.roundTrack.calculatePerpendicularDistance(positionIn);
     break;
 
   default:
