@@ -7,32 +7,45 @@
 #include "errors.hpp"
 #include "fileio.hpp"
 
-fileio::OutputPath::OutputPath()
-: directoryPath {},
-  outputName {}
+fileio::CSVFile::CSVFile()
+: _outputCSVFile {}
 {}
 
-fileio::OutputPath::OutputPath(
-  const std::string& parentDirectoryIn,
+fileio::CSVFile::CSVFile(
+  const std::string& outputDirectoryIn,
+  const std::string& prefixIn,
   const std::string& outputNameIn
 )
-: directoryPath {createPath(parentDirectoryIn, "run", outputNameIn, "")},
-  outputName {outputNameIn}
+: _outputCSVFile {
+    createPath(outputDirectoryIn, prefixIn, outputNameIn, "csv").str()}
 {
-  std::filesystem::create_directory(directoryPath.str());
+  if (!_outputCSVFile.is_open())
+    throw Error::CANNOT_OPEN_FILE;
 }
 
-void fileio::OutputPath::setPath(
-  const std::string& parentDirectoryIn,
+void fileio::CSVFile::setOutputPath(
+  const std::string& outputDirectoryIn,
+  const std::string& prefixIn,
   const std::string& outputNameIn)
 {
-  if (parentDirectoryIn.empty())
+  if (outputDirectoryIn.empty())
     return;
 
-  directoryPath = createPath(parentDirectoryIn, "run", outputNameIn, "");
-  outputName = outputNameIn;
+  _outputCSVFile.open(
+    createPath(outputDirectoryIn, prefixIn, outputNameIn, "csv").str());
 
-  std::filesystem::create_directory(directoryPath.str());
+  if (!_outputCSVFile.is_open())
+    throw Error::CANNOT_OPEN_FILE;
+}
+
+void fileio::CSVFile::writePosition(const cv::Point2d& positionIn, const int timeSecondsIn)
+{
+  _outputCSVFile << positionIn.x << ", " << positionIn.y << ", " << timeSecondsIn << '\n';
+}
+
+void fileio::CSVFile::writeError(const double errorIn, const double timeSecondsIn)
+{
+  _outputCSVFile << errorIn << ", " << timeSecondsIn << '\n';
 }
 
 void fileio::readConfigFile(const std::string& filenameIn, options::MarkerDetection& optionsOut)
@@ -394,40 +407,4 @@ void fileio::writeConfigFile(
   configFile.endWriteStruct();
 
   configFile.release();
-}
-
-fileio::CSVFile::CSVFile()
-: _outputCSVFile {}
-{}
-
-fileio::CSVFile::CSVFile(const OutputPath& outputPathIn, const std::string& prefixIn)
-: _outputCSVFile {
-    createPath(outputPathIn.directoryPath.str(), prefixIn, outputPathIn.outputName, "csv").str()}
-{
-  if (!_outputCSVFile.is_open())
-    throw Error::CANNOT_OPEN_FILE;
-}
-
-void fileio::CSVFile::setOutputPath(
-  const OutputPath& outputPathIn,
-  const std::string& prefixIn)
-{
-  if (outputPathIn.directoryPath.str().empty())
-    return;
-
-  _outputCSVFile.open(
-    createPath(outputPathIn.directoryPath.str(), prefixIn, outputPathIn.outputName, "csv").str());
-
-  if (!_outputCSVFile.is_open())
-    throw Error::CANNOT_OPEN_FILE;
-}
-
-void fileio::CSVFile::writePosition(const cv::Point2d& positionIn, int timeSecondsIn)
-{
-  _outputCSVFile << positionIn.x << ", " << positionIn.y << ", " << timeSecondsIn << '\n';
-}
-
-void fileio::CSVFile::writeError(const double& errorIn, const double& timeSecondsIn)
-{
-  _outputCSVFile << errorIn << ", " << timeSecondsIn << '\n';
 }
