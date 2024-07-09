@@ -116,26 +116,92 @@ private:
   double _lengthInv;
 
 };
+
+class RoundTrack {
+
+public:
   RoundTrack()
-  : center {0, 0},
-    majorAxis {0},
-    minorAxis {0}
+  : _center {0, 0},
+    _majorAxisLength {0},
+    _minorAxisLength {0},
+    _a {0},
+    _b {0},
+    _aInv {0},
+    _bInv {0},
+    _evoluteXCalcMidPart {0},
+    _evoluteYCalcMidPart {0}
   {}
 
-  RoundTrack(double xIn, double yIn, double majorAxisIn, double minorAxisIn)
-  : center {xIn, yIn},
-    majorAxis {majorAxisIn},
-    minorAxis {minorAxisIn}
-  {}
-
-  double semiMajorAxis() const {return majorAxis * 0.5;}
-  double semiMinorAxis() const {return minorAxis * 0.5;}
-
-  double calculatePerpendicularDistance(const cv::Point2d& positionIn) const
+  RoundTrack(double xIn, double yIn, double majorAxisLengthIn, double minorAxisLengthIn)
+  : _center {xIn, yIn},
+    _majorAxisLength {majorAxisLengthIn},
+    _minorAxisLength {minorAxisLengthIn}
   {
-    // TODO: Implement this method.
-    return 0;
+    updateParameters();
   }
+
+  void setParameters(const cv::Point2d& centerIn, double majorAxisLengthIn, double minorAxisLengthIn)
+  {
+    _center = centerIn;
+    _majorAxisLength = majorAxisLengthIn;
+    _minorAxisLength = minorAxisLengthIn;
+
+    updateParameters();
+  }
+
+  const cv::Point2d& getCenter() const {return _center;}
+  const double getMajorAxisLength() const {return _majorAxisLength;}
+  const double getMinorAxisLength() const {return _minorAxisLength;}
+  const double getSemiMajorAxisLength() const {return _a;}
+  const double getSemiMinorAxisLength() const {return _b;}
+
+  const double calculatePerpendicularDistance(const cv::Point2d& positionIn) const
+  {
+    double perpendicularDistance {0.0};
+
+    if (_a <= 0 || _b <= 0)
+      return perpendicularDistance;
+
+    double evoluteT {
+      std::atan2((positionIn.y - _center.y) * _bInv, (positionIn.x - _center.x) * _aInv)};
+
+    double sinEvoluteT {std::sin(evoluteT)};
+    double cosEvoluteT {std::cos(evoluteT)};
+
+    double evoluteX {_center.x + _evoluteXCalcMidPart * std::pow(cosEvoluteT, 3)};
+    double evoluteY {_center.y + _evoluteYCalcMidPart * std::pow(sinEvoluteT, 3)};
+
+    double radiusOfCurvature {
+      std::pow(_b*_b * cosEvoluteT*cosEvoluteT + _a*_a * sinEvoluteT*sinEvoluteT, 1.5) * (_aInv*_bInv)};
+
+    double distanceToEvolute {std::hypot(positionIn.x - evoluteX, positionIn.y - evoluteY)};
+
+    perpendicularDistance = std::abs(distanceToEvolute - radiusOfCurvature);
+
+    return perpendicularDistance;
+  }
+
+private:
+  void updateParameters()
+  {
+    _a = _majorAxisLength / 2;
+    _b = _minorAxisLength / 2;
+    _aInv = _a ? 1 / _a : 0;
+    _bInv = _b ? 1 / _b : 0;
+    _evoluteXCalcMidPart = (_a*_a - _b*_b) * _aInv;
+    _evoluteYCalcMidPart = (_b*_b - _a*_a) * _bInv;
+  }
+
+  cv::Point2d _center;
+  double _majorAxisLength;
+  double _minorAxisLength;
+
+  double _a;
+  double _b;
+  double _aInv;
+  double _bInv;
+  double _evoluteXCalcMidPart;
+  double _evoluteYCalcMidPart;
 
 };
 
