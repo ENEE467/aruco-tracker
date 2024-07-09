@@ -7,12 +7,10 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
-// #include <opencv2/core/eigen.hpp>
 
 #include "tracking.hpp"
 #include "errors.hpp"
 #include "fileio.hpp"
-#include "plotting.hpp"
 
 tracking::BoardDetector::BoardDetector(
   const options::MarkerDetection& detectionOptionsIn,
