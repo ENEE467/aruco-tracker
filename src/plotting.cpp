@@ -98,7 +98,7 @@ void plotting::Plotter::savePlots(
     fileio::createPath(outputDirectoryIn, "positions-plot", outputNameIn, "jpg")};
 
   _positionPlotAxesHandle->title_enhanced(false);
-  _positionPlotAxesHandle->title("Line Follower Position " + outputPathIn.outputName);
+  _positionPlotAxesHandle->title("Line Follower Position " + outputNameIn);
 
   _positionPlotAxesHandle->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o");
   _positionPlotAxesHandle->legend({"Reference Path", "Actual Path"});
