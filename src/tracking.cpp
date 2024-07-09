@@ -349,27 +349,17 @@ void tracking::trackLineFollower(
   const std::string& outputParentDirectoryPathIn,
   const std::string& outputNameIn)
 {
-  bool hasOutputDir {!outputPathIn.directoryPath.str().empty()};
-  fileio::CSVFile positionsOutput {};
-  fileio::CSVFile errorsOutput {};
+  bool hasOutputDir {!outputParentDirectoryPathIn.empty()};
+  Output trackingOutput;
 
-  if (hasOutputDir) {
-    positionsOutput.setOutputPath(outputPathIn, "positions");
-    errorsOutput.setOutputPath(outputPathIn, "errors");
-
-    std::cout << "Tracking output will be saved to: " << outputPathIn.directoryPath.str() << '\n';
-  }
-  else {
-    std::cout << "No output directory is given, tracking output will not be saved." << '\n';
-  }
-
-  plotting::Plotter plotter {optionsIn.boardMarkers};
-  plotter.setReferenceTrack(optionsIn.track);
+  std::chrono::_V2::system_clock::time_point startTime {};
+  std::chrono::_V2::system_clock::time_point currentTime {};
+  std::chrono::duration<double, std::ratio<1L, 1L>> elapsedTime {};
+  bool saveOutput {false};
 
   std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << '\n';
 
   cv::VideoCapture inputVideo;
-  int waitTime {10};
   inputVideo.open(optionsIn.detection.camID);
   inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, optionsIn.detection.frameWidthPixels);
   inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, optionsIn.detection.frameHeightPixels);
@@ -382,8 +372,6 @@ void tracking::trackLineFollower(
     optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams};
 
   cv::Mat frame;
-  auto startTime {std::chrono::high_resolution_clock::now()};
-  std::chrono::duration<double, std::ratio<1L, 1L>> elapsedTime {};
 
   while(inputVideo.grab()) {
     inputVideo.retrieve(frame);
@@ -409,27 +397,40 @@ void tracking::trackLineFollower(
 
     cv::imshow("Line Follower tracking", frame);
 
-    char key {static_cast<char>(cv::waitKey(waitTime))};
-    if(key == 27)
+    char key {static_cast<char>(cv::waitKey(10))};
+    if(key == 27) {
       break;
+    }
+    else if (key == 32) {
+      saveOutput = !saveOutput && hasOutputDir;
 
-    auto currentTime {std::chrono::high_resolution_clock::now()};
-    elapsedTime = currentTime - startTime;
+      if (saveOutput) {
+        trackingOutput.open(optionsIn, outputParentDirectoryPathIn, outputNameIn);
+        startTime = std::chrono::high_resolution_clock::now();
+        std::cout << "Tracking has begun, good luck!" << '\n';
+      }
+      else if ((!saveOutput)) {
+        trackingOutput.close();
+        std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
+      }
+    }
 
     // Output specific stuff only from here.
-    if (!hasOutputDir)
+    if (!saveOutput)
       continue;
 
-    positionsOutput.writePosition(
+    currentTime = std::chrono::high_resolution_clock::now();
+    elapsedTime = currentTime - startTime;
+
+    trackingOutput.errorsOutput->writeError(trackingError, elapsedTime.count());
+
+    trackingOutput.positionsOutput->writePosition(
       lineFollowerBoardDetector.getPositionXYLineFollower_Board(), elapsedTime.count());
 
-    errorsOutput.writeError(trackingError, elapsedTime.count());
+    trackingOutput.plotsOutput->saveError(trackingError, elapsedTime.count());
 
-    plotter.savePosition(lineFollowerBoardDetector.getPositionXYLineFollower_Board());
-    plotter.saveError(trackingError, elapsedTime.count());
+    trackingOutput.plotsOutput->savePosition(
+      lineFollowerBoardDetector.getPositionXYLineFollower_Board());
   }
 
-  if (hasOutputDir) {
-    plotter.savePlots(outputPathIn);
-  }
 }
