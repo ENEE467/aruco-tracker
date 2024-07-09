@@ -42,6 +42,7 @@ the use of this software, even if advised of the possibility of such damage.
 
 #include "options.hpp"
 #include "fileio.hpp"
+#include "plotting.hpp"
 
 namespace tracking {
 
@@ -163,7 +164,26 @@ private:
 
 };
 
-void trackLineFollower(const options::Tracking& optionsIn, const fileio::OutputPath& outputPathIn);
+struct Output {
+
+public:
+  std::unique_ptr<fileio::CSVFile> positionsOutput;
+  std::unique_ptr<fileio::CSVFile> errorsOutput;
+  std::unique_ptr<plotting::Plotter> plotsOutput;
+
+  void open(
+    const options::Tracking& trackingOptionsIn,
+    const std::string& outputParentDirectoryPathIn,
+    const std::string& outputNameIn);
+
+  void close();
+
+private:
+  std::string _outputDirectoryPath;
+  std::string _outputName;
+
+};
+
 double calculateTrackingError(const cv::Point2d& positionIn, const options::Track& trackOptionsIn);
 
 }
