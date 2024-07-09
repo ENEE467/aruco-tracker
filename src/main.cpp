@@ -3,10 +3,8 @@
 #include "tracking.hpp"
 #include "calibration.hpp"
 
-using namespace std;
-using namespace cv;
-
 namespace {
+
 const char* about = "Line follower tracking using ArUco markers";
 
 //! [aruco_detect_markers_keys]
@@ -15,11 +13,12 @@ const char* keys  =
   "{calibration          | false | Enable calibration mode }"
   "{output               |       | Output file directory for a new configuration file }"
   "{name                 |       | Name of the output}";
+
 }
 //! [aruco_detect_markers_keys]
 
 int main(int argc, char *argv[]) {
-  CommandLineParser parser(argc, argv, keys);
+  cv::CommandLineParser parser(argc, argv, keys);
   parser.about(about);
 
   // if (argc < 2) {
