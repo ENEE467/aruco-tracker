@@ -6,7 +6,6 @@
 // #include <matplot/backend/opengl.h>
 
 #include "options.hpp"
-#include "fileio.hpp"
 
 namespace plotting {
 
@@ -21,7 +20,7 @@ public:
 
   void savePosition(const cv::Point2d& positionIn);
   void saveError(double errorIn, double timeIn);
-  void savePlots(const fileio::OutputPath& outputPathIn);
+  void savePlots(const std::string& outputDirectoryIn, const std::string& outputNameIn = "");
 
 private:
   matplot::figure_handle _errorPlotFigure;
