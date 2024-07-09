@@ -6,6 +6,27 @@
 #include "options.hpp"
 
 namespace fileio {
+class CSVFile {
+
+public:
+  CSVFile();
+  CSVFile(
+    const std::string& outputDirectoryIn,
+    const std::string& prefixIn = "",
+    const std::string& outputName = "");
+
+  void setOutputPath(
+    const std::string& outputDirectoryIn,
+    const std::string& prefixIn = "",
+    const std::string& outputName = ""
+  );
+  void writePosition(const cv::Point2d& positionIn, const int timeSecondsIn = 0);
+  void writeError(const double errorIn, const double timeSecondsIn);
+
+private:
+  std::ofstream _outputCSVFile;
+
+};
 
 void readConfigFile(const std::string& filenameIn, options::MarkerDetection& optionsOut);
 void readConfigFile(const std::string& filenameIn, options::LineFollowerMarker& optionsOut);
@@ -36,36 +57,5 @@ std::stringstream createPath(
   const std::string& prefixIn,
   const std::string& nameIn,
   const std::string& extensionIn);
-
-struct OutputPath {
-
-  std::stringstream directoryPath;
-  std::string outputName;
-
-  OutputPath();
-  OutputPath(
-    const std::string& parentDirectoryIn,
-    const std::string& outputNameIn = "");
-
-  void setPath(
-    const std::string& parentDirectoryIn,
-    const std::string& outputNameIn = "");
-
-};
-
-class CSVFile {
-
-public:
-  CSVFile();
-  CSVFile(const OutputPath& outputPathIn, const std::string& prefixIn = "");
-
-  void setOutputPath(const OutputPath& outputPathIn, const std::string& prefixIn = "");
-  void writePosition(const cv::Point2d& positionIn, int timeSecondsIn = 0);
-  void writeError(const double& errorIn, const double& timeSecondsIn);
-
-private:
-  std::ofstream _outputCSVFile;
-
-};
 
 }
