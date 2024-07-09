@@ -58,50 +58,64 @@ struct BoardMarkers {
 
 };
 
-struct LineTrack {
+class LineTrack {
 
-  cv::Point2d point1;
-  cv::Point2d point2;
-  double length;
-  double length_inv;
-
+public:
   LineTrack()
-  : point1 {0, 0},
-    point2 {0, 0},
-    length {0},
-    length_inv {0}
+  : _point1 {0, 0},
+    _point2 {0, 0},
+    _length {0},
+    _lengthInv {0}
   {}
 
   LineTrack(double x1In, double y1In, double x2In, double y2In)
-  : point1 {x1In, y1In},
-    point2 {x2In, y2In},
-    length {std::hypot(x2In - x1In, y2In - y1In)},
-    length_inv {length ? 1 / length : 0}
-  {}
-
-  void updateLength()
+  : _point1 {x1In, y1In},
+    _point2 {x2In, y2In}
   {
-    length = std::hypot(point2.x - point1.x, point2.y - point1.y);
-    length_inv = length ? 1 / length : 0;
+    updateLength();
   }
+
+  void setPoints(const cv::Point2d& point1In, const cv::Point2d& point2In)
+  {
+    _point1 = point1In;
+    _point2 = point2In;
+
+    updateLength();
+  }
+
+  const cv::Point2d& getPoint1() const {return _point1;}
+  const cv::Point2d& getPoint2() const {return _point2;}
+  const double getLength() const {return _length;}
 
   double calculatePerpendicularDistance(const cv::Point2d& positionIn) const
   {
-    double y_diff {point2.y - point1.y};
-    double x_diff {point2.x - point1.x};
-    double c {point2.x * point1.y - point2.y * point1.x};
+    double perpendicularDistance {0.0};
 
-    return std::abs(y_diff * positionIn.x - x_diff * positionIn.y + c) * length_inv;
+    if (_length <= 0)
+      return perpendicularDistance;
+
+    double yDiff {_point2.y - _point1.y};
+    double xDiff {_point2.x - _point1.x};
+    double c {_point2.x * _point1.y - _point2.y * _point1.x};
+
+    perpendicularDistance = std::abs(yDiff * positionIn.x - xDiff * positionIn.y + c) * _lengthInv;
+
+    return perpendicularDistance;
   }
 
+private:
+  void updateLength()
+  {
+    _length = std::hypot(_point2.x - _point1.x, _point2.y - _point1.y);
+    _lengthInv = _length ? 1 / _length : 0;
+  }
+
+  cv::Point2d _point1;
+  cv::Point2d _point2;
+  double _length;
+  double _lengthInv;
+
 };
-
-struct RoundTrack {
-
-  cv::Point2d center;
-  double majorAxis;
-  double minorAxis;
-
   RoundTrack()
   : center {0, 0},
     majorAxis {0},
