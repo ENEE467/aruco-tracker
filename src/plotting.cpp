@@ -1,5 +1,6 @@
 #include "plotting.hpp"
 #include "errors.hpp"
+#include "fileio.hpp"
 
 plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
 : _errorPlotFigure {matplot::figure(true)},
@@ -83,22 +84,22 @@ void plotting::Plotter::saveError(double errorIn, double timeIn)
   _trackingErrors.second.push_back(100 * errorIn);
 }
 
-void plotting::Plotter::savePlots(const fileio::OutputPath& outputPathIn)
+void plotting::Plotter::savePlots(
+  const std::string& outputDirectoryIn,
+  const std::string& outputNameIn)
 {
   std::stringstream errorPlotPath {
-    fileio::createPath(
-      outputPathIn.directoryPath.str(), "error-plot", outputPathIn.outputName, "jpg")};
+    fileio::createPath(outputDirectoryIn, "error-plot", outputNameIn, "jpg")};
 
   _errorPlotAxesHandle->title_enhanced(false);
-  _errorPlotAxesHandle->title("Error Plot " + outputPathIn.outputName);
+  _errorPlotAxesHandle->title("Error Plot " + outputNameIn);
 
   _errorPlotAxesHandle->plot(_trackingErrors.first, _trackingErrors.second, "-r");
 
   _errorPlotFigure->save(errorPlotPath.str());
 
   std::stringstream positionPlotPath {
-    fileio::createPath(
-      outputPathIn.directoryPath.str(), "positions-plot", outputPathIn.outputName, "jpg")};
+    fileio::createPath(outputDirectoryIn, "positions-plot", outputNameIn, "jpg")};
 
   _positionPlotAxesHandle->title_enhanced(false);
   _positionPlotAxesHandle->title("Line Follower Position " + outputPathIn.outputName);
