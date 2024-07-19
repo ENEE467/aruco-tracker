@@ -25,7 +25,6 @@ tracking::BoardDetector::BoardDetector(
   _boardMarkerSide {boardMarkersOptionsIn.markerSideMeters},
   _frameBoard_Camera {cv::Affine3d::Identity()},
   _frameLineFollower_Board {cv::Affine3d::Identity()},
-  // _eulerAnglesLineFollower_Board {0.0, 0.0, 0.0},
   _positionXYLineFollower_Board {0.0, 0.0},
   _camMatrix {calibrationParamsIn.cameraMatrix},
   _distortionCoeffs {calibrationParamsIn.distortionCoefficients},
