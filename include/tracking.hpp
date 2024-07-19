@@ -92,11 +92,12 @@ private:
   bool _boardPoseEstimated;
   float _boardMarkerSide;
 
+
   /**
    * Variable name convention used here:
    *
    * _frame[of the object]_[relative to this frame]
-   * _position[of the object]_[relatvie to this frame]
+   * _position[axes][of the object]_[relative to this frame]
   **/
   cv::Affine3d _frameBoard_Camera;
 
