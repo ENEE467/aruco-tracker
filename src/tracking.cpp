@@ -7,6 +7,7 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "tracking.hpp"
 #include "errors.hpp"
@@ -36,8 +37,14 @@ tracking::BoardDetector::BoardDetector(
 
   _boardDetector {
     cv::aruco::getPredefinedDictionary(boardMarkersOptionsIn.markerDictionaryID),
-    detectionOptionsIn.detectorParameters}
-{}
+    detectionOptionsIn.detectorParameters},
+
+  _trackOptions {trackOptionsIn},
+  _trackObjPoints_Board {},
+  _trackImgPoints {}
+{
+  setTrackObjBoardPoints();
+}
 
 std::vector<std::vector<cv::Point3f>> tracking::BoardDetector::getBoardMarkersPoints(
   const options::BoardMarkers& boardMarkersOptions)
@@ -88,6 +95,42 @@ std::vector<std::vector<cv::Point3f>> tracking::BoardDetector::getBoardMarkersPo
   };
 }
 
+void tracking::BoardDetector::setTrackObjBoardPoints()
+{
+  _trackObjPoints_Board.clear();
+
+  switch (_trackOptions.selection) {
+
+  case options::TrackSelection::LINE:
+    _trackObjPoints_Board.emplace_back(
+      _trackOptions.lineTrack.getPoint1().x,
+      _trackOptions.lineTrack.getPoint1().y,
+      0);
+
+    _trackObjPoints_Board.emplace_back(
+      _trackOptions.lineTrack.getPoint2().x,
+      _trackOptions.lineTrack.getPoint2().y,
+      0);
+
+    break;
+
+  case options::TrackSelection::ROUND:
+    _trackObjPoints_Board.emplace_back(
+      _trackOptions.roundTrack.getCenter().x, _trackOptions.roundTrack.getCenter().y, 0);
+
+    _trackObjPoints_Board.emplace_back(
+      _trackOptions.roundTrack.getCenter().x + _trackOptions.roundTrack.getMajorAxisLength(),
+      _trackOptions.roundTrack.getCenter().y + _trackOptions.roundTrack.getMinorAxisLength(),
+      0);
+
+    break;
+
+  default:
+    throw Error::INVALID_TRACK_OPTION;
+
+  }
+}
+
 bool tracking::BoardDetector::hasEnoughBoardIDs()
 {
   int foundMarkersCount {0};
@@ -125,8 +168,46 @@ void tracking::BoardDetector::visualize(cv::Mat& frame)
   if (!_boardPoseEstimated)
     return;
 
+  drawTrack(frame);
+
   cv::drawFrameAxes(frame, _camMatrix, _distortionCoeffs, _frameBoard_Camera.rvec(),
     _frameBoard_Camera.translation(), _boardMarkerSide * 1.5f, 2);
+}
+
+void tracking::BoardDetector::drawTrack(cv::Mat& frame)
+{
+  if (_trackObjPoints_Board.empty())
+    return;
+
+  cv::projectPoints(
+    _trackObjPoints_Board, _frameBoard_Camera.rvec(), _frameBoard_Camera.translation(), _camMatrix,
+    _distortionCoeffs, _trackImgPoints);
+
+  float ellipseWidth {};
+  float ellipseHeight {};
+
+  switch (_trackOptions.selection) {
+
+  case options::TrackSelection::LINE:
+    cv::line(frame, _trackImgPoints.at(0), _trackImgPoints.at(1), {0, 255, 0});
+    break;
+
+  case options::TrackSelection::ROUND:
+    ellipseWidth = std::abs(_trackImgPoints.at(1).x - _trackImgPoints.at(0).x);
+    ellipseHeight = std::abs(_trackImgPoints.at(1).y - _trackImgPoints.at(0).y);
+
+    // std::cout << "Ellipse center: " << _trackImgPoints.at(0) << '\n'
+    //           << "Ellipse second track point: " << _trackImgPoints.at(1) << '\n'
+    //           << "Ellipse width (half): " << ellipseWidthHalf << '\n'
+    //           << "Ellipse height (half): " << ellipseHeightHalf << '\n';
+
+    cv::ellipse(frame, {_trackImgPoints.at(0), {ellipseWidth, ellipseHeight}, 0}, {0, 255, 0});
+    break;
+
+  default:
+    throw Error::INVALID_TRACK_OPTION;
+
+  }
 }
 
 bool tracking::BoardDetector::estimateFrameBoard_Camera()
@@ -362,7 +443,7 @@ void tracking::trackLineFollower(
   inputVideo.set(cv::CAP_PROP_FPS, optionsIn.detection.frameRateFPS);
 
   tracking::BoardDetector lineFollowerBoardDetector {
-    optionsIn.detection, optionsIn.boardMarkers, optionsIn.calibrationParams};
+    optionsIn.detection, optionsIn.boardMarkers, optionsIn.track, optionsIn.calibrationParams};
 
   tracking::LineFollowerDetector lineFollowerDetector {
     optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams};
