@@ -62,8 +62,10 @@ void plotting::Plotter::setReferenceRoundTrack(const options::RoundTrack& refere
 {
   _referenceTrack =
     _positionPlotAxesHandle->ellipse(
-      referenceTrackIn.getCenter().x * 100, referenceTrackIn.getCenter().y * 100,
-      referenceTrackIn.getMajorAxisLength() * 100, referenceTrackIn.getMinorAxisLength() * 100);
+      referenceTrackIn.getCenter().x * 100 - referenceTrackIn.getSemiMajorAxisLength() * 100,
+      referenceTrackIn.getCenter().y * 100 - referenceTrackIn.getSemiMinorAxisLength() * 100,
+      referenceTrackIn.getMajorAxisLength() * 100,
+      referenceTrackIn.getMinorAxisLength() * 100);
 
   _referenceTrack->color("green");
 }
@@ -100,7 +102,9 @@ void plotting::Plotter::savePlots(
   _positionPlotAxesHandle->title_enhanced(false);
   _positionPlotAxesHandle->title("Line Follower Position " + outputNameIn);
 
+  _positionPlotAxesHandle->hold(matplot::on);
   _positionPlotAxesHandle->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o");
+  _positionPlotAxesHandle->hold(matplot::off);
   _positionPlotAxesHandle->legend({"Reference Path", "Actual Path"});
 
   _positionPlotFigure->save(positionPlotPath.str());
