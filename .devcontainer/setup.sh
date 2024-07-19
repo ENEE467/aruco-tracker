@@ -59,7 +59,7 @@ sudo apt update && sudo apt install -y \
 
 pip3 install pylint flake8 vtk
 
-# Create a libs directory to clone the source code of libraries ----------------
+# Create a libs directory to clone the source code of libraries ------------------------------------
 if [ ! -d $PROJECT_ROOT/libs ]
 then
   mkdir -p $PROJECT_ROOT/libs
@@ -69,14 +69,14 @@ cd $PROJECT_ROOT/libs
 
 # $PROJECT_ROOT/libs is now the current working directory
 
-# Clone OpenCV Source ----------------------------------------------------------
+# Clone OpenCV Source ------------------------------------------------------------------------------
 if [ ! -d opencv-4.9.0 ]
 then
     wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip
     unzip opencv.zip && rm opencv.zip
 fi
 
-# Clone OpenCV modules source --------------------------------------------------
+# Clone OpenCV modules source ----------------------------------------------------------------------
 if [ ! -d opencv_contrib ]
 then
     git clone -b 4.x https://github.com/opencv/opencv_contrib.git
@@ -105,7 +105,7 @@ cd $PROJECT_ROOT/libs
 
 # $PROJECT_ROOT/libs is now the current working directory
 
-# Clone matplot++ source -------------------------------------------------------
+# Clone matplot++ source ---------------------------------------------------------------------------
 if [ ! -d matplotplusplus ]
 then
   git clone https://github.com/alandefreitas/matplotplusplus.git
