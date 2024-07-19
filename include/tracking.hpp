@@ -52,6 +52,7 @@ public:
   BoardDetector(
     const options::MarkerDetection& detectionOptionsIn,
     const options::BoardMarkers& boardMarkersOptionsIn,
+    const options::Track& trackOptionsIn,
     const options::CameraIntrinsic& calibrationParamsIn);
 
   bool detectBoard(const cv::Mat& frame);

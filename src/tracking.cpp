@@ -15,6 +15,7 @@
 tracking::BoardDetector::BoardDetector(
   const options::MarkerDetection& detectionOptionsIn,
   const options::BoardMarkers& boardMarkersOptionsIn,
+  const options::Track& trackOptionsIn,
   const options::CameraIntrinsic& calibrationParamsIn
 )
 : _canEstimatePose {calibrationParamsIn.isNonZero()},
