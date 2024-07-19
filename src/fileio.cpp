@@ -181,8 +181,8 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
   case options::TrackSelection::ROUND:
     cv::read(roundTrackNode["center"]["x_meters"], readRoundTrackCenter.x, 0.0);
     cv::read(roundTrackNode["center"]["y_meters"], readRoundTrackCenter.y, 0.0);
-    cv::read(roundTrackNode["major_axis_meters"], readRoundTrackMajorAxis, 0.0);
-    cv::read(roundTrackNode["minor_axis_meters"], readRoundTrackMinorAxis, 0.0);
+    cv::read(roundTrackNode["width_meters"], readRoundTrackMajorAxis, 0.0);
+    cv::read(roundTrackNode["height_meters"], readRoundTrackMinorAxis, 0.0);
 
     optionsOut.roundTrack.setParameters(
       readRoundTrackCenter, readRoundTrackMajorAxis, readRoundTrackMinorAxis);
@@ -400,8 +400,8 @@ void fileio::writeConfigFile(
       configFile << "y_meters" << trackOptionsIn.roundTrack.getCenter().y;
     configFile.endWriteStruct();
 
-    configFile << "major_axis_meters" << trackOptionsIn.roundTrack.getMajorAxisLength();
-    configFile << "minor_axis_meters" << trackOptionsIn.roundTrack.getMinorAxisLength();
+    configFile << "width_meters" << trackOptionsIn.roundTrack.getMajorAxisLength();
+    configFile << "height_meters" << trackOptionsIn.roundTrack.getMinorAxisLength();
 
   configFile.endWriteStruct();
 
