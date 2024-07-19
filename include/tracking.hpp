@@ -71,6 +71,8 @@ private:
     _detectedMarkerCorners.clear();
     _detectedMarkerIDs.clear();
     _rejectedMarkerCorners.clear();
+    // _trackObjPoints_Camera.clear();
+    _trackImgPoints.clear();
     _boardDetected = false;
     _boardPoseEstimated = false;
     _frameBoard_Camera = cv::Affine3d::Identity();
@@ -81,7 +83,9 @@ private:
   std::vector<std::vector<cv::Point3f>> getBoardMarkersPoints(
     const options::BoardMarkers& boardMarkersOptions);
 
+  void setTrackObjBoardPoints();
   bool hasEnoughBoardIDs();
+  void drawTrack(cv::Mat& frame);
 
   bool _canEstimatePose;
   bool _boardDetected;
@@ -104,7 +108,11 @@ private:
 
   cv::aruco::Board _lineFollowerBoard;
   cv::aruco::ArucoDetector _boardDetector;
+  options::Track _trackOptions;
 
+  std::vector<cv::Point3d> _trackObjPoints_Board;
+  // std::vector<cv::Point3d> _trackObjPoints_Camera;
+  std::vector<cv::Point2d> _trackImgPoints;
   std::vector<int> _detectedMarkerIDs;
   std::vector<std::vector<cv::Point2f>> _detectedMarkerCorners;
   std::vector<std::vector<cv::Point2f>> _rejectedMarkerCorners;
