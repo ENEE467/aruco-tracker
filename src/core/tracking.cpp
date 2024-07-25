@@ -9,9 +9,9 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "tracking.hpp"
-#include "errors.hpp"
-#include "fileio.hpp"
+#include "core/tracking.hpp"
+#include "core/errors.hpp"
+#include "core/fileio.hpp"
 
 tracking::BoardDetector::BoardDetector(
   const options::MarkerDetection& detectionOptionsIn,

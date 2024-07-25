@@ -5,7 +5,7 @@
 #include <opencv2/objdetect.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "calibration.hpp"
+#include "core/calibration.hpp"
 
 void calibration::calibrateCamera(options::Calibration& optionsIn)
 {

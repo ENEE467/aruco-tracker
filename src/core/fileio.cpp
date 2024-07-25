@@ -4,8 +4,8 @@
 #include <filesystem>
 #include <opencv2/core/persistence.hpp>
 
-#include "errors.hpp"
-#include "fileio.hpp"
+#include "core/errors.hpp"
+#include "core/fileio.hpp"
 
 fileio::CSVFile::CSVFile()
 : _outputCSVFile {}

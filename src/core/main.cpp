@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "tracking.hpp"
-#include "calibration.hpp"
+#include "core/tracking.hpp"
+#include "core/calibration.hpp"
 
 namespace {
 

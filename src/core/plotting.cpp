@@ -1,6 +1,6 @@
-#include "plotting.hpp"
-#include "errors.hpp"
-#include "fileio.hpp"
+#include "core/plotting.hpp"
+#include "core/errors.hpp"
+#include "core/fileio.hpp"
 
 plotting::Plotter::Plotter(const options::BoardMarkers& boardMarkersOptions)
 : _errorPlotFigure {matplot::figure(true)},
