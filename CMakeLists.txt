@@ -14,6 +14,15 @@ FetchContent_Declare(
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+
+if (LINUX)
+  add_compile_options(-O3 -march=native)
+endif()
+
+if (WIN32)
+  set(CMAKE_USE_SCHANNEL ON)
+endif()
+
 ###############################################################################
 # CORE
 ###############################################################################
