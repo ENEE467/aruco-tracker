@@ -52,3 +52,59 @@ target_link_libraries(core
 ###############################################################################
 
 add_subdirectory(test)
+
+###############################################################################
+# IMGUI
+###############################################################################
+
+# GLAD
+add_subdirectory(include/glad)
+
+# Path to ImGui source
+set (IMGUI_SOURCE_PATH libs/imgui)
+
+set(IMGUI_HEADERS
+    ${IMGUI_SOURCE_PATH}/imconfig.h
+    ${IMGUI_SOURCE_PATH}/imgui_internal.h
+    ${IMGUI_SOURCE_PATH}/imgui.h
+    ${IMGUI_SOURCE_PATH}/imstb_rectpack.h
+    ${IMGUI_SOURCE_PATH}/imstb_textedit.h
+    ${IMGUI_SOURCE_PATH}/imstb_truetype.h
+    ${IMGUI_SOURCE_PATH}/backends/imgui_impl_glfw.h
+    ${IMGUI_SOURCE_PATH}/backends/imgui_impl_opengl3.h
+    ${IMGUI_SOURCE_PATH}/backends/imgui_impl_opengl3_loader.h
+    ${IMGUI_SOURCE_PATH}/misc/cpp/imgui_stdlib.h
+)
+
+set(IMGUI_SRC
+    ${IMGUI_SOURCE_PATH}/imgui_demo.cpp
+    ${IMGUI_SOURCE_PATH}/imgui_draw.cpp
+    ${IMGUI_SOURCE_PATH}/imgui_tables.cpp
+    ${IMGUI_SOURCE_PATH}/imgui_widgets.cpp
+    ${IMGUI_SOURCE_PATH}/imgui.cpp
+    ${IMGUI_SOURCE_PATH}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_SOURCE_PATH}/backends/imgui_impl_opengl3.cpp
+    ${IMGUI_SOURCE_PATH}/misc/cpp/imgui_stdlib.cpp
+)
+
+find_package(OpenGL REQUIRED)
+
+add_library(imgui ${IMGUI_HEADERS} ${IMGUI_SRC})
+if(MSVC)
+  target_compile_options(imgui PRIVATE /W4 /WX /arch:AVX2 /fp:fast)
+endif()
+
+if(WIN32)
+  target_link_libraries(imgui PUBLIC glfw glad OpenGL::GL imm32)
+else()
+  target_link_libraries(imgui PUBLIC glfw glad OpenGL::GL)
+endif()
+
+target_compile_definitions(imgui PRIVATE IMGUI_DLL_EXPORT)
+
+include_directories(
+  ${IMGUI_SOURCE_PATH}/
+  ${IMGUI_SOURCE_PATH}/examples/libs/gl3w
+  ${IMGUI_SOURCE_PATH}/backends
+  ${IMGUI_SOURCE_PATH}/misc/cpp
+)
