@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "options.hpp"
+#include "core/options.hpp"
 
 // Round track error calculation tests -------------------------------------------------------------
 
