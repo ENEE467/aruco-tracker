@@ -135,4 +135,10 @@ then
   git clone https://github.com/ocornut/imgui.git
 fi
 
+# Clone ImPlot source ------------------------------------------------------------------------------
+if [ ! -d implot ]
+then
+  git clone https://github.com/epezent/implot.git
+fi
+
 printf "\nSetup complete, environment is now ready to use! \n"
