@@ -14,6 +14,9 @@ FetchContent_Declare(
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
+###############################################################################
+# CORE
+###############################################################################
 
 find_package(OpenCV REQUIRED)
 find_package(Matplot++ REQUIRED)
@@ -27,19 +30,19 @@ add_compile_options(-lopencv_objdetect)
 add_compile_options(-lopencv_calib3d)
 add_compile_options(-lopencv_aruco)
 
-add_executable(line-follower-tracker
-  src/calibration.cpp
-  src/fileio.cpp
-  src/plotting.cpp
-  src/tracking.cpp
-  src/main.cpp
+add_library(core
+  src/core/calibration.cpp
+  src/core/fileio.cpp
+  src/core/plotting.cpp
+  src/core/tracking.cpp
+  # src/core/main.cpp
 )
 
-target_include_directories(line-follower-tracker PUBLIC
+target_include_directories(core PUBLIC
   ${CMAKE_SOURCE_DIR}/include
 )
 
-target_link_libraries(line-follower-tracker
+target_link_libraries(core
   ${OpenCV_LIBS}
   Matplot++::matplot
 )
