@@ -4,7 +4,7 @@ find_package(OpenCV REQUIRED)
 find_package(Matplot++ REQUIRED)
 
 add_executable(fileio-test
-  ${CMAKE_SOURCE_DIR}/src/fileio.cpp
+  ${CMAKE_SOURCE_DIR}/src/core/fileio.cpp
   fileio_test.cpp
 )
 
