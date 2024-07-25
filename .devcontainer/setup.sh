@@ -125,4 +125,14 @@ cmake --preset=system
 cmake --build --preset=system
 sudo cmake --install build/system
 
+cd $PROJECT_ROOT/libs
+
+# $PROJECT_ROOT/libs is now the current working directory
+
+# Clone ImGui source -------------------------------------------------------------------------------
+if [ ! -d imgui ]
+then
+  git clone https://github.com/ocornut/imgui.git
+fi
+
 printf "\nSetup complete, environment is now ready to use! \n"
