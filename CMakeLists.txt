@@ -172,3 +172,14 @@ add_library(app-framework
 target_include_directories(app-framework PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(app-framework implot nfd)
 target_compile_features(app-framework PRIVATE cxx_std_17)
+
+###############################################################################
+# APP
+###############################################################################
+
+add_executable(application
+  src/application/application.cpp
+)
+
+target_include_directories(application PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(application PUBLIC core app-framework)
