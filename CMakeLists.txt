@@ -108,3 +108,45 @@ include_directories(
   ${IMGUI_SOURCE_PATH}/backends
   ${IMGUI_SOURCE_PATH}/misc/cpp
 )
+
+###############################################################################
+# IMPLOT
+###############################################################################
+
+# Path to ImPlot source
+set(IMPLOT_SOURCE_PATH libs/implot)
+
+set(IMPLOT_HEADERS ${IMPLOT_SOURCE_PATH}/implot.h ${IMPLOT_SOURCE_PATH}/implot_internal.h)
+set(IMPLOT_SRC     ${IMPLOT_SOURCE_PATH}/implot.cpp ${IMPLOT_SOURCE_PATH}/implot_items.cpp)
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${IMPLOT_SOURCE_PATH}/backends")
+
+list(APPEND IMPLOT_HEADERS
+  ${IMPLOT_SOURCE_PATH}/backends/implot_backend.h
+  ${IMPLOT_SOURCE_PATH}/backends/implot_impl_opengl3.h
+)
+
+list(APPEND IMPLOT_SRC
+  ${IMPLOT_SOURCE_PATH}/backends/implot_backend.h
+  ${IMPLOT_SOURCE_PATH}/backends/implot_impl_opengl3.cpp
+)
+
+endif()
+
+add_library(implot ${IMPLOT_HEADERS} ${IMPLOT_SRC})
+target_link_libraries(implot PUBLIC imgui)
+
+target_compile_definitions(implot PUBLIC
+  IMPLOT_DEBUG IMPLOT_DLL_EXPORT
+  IMPLOT_BACKEND_ENABLE_OPENGL3
+  IMGUI_IMPL_OPENGL_LOADER_GLAD
+)
+
+set_property(TARGET implot PROPERTY CXX_STANDARD 11)
+if(MSVC)
+  target_compile_options(implot PRIVATE /W4 /WX /arch:AVX2 /fp:fast /permissive-)
+else()
+  target_compile_options(implot PRIVATE -Wall -Wextra -pedantic -Werror -mavx2 -Ofast)
+endif()
+
+include_directories(${IMPLOT_SOURCE_PATH}/)
