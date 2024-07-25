@@ -150,3 +150,25 @@ else()
 endif()
 
 include_directories(${IMPLOT_SOURCE_PATH}/)
+
+###############################################################################
+# APP FRAMEWORK
+###############################################################################
+
+add_subdirectory(libs/nativefiledialog-extended)
+
+add_library(app-framework
+  src/app-framework/App.cpp
+  src/app-framework/Native.cpp
+  src/app-framework/fonts/FontAwesome5.cpp
+  src/app-framework/fonts/RobotoRegular.cpp
+  src/app-framework/fonts/RobotoBold.cpp
+  src/app-framework/fonts/RobotoItalic.cpp
+  src/app-framework/fonts/RobotoMonoRegular.cpp
+  src/app-framework/fonts/RobotoMonoBold.cpp
+  src/app-framework/fonts/RobotoMonoItalic.cpp
+)
+
+target_include_directories(app-framework PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(app-framework implot nfd)
+target_compile_features(app-framework PRIVATE cxx_std_17)
