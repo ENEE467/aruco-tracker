@@ -141,4 +141,10 @@ then
   git clone https://github.com/epezent/implot.git
 fi
 
+# Clone nativefiledialog-extended source -----------------------------------------------------------
+if [ ! -d nativefiledialog-extended ]
+then
+  git clone https://github.com/btzy/nativefiledialog-extended.git
+fi
+
 printf "\nSetup complete, environment is now ready to use! \n"
