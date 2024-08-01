@@ -293,11 +293,11 @@ std::stringstream fileio::createTimeStampedPath(
     fileExtension = extensionIn.front() == '.' ? "" : '.' + extensionIn;
 
   std::stringstream outputPathStream;
-  std::time_t t {std::time(nullptr)};
-  std::tm tm {*std::localtime(&t)};
+  // std::time_t t {std::time(nullptr)};
+  // std::tm tm {*std::localtime(&t)};
 
-  outputPathStream << parentDirectory << prefix << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S")
-             << fileExtension;
+  outputPathStream << parentDirectory << prefix << createTimeStamp().str()
+                   << fileExtension;
 
   return outputPathStream;
 }
