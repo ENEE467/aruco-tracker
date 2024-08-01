@@ -2,6 +2,7 @@
 #include <ctime>
 #include <iomanip>
 #include <filesystem>
+#include <stdexcept>
 #include <opencv2/core/persistence.hpp>
 
 #include "core/errors.hpp"
@@ -53,12 +54,14 @@ void fileio::readConfigFile(const std::string& filenameIn, options::MarkerDetect
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   auto markerDetectionNode {configFile["marker_detection"]};
 
-  if (markerDetectionNode.empty() || !markerDetectionNode.isMap())
-    throw Error::MISSING_MARKER_DETECTION_CONFIG;
+  if (markerDetectionNode.empty() || !markerDetectionNode.isMap()) {
+    throw std::runtime_error(
+      "Marker detection section is incorrectly formatted or has missing information.");
+  }
 
   // TODO: Make it more robust by adding read checks for individual parameters
 
@@ -80,12 +83,14 @@ void fileio::readConfigFile(const std::string& filenameIn, options::LineFollower
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   auto lineFollowerMarkerNode {configFile["line_follower_marker"]};
 
-  if (lineFollowerMarkerNode.empty() || !lineFollowerMarkerNode.isMap())
-    throw Error::MISSING_LINE_FOLLOWER_MARKER_CONFIG;
+  if (lineFollowerMarkerNode.empty() || !lineFollowerMarkerNode.isMap()) {
+    throw std::runtime_error(
+      "Line follower marker section is incorrectly formatted or has missing information.");
+  }
 
   // TODO: Make it more robust by adding read checks for individual parameters
 
@@ -103,13 +108,15 @@ void fileio::readConfigFile(const std::string& filenameIn, options::BoardMarkers
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   // auto markerDetectionNode {configFile["marker_detection"]};
   auto boardParametersNode {configFile["board_markers"]};
 
-  if (boardParametersNode.empty() || !boardParametersNode.isMap())
-    throw Error::MISSING_BOARD_MARKERS_CONFIG;
+  if (boardParametersNode.empty() || !boardParametersNode.isMap()) {
+    throw std::runtime_error(
+      "Board markers section is incorrectly formatted or has missing information.");
+  }
 
   // TODO: Make it more robust by adding read checks for individual parameters
 
@@ -131,7 +138,7 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   options::TrackSelection trackSelection {static_cast<int>(configFile["track_selection"])};
   auto lineTrackNode {configFile["line_track"]};
@@ -143,17 +150,21 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
   switch (trackSelection) {
 
   case options::TrackSelection::LINE:
-    if (lineTrackNode.empty() || !lineTrackNode.isMap())
-      throw Error::MISSING_LINE_TRACK_CONFIG;
+    if (lineTrackNode.empty() || !lineTrackNode.isMap()) {
+      throw std::runtime_error(
+        "Line track section is incorrectly formatted or has missing information.");
+    }
     break;
 
   case options::TrackSelection::ROUND:
-    if (roundTrackNode.empty() || !roundTrackNode.isMap())
-      throw Error::MISSING_ROUND_TRACK_CONFIG;
+    if (roundTrackNode.empty() || !roundTrackNode.isMap()) {
+      throw std::runtime_error(
+        "Round track section is incorrectly formatted or has missing information");
+    }
     break;
 
   default:
-    throw::Error::INVALID_TRACK_OPTION;
+    throw std::runtime_error("Track selection option is invalid.");
 
   }
 
@@ -190,7 +201,7 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Track& optio
     break;
 
   default:
-    throw Error::INVALID_TRACK_OPTION;
+    throw std::runtime_error("Track selection option is invalid.");
 
   }
 }
@@ -200,12 +211,14 @@ void fileio::readConfigFile(const std::string& filenameIn, options::CalibrationB
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   auto cameraCalibrationNode {configFile["camera_calibration"]};
 
-  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
-    throw Error::MISSING_CALIBRATION_CONFIG;
+  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap()) {
+    throw std::runtime_error(
+      "Camera calibration section is incorrectly formatted or has missing information.");
+  }
 
   // TODO: Make it more robust by adding read checks for individual parameters
 
@@ -227,12 +240,14 @@ void fileio::readConfigFile(const std::string& filenameIn, options::CameraIntrin
   cv::FileStorage configFile(filenameIn, cv::FileStorage::READ);
 
   if (!configFile.isOpened())
-    throw Error::CANNOT_OPEN_FILE;
+    throw std::runtime_error("Cannot open the configuration file.");
 
   auto cameraCalibrationNode {configFile["camera_calibration"]};
 
-  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap())
-    throw Error::MISSING_CALIBRATION_CONFIG;
+  if (cameraCalibrationNode.empty() || !cameraCalibrationNode.isMap()) {
+    throw std::runtime_error(
+      "Camera calibration section is incorrectly formatted or has missing information.");
+  }
 
   // TODO: Make it more robust by adding read checks for individual parameters
 
