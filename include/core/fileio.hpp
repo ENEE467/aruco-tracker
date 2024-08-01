@@ -47,6 +47,8 @@ void writeConfigFile(
   const options::CalibrationBoard& calibrationBoardOptionsIn,
   const options::CameraIntrinsic& cameraCalibrationParamsIn);
 
+std::stringstream createTimeStamp();
+
 std::stringstream createTimeStampedPath(
   const std::string& parentDirectoryIn,
   const std::string& prefixIn,

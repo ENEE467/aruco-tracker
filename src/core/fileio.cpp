@@ -264,6 +264,17 @@ void fileio::readConfigFile(const std::string& filenameIn, options::Calibration&
   readConfigFile(filenameIn, optionsOut.calibrationParams);
 }
 
+std::stringstream fileio::createTimeStamp()
+{
+  std::stringstream timeStamp;
+
+  std::time_t t {std::time(nullptr)};
+  std::tm tm {*std::localtime(&t)};
+  timeStamp << std::put_time(&tm, "%Y-%m-%d_%H-%M-%S");
+
+  return timeStamp;
+}
+
 std::stringstream fileio::createTimeStampedPath(
   const std::string& parentDirectoryIn,
   const std::string& prefixIn,
