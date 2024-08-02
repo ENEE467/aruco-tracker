@@ -15,8 +15,9 @@ public:
   void Update() override;
 
 private:
-  bool _isStartupDone;
-  bool _isCalibrationMode;
+  bool _isConfigFileSet {false};
+  bool _isOutputDirSet {false};
+  bool _isSetupDone {false};
 
   std::string _configFilePath;
   std::string _outputDir;
@@ -83,12 +84,14 @@ void InterfaceWindow::openStartupMenu()
     try {
       fileio::readConfigFile(_configFilePath, _trackingOptions);
       fileio::readConfigFile(_configFilePath, _calibrationOptions);
+      _isConfigFileSet = true;
     }
     catch (std::exception& exception) {
       ImGui::OpenPopup("Configuration File Read Error!");
       std::cout << exception.what() << '\n';
       _configFilePath.clear();
       memset(_configFilePathCStr, 0, sizeof(_configFilePathCStr));
+      _isConfigFileSet = false;
     }
   }
 
@@ -136,6 +139,10 @@ void InterfaceWindow::openStartupMenu()
     std::cout << "Given output directory does not exist." << '\n';
     _outputDir.clear();
     memset(_outputDirCStr, 0, sizeof(_outputDirCStr));
+    _isOutputDirSet = false;
+  }
+  else {
+    _isOutputDirSet = true;
   }
 
   if (ImGui::BeginPopupModal("Output Directory Error!")) {
