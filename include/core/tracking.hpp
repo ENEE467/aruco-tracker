@@ -38,6 +38,9 @@ the use of this software, even if advised of the possibility of such damage.
 
 #pragma once
 
+#include <chrono>
+
+#include <opencv2/highgui.hpp>
 #include <opencv2/core/affine.hpp>
 
 #include "options.hpp"
@@ -191,6 +194,35 @@ public:
 private:
   std::string _outputDirectoryPath;
   std::string _outputName;
+
+};
+
+class Tracker {
+
+public:
+  Tracker(
+    const std::string& outputParentDirectoryPathIn = "",
+    const std::string& outputName = "",
+    const options::Tracking& optionsIn = options::Tracking());
+
+  void start();
+  void track(unsigned int& imageTextureOut);
+
+private:
+  bool _saveOutput;
+  Output _trackingOutput;
+  options::Tracking _options;
+  std::string _outputParentDirectory;
+  std::string _outputName;
+
+  std::chrono::_V2::system_clock::time_point _startTime;
+  std::chrono::_V2::system_clock::time_point _currentTime;
+  std::chrono::duration<double, std::ratio<1L, 1L>> _elapsedTime;
+
+  cv::VideoCapture _inputVideo;
+  BoardDetector _lineFollowerBoardDetector;
+  LineFollowerDetector _lineFollowerDetector;
+  cv::Mat _frame;
 
 };
 
