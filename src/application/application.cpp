@@ -5,7 +5,7 @@
 #include "app-framework/App.h"
 #include "app-framework/Native.h"
 #include "core/fileio.hpp"
-#include "core/options.hpp"
+#include "core/tracking.hpp"
 
 struct InterfaceWindow : App {
 
@@ -32,6 +32,10 @@ private:
 
   options::Tracking _trackingOptions;
   options::Calibration _calibrationOptions;
+
+  tracking::Tracker _tracker;
+
+  unsigned int _imageTextureToDisplay {};
 
   void openStartupMenu();
   void startInterface();
@@ -186,6 +190,10 @@ void InterfaceWindow::openStartupMenu()
       switch (_modeChoice) {
 
       case 0:
+        _tracker = tracking::Tracker(_outputDir, _outputName, _trackingOptions);
+        _tracker.start();
+        _isSetupDone = true;
+        ImGui::CloseCurrentPopup();
         break;
 
       case 1:
@@ -214,7 +222,30 @@ void InterfaceWindow::Update()
     return;
   }
 
-  openStartupMenu();
+  if (!_isSetupDone) {
+    openStartupMenu();
+  }
+  else {
+    switch (_modeChoice) {
+
+    case 0:
+      _tracker.track(_imageTextureToDisplay);
+      break;
+
+    case 1:
+      break;
+
+    default:
+      break;
+
+    }
+  }
+
+  ImGui::Image(
+    (void*)(intptr_t)_imageTextureToDisplay,
+    ImVec2(
+      _trackingOptions.detection.frameWidthPixels, _trackingOptions.detection.frameHeightPixels));
+
   // ImGui::ShowDemoWindow();
 
   // Ask for configuration file.
