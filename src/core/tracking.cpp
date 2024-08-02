@@ -1,11 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <chrono>
 #include <memory>
 #include <filesystem>
+#include <glad/glad.h>
 
-#include <opencv2/highgui.hpp>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 
@@ -420,93 +419,154 @@ double tracking::calculateTrackingError(
   return trackingError;
 }
 
-void tracking::trackLineFollower(
-  const options::Tracking& optionsIn,
+static GLuint matToTexture(const cv::Mat& mat, GLenum minFilter, GLenum magFilter, GLenum wrapFilter) {
+	// Generate a number for our textureID's unique handle
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// Bind to our texture handle
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Catch silly-mistake texture interpolation method for magnification
+	if (magFilter == GL_LINEAR_MIPMAP_LINEAR ||
+		magFilter == GL_LINEAR_MIPMAP_NEAREST ||
+		magFilter == GL_NEAREST_MIPMAP_LINEAR ||
+		magFilter == GL_NEAREST_MIPMAP_NEAREST)
+	{
+		// cout << "You can't use MIPMAPs for magnification - setting filter to GL_LINEAR" << endl;
+		magFilter = GL_LINEAR;
+	}
+
+	// Set texture interpolation methods for minification and magnification
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+
+	// Set texture clamping method
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapFilter);
+
+	// Set incoming texture format to:
+	// GL_BGR       for CV_CAP_OPENNI_BGR_IMAGE,
+	// GL_LUMINANCE for CV_CAP_OPENNI_DISPARITY_MAP,
+	// Work out other mappings as required ( there's a list in comments in main() )
+	GLenum inputColourFormat = GL_BGR;
+	if (mat.channels() == 1)
+	{
+		inputColourFormat = GL_RED;
+	}
+
+	// Create the texture
+	glTexImage2D(GL_TEXTURE_2D,     // Type of texture
+		0,                 // Pyramid level (for mip-mapping) - 0 is the top level
+		GL_RGB,            // Internal colour format to convert to
+		mat.cols,          // Image width  i.e. 640 for Kinect in standard mode
+		mat.rows,          // Image height i.e. 480 for Kinect in standard mode
+		0,                 // Border width in pixels (can either be 1 or 0)
+		inputColourFormat, // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
+		GL_UNSIGNED_BYTE,  // Image data type
+		mat.ptr());        // The actual image data itself
+
+// If we're using mipmaps then generate them. Note: This requires OpenGL 3.0 or higher
+	if (minFilter == GL_LINEAR_MIPMAP_LINEAR ||
+		minFilter == GL_LINEAR_MIPMAP_NEAREST ||
+		minFilter == GL_NEAREST_MIPMAP_LINEAR ||
+		minFilter == GL_NEAREST_MIPMAP_NEAREST)
+	{
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+	return textureID;
+}
+
+tracking::Tracker::Tracker(
   const std::string& outputParentDirectoryPathIn,
-  const std::string& outputNameIn)
+  const std::string& outputNameIn,
+  const options::Tracking& optionsIn)
+: _saveOutput {false},
+  _options {optionsIn},
+  _outputParentDirectory {outputParentDirectoryPathIn},
+  _outputName {outputNameIn},
+
+  _startTime {},
+  _currentTime {},
+  _elapsedTime {},
+
+  _lineFollowerBoardDetector {
+    optionsIn.detection, optionsIn.boardMarkers, optionsIn.track, optionsIn.calibrationParams},
+
+  _lineFollowerDetector {
+    optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams}
 {
-  bool hasOutputDir {!outputParentDirectoryPathIn.empty()};
-  Output trackingOutput;
+  _inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, optionsIn.detection.frameWidthPixels);
+  _inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, optionsIn.detection.frameHeightPixels);
+  _inputVideo.set(cv::CAP_PROP_FPS, optionsIn.detection.frameRateFPS);
+}
 
-  std::chrono::_V2::system_clock::time_point startTime {};
-  std::chrono::_V2::system_clock::time_point currentTime {};
-  std::chrono::duration<double, std::ratio<1L, 1L>> elapsedTime {};
-  bool saveOutput {false};
+void tracking::Tracker::start()
+{
+  _inputVideo.open(_options.detection.camID);
+}
 
-  std::cout << "Hit ESC key or Crtl + C to exit if a window opens." << '\n';
+void tracking::Tracker::track(unsigned int& imageTextureOut)
+{
+  if (!_inputVideo.grab())
+   return;
 
-  cv::VideoCapture inputVideo;
-  inputVideo.open(optionsIn.detection.camID);
-  inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, optionsIn.detection.frameWidthPixels);
-  inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, optionsIn.detection.frameHeightPixels);
-  inputVideo.set(cv::CAP_PROP_FPS, optionsIn.detection.frameRateFPS);
+  _inputVideo.retrieve(_frame);
 
-  tracking::BoardDetector lineFollowerBoardDetector {
-    optionsIn.detection, optionsIn.boardMarkers, optionsIn.track, optionsIn.calibrationParams};
+  _lineFollowerBoardDetector.detectBoard(_frame);
+  _lineFollowerBoardDetector.estimateFrameBoard_Camera();
 
-  tracking::LineFollowerDetector lineFollowerDetector {
-    optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams};
+  _lineFollowerDetector.detectLineFollower(_frame);
 
-  cv::Mat frame;
-
-  while(inputVideo.grab()) {
-    inputVideo.retrieve(frame);
-
-    double tick {static_cast<double>(cv::getTickCount())};
-
-    lineFollowerBoardDetector.detectBoard(frame);
-    lineFollowerBoardDetector.estimateFrameBoard_Camera();
-
-    lineFollowerDetector.detectLineFollower(frame);
-
-    if (lineFollowerDetector.estimateFrameLineFollower_Camera()) {
-      lineFollowerBoardDetector.estimateFrameLineFollower_Board(
-        lineFollowerDetector.getFrameLineFollower_Camera());
-    }
-
-    double trackingError {
-      calculateTrackingError(
-        lineFollowerBoardDetector.getPositionXYLineFollower_Board(), optionsIn.track)};
-
-    lineFollowerBoardDetector.visualize(frame);
-    lineFollowerDetector.visualize(frame);
-
-    cv::imshow("Line Follower tracking", frame);
-
-    char key {static_cast<char>(cv::waitKey(10))};
-    if(key == 27) {
-      break;
-    }
-    else if (key == 32) {
-      saveOutput = !saveOutput && hasOutputDir;
-
-      if (saveOutput) {
-        trackingOutput.open(optionsIn, outputParentDirectoryPathIn, outputNameIn);
-        startTime = std::chrono::high_resolution_clock::now();
-        std::cout << "Tracking has begun, good luck!" << '\n';
-      }
-      else if ((!saveOutput)) {
-        trackingOutput.close();
-        std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
-      }
-    }
-
-    // Output specific stuff only from here.
-    if (!saveOutput)
-      continue;
-
-    currentTime = std::chrono::high_resolution_clock::now();
-    elapsedTime = currentTime - startTime;
-
-    trackingOutput.errorsOutput->writeError(trackingError, elapsedTime.count());
-
-    trackingOutput.positionsOutput->writePosition(
-      lineFollowerBoardDetector.getPositionXYLineFollower_Board(), elapsedTime.count());
-
-    trackingOutput.plotsOutput->saveError(trackingError, elapsedTime.count());
-
-    trackingOutput.plotsOutput->savePosition(
-      lineFollowerBoardDetector.getPositionXYLineFollower_Board());
+  if (_lineFollowerDetector.estimateFrameLineFollower_Camera()) {
+    _lineFollowerBoardDetector.estimateFrameLineFollower_Board(
+      _lineFollowerDetector.getFrameLineFollower_Camera());
   }
 
+  double trackingError {
+    calculateTrackingError(
+      _lineFollowerBoardDetector.getPositionXYLineFollower_Board(), _options.track)};
+
+  _lineFollowerBoardDetector.visualize(_frame);
+  _lineFollowerDetector.visualize(_frame);
+
+  // cv::imshow("Line Follower tracking", _frame);
+  imageTextureOut = matToTexture(_frame, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
+
+  char key {static_cast<char>(cv::waitKey(10))};
+  // if(key == 27) {
+  //   break;
+  // }
+  // else if (key == 32) {
+  if (key == 32) {
+    _saveOutput = !_saveOutput;
+
+    if (_saveOutput) {
+      _trackingOutput.open(_options, _outputParentDirectory, _outputName);
+      _startTime = std::chrono::high_resolution_clock::now();
+      std::cout << "Tracking has begun, good luck!" << '\n';
+    }
+    else if ((!_saveOutput)) {
+      _trackingOutput.close();
+      std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
+    }
+  }
+
+  // Output specific stuff only from here.
+  if (!_saveOutput)
+    return;
+
+  _currentTime = std::chrono::high_resolution_clock::now();
+  _elapsedTime = _currentTime - _startTime;
+
+  _trackingOutput.errorsOutput->writeError(trackingError, _elapsedTime.count());
+
+  _trackingOutput.positionsOutput->writePosition(
+    _lineFollowerBoardDetector.getPositionXYLineFollower_Board(), _elapsedTime.count());
+
+  _trackingOutput.plotsOutput->saveError(trackingError, _elapsedTime.count());
+
+  _trackingOutput.plotsOutput->savePosition(
+    _lineFollowerBoardDetector.getPositionXYLineFollower_Board());
 }
