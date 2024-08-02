@@ -24,45 +24,6 @@ if (WIN32)
 endif()
 
 ###############################################################################
-# CORE
-###############################################################################
-
-find_package(OpenCV REQUIRED)
-find_package(Matplot++ REQUIRED)
-
-include_directories(${OpenCV_INCLUDE_DIRS})
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-add_compile_options(-lopencv_highgui)
-add_compile_options(-lopencv_objdetect)
-add_compile_options(-lopencv_calib3d)
-add_compile_options(-lopencv_aruco)
-
-add_library(core
-  src/core/calibration.cpp
-  src/core/fileio.cpp
-  src/core/plotting.cpp
-  src/core/tracking.cpp
-  # src/core/main.cpp
-)
-
-target_include_directories(core PUBLIC
-  ${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(core
-  ${OpenCV_LIBS}
-  Matplot++::matplot
-)
-
-###############################################################################
-# UNIT TESTS
-###############################################################################
-
-add_subdirectory(test)
-
-###############################################################################
 # IMGUI
 ###############################################################################
 
@@ -181,6 +142,46 @@ add_library(app-framework
 target_include_directories(app-framework PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(app-framework implot nfd)
 target_compile_features(app-framework PRIVATE cxx_std_17)
+
+###############################################################################
+# CORE
+###############################################################################
+
+find_package(OpenCV REQUIRED)
+find_package(Matplot++ REQUIRED)
+
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+add_compile_options(-lopencv_highgui)
+add_compile_options(-lopencv_objdetect)
+add_compile_options(-lopencv_calib3d)
+add_compile_options(-lopencv_aruco)
+
+add_library(core
+  src/core/calibration.cpp
+  src/core/fileio.cpp
+  src/core/plotting.cpp
+  src/core/tracking.cpp
+  # src/core/main.cpp
+)
+
+target_include_directories(core PUBLIC
+  ${CMAKE_SOURCE_DIR}/include
+)
+
+target_link_libraries(core
+  ${OpenCV_LIBS}
+  Matplot++::matplot
+  glad
+)
+
+###############################################################################
+# UNIT TESTS
+###############################################################################
+
+add_subdirectory(test)
 
 ###############################################################################
 # APP
