@@ -52,7 +52,7 @@ struct BoardMarkers {
   : markerSideMeters {0},
     markerSeperationMetersX {0},
     markerSeperationMetersY {0},
-    markerIDs {},
+    markerIDs {0, 1, 2, 3},
     markerDictionaryID {cv::aruco::DICT_ARUCO_MIP_36h12}
   {}
 
