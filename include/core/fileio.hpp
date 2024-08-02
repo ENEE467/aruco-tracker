@@ -18,8 +18,7 @@ public:
   void setOutputPath(
     const std::string& outputDirectoryIn,
     const std::string& prefixIn = "",
-    const std::string& outputName = ""
-  );
+    const std::string& outputName = "");
   void writePosition(const cv::Point2d& positionIn, const int timeSecondsIn = 0);
   void writeError(const double errorIn, const double timeSecondsIn);
 
