@@ -164,11 +164,14 @@ void InterfaceWindow::openStartupMenu()
     IM_ARRAYSIZE(_outputNameCStr),
     ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll);
 
-  if (nameTextBoxInput)
-    _outputName = _outputNameCStr;
+  // if (nameTextBoxInput) {
+  //   _outputName = _outputNameCStr;
+  //   _isOutputNameSet = true;
+  // }
+
+  _outputName = _outputNameCStr;
 
   if (_outputName.empty()) {
-    _outputName.clear();
     memset(_outputNameCStr, 0, sizeof(_outputNameCStr));
     _outputName = fileio::createTimeStamp().str();
     _outputName.copy(_outputNameCStr, 128, 0);
