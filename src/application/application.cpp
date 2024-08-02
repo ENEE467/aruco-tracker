@@ -155,7 +155,7 @@ void InterfaceWindow::openStartupMenu()
   }
 
   // Output name section ---------------------------------------------------------------------------
-  ImGui::SeparatorText("Set an output file name");
+  ImGui::SeparatorText("Name your run");
 
   bool nameTextBoxInput = ImGui::InputTextWithHint(
     "##outputNameTextBox",
