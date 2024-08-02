@@ -180,6 +180,24 @@ void InterfaceWindow::openStartupMenu()
   ImGui::SeparatorText("Choose the program mode");
   ImGui::Combo("##", &_modeChoice, _programModes, IM_ARRAYSIZE(_programModes));
 
+  ImGui::Dummy(ImVec2(0.0, 10.0));
+  if (ImGui::Button("Start Program##startProgram")) {
+    if (_isConfigFileSet && _isOutputDirSet) {
+      switch (_modeChoice) {
+
+      case 0:
+        break;
+
+      case 1:
+        break;
+
+      default:
+        break;
+
+      }
+    }
+  }
+
   ImGui::EndPopup();
 }
 
