@@ -215,7 +215,7 @@ void InterfaceWindow::Update()
   ImGui::SetNextWindowPos({0, 0});
 
   bool windowStarted = ImGui::Begin("Line Follower Tracker", nullptr,
-    ImGuiWindowFlags_NoCollapse|ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize);
+    ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
   if (!windowStarted) {
     ImGui::End();
