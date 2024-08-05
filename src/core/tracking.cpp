@@ -506,6 +506,9 @@ tracking::Tracker::Tracker(
 void tracking::Tracker::start()
 {
   _inputVideo.open(_options.detection.camID);
+  _inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, _options.detection.frameWidthPixels);
+  _inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, _options.detection.frameHeightPixels);
+  _inputVideo.set(cv::CAP_PROP_FPS, _options.detection.frameRateFPS);
 }
 
 void tracking::Tracker::track(unsigned int& imageTextureOut)
