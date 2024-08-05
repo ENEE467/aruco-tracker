@@ -209,7 +209,7 @@ public:
     const options::Tracking& optionsIn = options::Tracking());
 
   void start();
-  void track(unsigned int& imageTextureOut);
+  void run(unsigned int& imageTextureOut);
 
 private:
   bool _saveOutput;
