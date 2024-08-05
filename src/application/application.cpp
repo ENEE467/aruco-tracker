@@ -246,6 +246,19 @@ void InterfaceWindow::Update()
     ImVec2(
       _trackingOptions.detection.frameWidthPixels, _trackingOptions.detection.frameHeightPixels));
 
+  for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+    if (false || !ImGui::IsKeyDown(key))
+      continue;
+
+    if (key != ImGuiKey_Space)
+      continue;
+
+    if (!_tracker.isTracking())
+      _tracker.startTracking();
+    else
+      _tracker.stopTracking();
+  }
+
   // ImGui::ShowDemoWindow();
 
   ImGui::End();
