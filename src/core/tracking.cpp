@@ -526,10 +526,10 @@ void tracking::Tracker::stopTracking()
 
 void tracking::Tracker::run(unsigned int& imageTextureOut)
 {
-  if (!_inputVideo.grab())
+  if (!_inputVideo.isOpened())
    return;
 
-  _inputVideo.retrieve(_frame);
+  _inputVideo.read(_frame);
 
   _lineFollowerBoardDetector.detectBoard(_frame);
   _lineFollowerBoardDetector.estimateFrameBoard_Camera();
