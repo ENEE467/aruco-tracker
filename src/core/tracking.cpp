@@ -483,8 +483,7 @@ tracking::Tracker::Tracker(
   const std::string& outputParentDirectoryPathIn,
   const std::string& outputNameIn,
   const options::Tracking& optionsIn)
-: _saveOutput {false},
-  _options {optionsIn},
+: _options {optionsIn},
   _outputParentDirectory {outputParentDirectoryPathIn},
   _outputName {outputNameIn},
 
