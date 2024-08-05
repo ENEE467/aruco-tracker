@@ -28,7 +28,7 @@ tracking::BoardDetector::BoardDetector(
   _camMatrix {calibrationParamsIn.cameraMatrix},
   _distortionCoeffs {calibrationParamsIn.distortionCoefficients},
 
-  _lineFollowerBoard {
+  _trackBoard {
     getBoardMarkersPoints(boardMarkersOptionsIn),
     cv::aruco::getPredefinedDictionary(boardMarkersOptionsIn.markerDictionaryID),
     boardMarkersOptionsIn.markerIDs},
@@ -133,7 +133,7 @@ bool tracking::BoardDetector::hasEnoughBoardIDs()
 {
   int foundMarkersCount {0};
 
-  for (const auto& boardMarkerID: _lineFollowerBoard.getIds()) {
+  for (const auto& boardMarkerID: _trackBoard.getIds()) {
     auto foundMarkerID {
       std::find(_detectedMarkerIDs.begin(), _detectedMarkerIDs.end(), boardMarkerID)};
 
@@ -215,7 +215,7 @@ bool tracking::BoardDetector::estimateFrameBoard_Camera()
     return _boardPoseEstimated;
   }
 
-  _lineFollowerBoard.matchImagePoints(
+  _trackBoard.matchImagePoints(
     _detectedMarkerCorners, _detectedMarkerIDs, _boardObjPoints, _boardImgPoints);
 
   cv::Vec3d rVecBoard_Camera;
@@ -493,7 +493,7 @@ tracking::Tracker::Tracker(
   _currentTime {},
   _elapsedTime {},
 
-  _lineFollowerBoardDetector {
+  _trackBoardDetector {
     optionsIn.detection, optionsIn.boardMarkers, optionsIn.track, optionsIn.calibrationParams},
 
   _lineFollowerDetector {
@@ -528,8 +528,8 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
 
   _inputVideo.read(_frame);
 
-  _lineFollowerBoardDetector.detectBoard(_frame);
-  _lineFollowerBoardDetector.estimateFrameBoard_Camera();
+  _trackBoardDetector.detectBoard(_frame);
+  _trackBoardDetector.estimateFrameBoard_Camera();
 
   _lineFollowerDetector.detectLineFollower(_frame);
 
@@ -542,9 +542,9 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
 
   double trackingError {
     calculateTrackingError(
-      _lineFollowerBoardDetector.getPositionXYLineFollower_Board(), _options.track)};
+      _trackBoardDetector.getPositionXYLineFollower_Board(), _options.track)};
 
-  _lineFollowerBoardDetector.visualize(_frame);
+  _trackBoardDetector.visualize(_frame);
   _lineFollowerDetector.visualize(_frame);
 
   // cv::imshow("Line Follower tracking", _frame);
@@ -596,10 +596,10 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
   _trackingOutput.errorsOutput->writeError(trackingError, _elapsedTime.count());
 
   _trackingOutput.positionsOutput->writePosition(
-    _lineFollowerBoardDetector.getPositionXYLineFollower_Board(), _elapsedTime.count());
+    _trackBoardDetector.getPositionXYLineFollower_Board(), _elapsedTime.count());
 
   _trackingOutput.plotsOutput->saveError(trackingError, _elapsedTime.count());
 
   _trackingOutput.plotsOutput->savePosition(
-    _lineFollowerBoardDetector.getPositionXYLineFollower_Board());
+    _trackBoardDetector.getPositionXYLineFollower_Board());
 }
