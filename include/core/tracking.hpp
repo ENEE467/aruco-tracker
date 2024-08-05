@@ -210,6 +210,9 @@ public:
 
   void start();
   void run(unsigned int& imageTextureOut);
+  void startTracking();
+  const bool isTracking() const {return _trackingOutput.isOpen();}
+  void stopTracking();
 
 private:
   bool _saveOutput;
