@@ -110,7 +110,7 @@ private:
   cv::Mat _camMatrix;
   cv::Mat _distortionCoeffs;
 
-  cv::aruco::Board _lineFollowerBoard;
+  cv::aruco::Board _trackBoard;
   cv::aruco::ArucoDetector _boardDetector;
   options::Track _trackOptions;
 
@@ -215,7 +215,6 @@ public:
   void stopTracking();
 
 private:
-  bool _saveOutput;
   Output _trackingOutput;
   options::Tracking _options;
   std::string _outputParentDirectory;
@@ -226,7 +225,7 @@ private:
   std::chrono::duration<double, std::ratio<1L, 1L>> _elapsedTime;
 
   cv::VideoCapture _inputVideo;
-  BoardDetector _lineFollowerBoardDetector;
+  BoardDetector _trackBoardDetector;
   LineFollowerDetector _lineFollowerDetector;
   cv::Mat _frame;
 
