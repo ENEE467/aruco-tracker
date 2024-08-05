@@ -571,7 +571,7 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
   // }
 
   // Output specific stuff only from here.
-  if (!_saveOutput)
+  if (!_trackingOutput.isOpen())
     return;
 
   _currentTime = std::chrono::high_resolution_clock::now();
