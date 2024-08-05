@@ -189,9 +189,12 @@ public:
     const std::string& outputParentDirectoryPathIn,
     const std::string& outputNameIn);
 
+  const bool isOpen() const {return _isOpen;}
+
   void close();
 
 private:
+  bool _isOpen {false};
   std::string _outputDirectoryPath;
   std::string _outputName;
 
