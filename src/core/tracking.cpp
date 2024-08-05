@@ -551,24 +551,24 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
   // cv::imshow("Line Follower tracking", _frame);
   imageTextureOut = matToTexture(_frame, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
-  char key {static_cast<char>(cv::waitKey(10))};
+  // char key {static_cast<char>(cv::waitKey(10))};
   // if(key == 27) {
   //   break;
   // }
   // else if (key == 32) {
-  if (key == 32) {
-    _saveOutput = !_saveOutput;
+  // if (key == 32) {
+  //   _saveOutput = !_saveOutput;
 
-    if (_saveOutput) {
-      _trackingOutput.open(_options, _outputParentDirectory, _outputName);
-      _startTime = std::chrono::high_resolution_clock::now();
-      std::cout << "Tracking has begun, good luck!" << '\n';
-    }
-    else if ((!_saveOutput)) {
-      _trackingOutput.close();
-      std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
-    }
-  }
+  //   if (_saveOutput) {
+  //     _trackingOutput.open(_options, _outputParentDirectory, _outputName);
+  //     _startTime = std::chrono::high_resolution_clock::now();
+  //     std::cout << "Tracking has begun, good luck!" << '\n';
+  //   }
+  //   else if ((!_saveOutput)) {
+  //     _trackingOutput.close();
+  //     std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
+  //   }
+  // }
 
   // Output specific stuff only from here.
   if (!_saveOutput)
