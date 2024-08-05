@@ -511,7 +511,7 @@ void tracking::Tracker::start()
   _inputVideo.set(cv::CAP_PROP_FPS, _options.detection.frameRateFPS);
 }
 
-void tracking::Tracker::track(unsigned int& imageTextureOut)
+void tracking::Tracker::run(unsigned int& imageTextureOut)
 {
   if (!_inputVideo.grab())
    return;
