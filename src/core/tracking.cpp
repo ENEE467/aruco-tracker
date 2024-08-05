@@ -550,6 +550,23 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
   _lineFollowerDetector.visualize(_frame);
 
   // cv::imshow("Line Follower tracking", _frame);
+  auto trackingStatusTextSize {
+    cv::getTextSize(
+      _trackingOutput.isOpen() ? "Tracking, press SPACE to stop" : "Not Tracking, press SPACE to start",
+      cv::FONT_HERSHEY_DUPLEX, 0.5, 2, 0)};
+
+  auto trackingStatusTextPosition {
+    cv::Point(
+      (_frame.cols - trackingStatusTextSize.width) * 0.5,
+      (_frame.rows - trackingStatusTextSize.height) * 0.975)};
+
+  cv::putText(
+    _frame,
+    _trackingOutput.isOpen() ? "Tracking, press SPACE to stop" : "Not Tracking, press SPACE to start",
+    trackingStatusTextPosition,
+    cv::FONT_HERSHEY_DUPLEX, 0.5,
+    _trackingOutput.isOpen() ? CV_RGB(0, 255, 0) : CV_RGB(255, 0, 0));
+
   imageTextureOut = matToTexture(_frame, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
   // char key {static_cast<char>(cv::waitKey(10))};
