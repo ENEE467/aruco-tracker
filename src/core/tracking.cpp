@@ -535,8 +535,10 @@ void tracking::Tracker::run(unsigned int& imageTextureOut)
 
   _lineFollowerDetector.detectLineFollower(_frame);
 
-  if (_lineFollowerDetector.estimateFrameLineFollower_Camera()) {
-    _lineFollowerBoardDetector.estimateFrameLineFollower_Board(
+  bool isLineFollower_CameraPoseEstimated {_lineFollowerDetector.estimateFrameLineFollower_Camera()};
+
+  if (isLineFollower_CameraPoseEstimated) {
+    _trackBoardDetector.estimateFrameLineFollower_Board(
       _lineFollowerDetector.getFrameLineFollower_Camera());
   }
 
