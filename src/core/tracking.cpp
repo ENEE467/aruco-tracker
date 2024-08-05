@@ -380,6 +380,7 @@ void tracking::Output::open(
   errorsOutput.reset(new fileio::CSVFile(_outputDirectoryPath, "errors", outputNameIn));
   plotsOutput.reset(new plotting::Plotter(trackingOptionsIn.boardMarkers));
   plotsOutput->setReferenceTrack(trackingOptionsIn.track);
+  _isOpen = true;
 }
 
 void tracking::Output::close()
@@ -392,6 +393,7 @@ void tracking::Output::close()
 
   _outputDirectoryPath.clear();
   _outputName.clear();
+  _isOpen = false;
 }
 
 double tracking::calculateTrackingError(
