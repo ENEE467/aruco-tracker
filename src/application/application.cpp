@@ -229,7 +229,7 @@ void InterfaceWindow::Update()
     switch (_modeChoice) {
 
     case 0:
-      _tracker.track(_imageTextureToDisplay);
+      _tracker.run(_imageTextureToDisplay);
       break;
 
     case 1:
