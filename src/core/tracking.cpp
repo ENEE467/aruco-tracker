@@ -456,7 +456,8 @@ static GLuint matToTexture(const cv::Mat& mat, GLenum minFilter, GLenum magFilte
 	}
 
 	// Create the texture
-	glTexImage2D(GL_TEXTURE_2D,     // Type of texture
+	glTexImage2D(
+    GL_TEXTURE_2D,     // Type of texture
 		0,                 // Pyramid level (for mip-mapping) - 0 is the top level
 		GL_RGB,            // Internal colour format to convert to
 		mat.cols,          // Image width  i.e. 640 for Kinect in standard mode
