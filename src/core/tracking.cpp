@@ -511,6 +511,19 @@ void tracking::Tracker::start()
   _inputVideo.set(cv::CAP_PROP_FPS, _options.detection.frameRateFPS);
 }
 
+void tracking::Tracker::startTracking()
+{
+  _trackingOutput.open(_options, _outputParentDirectory, _outputName);
+  _startTime = std::chrono::high_resolution_clock::now();
+  std::cout << "Tracking has begun, good luck!" << '\n';
+}
+
+void tracking::Tracker::stopTracking()
+{
+  _trackingOutput.close();
+  std::cout << "Tracking has ended, hit SPACE again to track a new run." << '\n';
+}
+
 void tracking::Tracker::run(unsigned int& imageTextureOut)
 {
   if (!_inputVideo.grab())
