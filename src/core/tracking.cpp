@@ -498,11 +498,7 @@ tracking::Tracker::Tracker(
 
   _lineFollowerDetector {
     optionsIn.detection, optionsIn.lineFollowerMarker, optionsIn.calibrationParams}
-{
-  _inputVideo.set(cv::CAP_PROP_FRAME_WIDTH, optionsIn.detection.frameWidthPixels);
-  _inputVideo.set(cv::CAP_PROP_FRAME_HEIGHT, optionsIn.detection.frameHeightPixels);
-  _inputVideo.set(cv::CAP_PROP_FPS, optionsIn.detection.frameRateFPS);
-}
+{}
 
 void tracking::Tracker::start()
 {
