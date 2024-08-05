@@ -185,24 +185,24 @@ void InterfaceWindow::openStartupMenu()
   ImGui::Combo("##", &_modeChoice, _programModes, IM_ARRAYSIZE(_programModes));
 
   ImGui::Dummy(ImVec2(0.0, 10.0));
-  if (ImGui::Button("Start Program##startProgram")) {
-    if (_isConfigFileSet && _isOutputDirSet) {
-      switch (_modeChoice) {
+  if (ImGui::Button("Start Program##startProgram") && _isConfigFileSet && _isOutputDirSet) {
+    switch (_modeChoice) {
 
-      case 0:
-        _tracker = tracking::Tracker(_outputDir, _outputName, _trackingOptions);
-        _tracker.start();
-        _isSetupDone = true;
-        ImGui::CloseCurrentPopup();
-        break;
+    case 0:
+      _tracker = tracking::Tracker(_outputDir, _outputName, _trackingOptions);
+      _tracker.start();
+      _isSetupDone = true;
+      ImGui::CloseCurrentPopup();
+      break;
 
-      case 1:
-        break;
+    case 1:
+      // Starts Calibration mode.
+      // ImGui::CloseCurrentPopup();
+      break;
 
-      default:
-        break;
+    default:
+      break;
 
-      }
     }
   }
 
