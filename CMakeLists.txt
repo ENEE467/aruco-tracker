@@ -3,6 +3,7 @@ project(LineFollowerTracker)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # GoogleTest integration
 include(FetchContent)
@@ -28,7 +29,7 @@ endif()
 ###############################################################################
 
 # GLAD
-add_subdirectory(include/glad)
+add_subdirectory(source/glad)
 
 # Path to ImGui source
 set (IMGUI_SOURCE_PATH libs/imgui)
@@ -126,70 +127,16 @@ include_directories(${IMPLOT_SOURCE_PATH}/)
 ###############################################################################
 
 add_subdirectory(libs/nativefiledialog-extended)
-
-add_library(app-framework
-  src/app-framework/App.cpp
-  src/app-framework/Native.cpp
-  src/app-framework/fonts/FontAwesome5.cpp
-  src/app-framework/fonts/RobotoRegular.cpp
-  src/app-framework/fonts/RobotoBold.cpp
-  src/app-framework/fonts/RobotoItalic.cpp
-  src/app-framework/fonts/RobotoMonoRegular.cpp
-  src/app-framework/fonts/RobotoMonoBold.cpp
-  src/app-framework/fonts/RobotoMonoItalic.cpp
-)
-
-target_include_directories(app-framework PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(app-framework implot nfd)
-target_compile_features(app-framework PRIVATE cxx_std_17)
+add_subdirectory(source/app-framework)
 
 ###############################################################################
 # CORE
 ###############################################################################
 
-find_package(OpenCV REQUIRED)
-find_package(Matplot++ REQUIRED)
-
-include_directories(${OpenCV_INCLUDE_DIRS})
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-add_compile_options(-lopencv_highgui)
-add_compile_options(-lopencv_objdetect)
-add_compile_options(-lopencv_calib3d)
-add_compile_options(-lopencv_aruco)
-
-add_library(core
-  src/core/calibration.cpp
-  src/core/fileio.cpp
-  src/core/plotting.cpp
-  src/core/tracking.cpp
-  # src/core/main.cpp
-)
-
-target_include_directories(core PUBLIC
-  ${CMAKE_SOURCE_DIR}/include
-)
-
-target_link_libraries(core
-  ${OpenCV_LIBS}
-  Matplot++::matplot
-  glad
-)
+add_subdirectory(source/core)
 
 ###############################################################################
-# UNIT TESTS
+# APPLICATION
 ###############################################################################
 
-add_subdirectory(test)
-
-###############################################################################
-# APP
-###############################################################################
-
-add_executable(application
-  src/application/application.cpp
-)
-
-target_include_directories(application PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(application PUBLIC core app-framework)
+add_subdirectory(source/application)
