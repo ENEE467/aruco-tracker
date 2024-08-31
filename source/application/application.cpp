@@ -2,14 +2,19 @@
 
 #include <nfd.hpp>
 
-#include "app-framework/App.h"
-#include "app-framework/Native.h"
-#include "core/fileio.hpp"
-#include "core/tracking.hpp"
+#include "App.h"
+#include "Native.h"
+
+#include "options/Tracking.hpp"
+#include "options/Calibration.hpp"
+#include "tracking/Tracker/Tracker.hpp"
+#include "calibration/Calibrator/Calibrator.hpp"
+#include "fileio/ConfigFile/ConfigFile.hpp"
 
 struct InterfaceWindow : App {
 
-using App::App;
+// using App::App;
+InterfaceWindow(std::string title, int w, int h, int argc, char const *argv[]);
 
 public:
   void Update() override;
@@ -18,6 +23,7 @@ private:
   bool _isConfigFileSet {false};
   bool _isOutputDirSet {false};
   bool _isSetupDone {false};
+  bool _isCalibrationDone {false};
 
   std::string _configFilePath;
   std::string _outputDir;
@@ -30,17 +36,30 @@ private:
   const char* _programModes[2] = {"Tracking", "Calibration"};
   int _modeChoice {0};
 
-  options::Tracking _trackingOptions;
-  options::Calibration _calibrationOptions;
+  // options::Tracking _trackingOptions;
+  // options::Calibration _calibrationOptions;
 
-  tracking::Tracker _tracker;
+  cv::VideoCapture _videoObject;
+  std::unique_ptr<fileio::ConfigFile> _configFile;
+
+  std::unique_ptr<tracking::Tracker> _tracker;
+  std::unique_ptr<tracking::Output> _trackingOutput;
+
+  std::unique_ptr<calibration::Calibrator> _calibrator;
+  options::Calibration _newCalibrationOptions;
 
   unsigned int _imageTextureToDisplay {};
 
   void openStartupMenu();
   void startInterface();
+  void runTracker();
+  void runCalibrator();
 
 };
+
+InterfaceWindow::InterfaceWindow(std::string title, int w, int h, int argc, char const *argv[])
+: App(title, w, h, argc, argv)
+{}
 
 void InterfaceWindow::openStartupMenu()
 {
@@ -57,8 +76,8 @@ void InterfaceWindow::openStartupMenu()
   bool configTextBoxInput = ImGui::InputTextWithHint(
     "##configTextBox",
     "Press ENTER to set or ESC to clear.",
-     _configFilePathCStr,
-     IM_ARRAYSIZE(_configFilePathCStr),
+    _configFilePathCStr,
+    IM_ARRAYSIZE(_configFilePathCStr),
     ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll);
 
   if (configTextBoxInput)
@@ -86,8 +105,10 @@ void InterfaceWindow::openStartupMenu()
 
   if (configTextBoxInput || configFileExplorerInput) {
     try {
-      fileio::readConfigFile(_configFilePath, _trackingOptions);
-      fileio::readConfigFile(_configFilePath, _calibrationOptions);
+      // fileio::readConfigFile(_configFilePath, _trackingOptions);
+      // fileio::readConfigFile(_configFilePath, _calibrationOptions);
+
+      _configFile = std::make_unique<fileio::ConfigFile>(_configFilePath);
       _isConfigFileSet = true;
     }
     catch (std::exception& exception) {
@@ -101,7 +122,7 @@ void InterfaceWindow::openStartupMenu()
 
   if (ImGui::BeginPopupModal("Configuration File Read Error!")) {
     ImGui::Text(
-      "Please check if the correct file is given, correctly formatted and has no missing information.");
+      "Please check if the file given exists, correctly formatted and has no missing information.");
 
     if (ImGui::Button("Dismiss", ImVec2(120, 0)))
       ImGui::CloseCurrentPopup();
@@ -131,7 +152,7 @@ void InterfaceWindow::openStartupMenu()
     if (pickDialogStatus == DialogOkay) {
       outputTextBoxInput = false;
       memset(_outputDirCStr, 0, sizeof(_outputDirCStr));
-      _outputDir.copy(_outputDirCStr, 128, 0);
+      _outputDir.copy(_outputDirCStr, IM_ARRAYSIZE(_outputDirCStr), 0);
     }
     else {
       _outputDir = _outputDirCStr;
@@ -170,43 +191,106 @@ void InterfaceWindow::openStartupMenu()
 
   // if (nameTextBoxInput) {
   //   _outputName = _outputNameCStr;
-  //   _isOutputNameSet = true;
+  //   // _isOutputNameSet = true;
   // }
 
   _outputName = _outputNameCStr;
 
   if (_outputName.empty()) {
     memset(_outputNameCStr, 0, sizeof(_outputNameCStr));
-    _outputName = fileio::createTimeStamp().str();
-    _outputName.copy(_outputNameCStr, 128, 0);
+    _outputName = fileio::createTimeStamp();
+    _outputName.copy(_outputNameCStr, IM_ARRAYSIZE(_outputNameCStr), 0);
   }
 
+  // Program mode selection section ----------------------------------------------------------------
   ImGui::SeparatorText("Choose the program mode");
   ImGui::Combo("##", &_modeChoice, _programModes, IM_ARRAYSIZE(_programModes));
 
   ImGui::Dummy(ImVec2(0.0, 10.0));
+
+  // Start program button --------------------------------------------------------------------------
   if (ImGui::Button("Start Program##startProgram") && _isConfigFileSet && _isOutputDirSet) {
     switch (_modeChoice) {
 
     case 0:
-      _tracker = tracking::Tracker(_outputDir, _outputName, _trackingOptions);
-      _tracker.start();
+      _tracker = std::make_unique<tracking::Tracker>(_configFile->getTrackingOptions());
+      _trackingOutput = std::make_unique<tracking::Output>(_outputDir, _outputName);
       _isSetupDone = true;
-      ImGui::CloseCurrentPopup();
       break;
 
     case 1:
-      // Starts Calibration mode.
-      // ImGui::CloseCurrentPopup();
+      _calibrator = std::make_unique<calibration::Calibrator>(_configFile->getCalibrationOptions());
+      _isSetupDone = true;
       break;
 
     default:
       break;
 
     }
+
+    if (_isSetupDone) {
+      const auto& detectionOptions {_configFile->getTrackingOptions().detection};
+
+      _videoObject.open(detectionOptions.camID);
+      _videoObject.set(cv::CAP_PROP_FRAME_WIDTH, detectionOptions.frameWidthPixels);
+      _videoObject.set(cv::CAP_PROP_FRAME_HEIGHT, detectionOptions.frameHeightPixels);
+      _videoObject.set(cv::CAP_PROP_FPS, detectionOptions.frameRateFPS);
+
+      ImGui::CloseCurrentPopup();
+    }
   }
 
   ImGui::EndPopup();
+}
+
+void InterfaceWindow::runTracker()
+{
+  _tracker->run(_videoObject, _imageTextureToDisplay);
+  _tracker->writeOutput(*_trackingOutput);
+
+  for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+    if (false || !ImGui::IsKeyDown(key))
+      continue;
+
+    if (key != ImGuiKey_Space)
+      continue;
+
+    if (!_trackingOutput->isOpen())
+      _trackingOutput->open(_configFile->getTrackingOptions());
+    else
+      _trackingOutput->close();
+  }
+}
+
+void InterfaceWindow::runCalibrator()
+{
+  // _calibrator->run(_videoObject, _imageTextureToDisplay);
+
+  // if (_isCalibrationDone)
+  //   return;
+
+  // for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+  //   if (false || !ImGui::IsKeyDown(key))
+  //     continue;
+
+  //   switch (key) {
+
+  //   case ImGuiKey_C:
+  //     _calibrator->captureFrame();
+  //     break;
+
+  //   case ImGuiKey_Escape:
+  //     _newCalibrationOptions = _configFile->getCalibrationOptions();
+  //     _isCalibrationDone = _calibrator->finishCalibration(_newCalibrationOptions.intrinsicParams);
+  //     _configFile->setCalibrationOptions(_newCalibrationOptions);
+  //     _configFile->saveFile();
+  //     break;
+
+  //   default:
+  //     break;
+
+  //   }
+  // }
 }
 
 void InterfaceWindow::Update()
@@ -229,10 +313,11 @@ void InterfaceWindow::Update()
     switch (_modeChoice) {
 
     case 0:
-      _tracker.run(_imageTextureToDisplay);
+      runTracker();
       break;
 
     case 1:
+      runCalibrator();
       break;
 
     default:
@@ -241,23 +326,15 @@ void InterfaceWindow::Update()
     }
   }
 
-  ImGui::Image(
-    (void*)(intptr_t)_imageTextureToDisplay,
-    ImVec2(
-      _trackingOptions.detection.frameWidthPixels, _trackingOptions.detection.frameHeightPixels));
-
-  for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
-    if (false || !ImGui::IsKeyDown(key))
-      continue;
-
-    if (key != ImGuiKey_Space)
-      continue;
-
-    if (!_tracker.isTracking())
-      _tracker.startTracking();
-    else
-      _tracker.stopTracking();
+  if (_isSetupDone) {
+    ImGui::Image(
+      (void*)(intptr_t)_imageTextureToDisplay,
+      ImVec2(
+        _configFile->getTrackingOptions().detection.frameWidthPixels,
+        _configFile->getTrackingOptions().detection.frameHeightPixels));
   }
+
+
 
   // ImGui::ShowDemoWindow();
 
