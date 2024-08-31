@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IconsFontAwesome5.h"
-#include "IconsFontAwesome5Brands.h"
+#include "Fonts/IconsFontAwesome5.h"
+#include "Fonts/IconsFontAwesome5Brands.h"
 
 // Embedded fonts. The data for each font can be loaded by ImGui.
 //

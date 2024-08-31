@@ -12,10 +12,10 @@
 #include <map>
 
 #include "Native.h"
-#include "app-framework/fonts/Fonts.h"
+#include "Fonts/Fonts.h"
 #include "Helpers.h"
 
-#include "app-framework/cxxopts.hpp"
+#include "cxxopts.hpp"
 
 /// Macro to disable console on Windows
 #if defined(_WIN32) && defined(APP_NO_CONSOLE)
