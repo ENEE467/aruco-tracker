@@ -66,6 +66,10 @@ void ConfigFile::saveFile()
       tracks::LineTrack().writeToConfigFile(_cvFileObject);
       break;
 
+    case tracks::Type::ARC:
+      tracks::ArcTrack().writeToConfigFile(_cvFileObject);
+      break;
+
     case tracks::Type::ROUND:
       tracks::RoundTrack().writeToConfigFile(_cvFileObject);
       break;

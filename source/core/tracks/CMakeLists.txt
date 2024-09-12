@@ -1,4 +1,5 @@
 add_library(tracks OBJECT
+  ArcTrack/ArcTrack.cpp
   LineTrack/LineTrack.cpp
   PolygonTrack/PolygonTrack.cpp
   RoundTrack/RoundTrack.cpp
@@ -6,6 +7,7 @@ add_library(tracks OBJECT
 
 set(TRACKS_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ArcTrack
   ${CMAKE_CURRENT_SOURCE_DIR}/LineTrack
   ${CMAKE_CURRENT_SOURCE_DIR}/PolygonTrack
   ${CMAKE_CURRENT_SOURCE_DIR}/RoundTrack

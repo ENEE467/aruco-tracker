@@ -9,6 +9,7 @@
 #include "MarkerDetection/MarkerDetection.hpp"
 
 #include "LineTrack/LineTrack.hpp"
+#include "ArcTrack/ArcTrack.hpp"
 #include "RoundTrack/RoundTrack.hpp"
 #include "PolygonTrack/PolygonTrack.hpp"
 
@@ -44,14 +45,19 @@ public:
 
     switch (foundTrackType) {
 
-    case tracks::Type::ROUND:
-      std::cout << "Round track set" << '\n';
-      track.reset(new tracks::RoundTrack(cvFileObjectIn));
-      break;
-
     case tracks::Type::LINE:
       std::cout << "Line track set" << '\n';
       track.reset(new tracks::LineTrack(cvFileObjectIn));
+      break;
+
+    case tracks::Type::ARC:
+      std::cout << "Arc track set" << '\n';
+      track.reset(new tracks::ArcTrack(cvFileObjectIn));
+      break;
+
+    case tracks::Type::ROUND:
+      std::cout << "Round track set" << '\n';
+      track.reset(new tracks::RoundTrack(cvFileObjectIn));
       break;
 
     case tracks::Type::POLYGON:
