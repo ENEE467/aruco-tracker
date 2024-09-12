@@ -36,7 +36,7 @@ private:
   int _sidesQuantity {0};
 
   std::vector<LineTrack> _sides {};
-  std::vector<cv::Point2d> _vertices {};
+  std::vector<std::vector<cv::Point2i>> _polyLinesPoints {};
 };
 
 }
