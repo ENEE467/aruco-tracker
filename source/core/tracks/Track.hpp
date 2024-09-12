@@ -14,15 +14,19 @@ enum class Type {
 
   NONE = 0,
   LINE,
+  ARC,
   ROUND,
-  POLYGON
+  POLYGON,
+  PILL
 
 };
 
 const std::map<Type, std::string> Types {
   {Type::LINE, "line_track"},
+  {Type::ARC, "arc_track"},
   {Type::ROUND, "round_track"},
-  {Type::POLYGON, "polygon_track"}
+  {Type::POLYGON, "polygon_track"},
+  {Type::PILL, "pill_track"}
 };
 
 class Track {
