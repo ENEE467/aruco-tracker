@@ -51,6 +51,10 @@ private:
   unsigned int _imageTextureToDisplay {};
   cv::Mat _frame;
 
+  std::chrono::_V2::system_clock::time_point _currentTime {std::chrono::high_resolution_clock::now()};
+  std::chrono::_V2::system_clock::time_point _timeAtSpacePressed {std::chrono::high_resolution_clock::now()};
+  std::chrono::duration<double, std::ratio<1L, 1L>> _durationSinceSpacePressed {};
+
   void openStartupMenu();
   void startInterface();
   void runTracker();
@@ -324,12 +328,19 @@ void InterfaceWindow::runTracker()
   _tracker->run(_videoObject, _frame);
   _tracker->writeOutput(*_trackingOutput);
 
+  _durationSinceSpacePressed = _currentTime - _timeAtSpacePressed;
+
   for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
-    if (false || !ImGui::IsKeyDown(key))
+    if (!ImGui::IsKeyDown(key))
       continue;
 
     if (key != ImGuiKey_Space)
       continue;
+
+    if (_durationSinceSpacePressed.count() < 0.5)
+      continue;
+
+    _timeAtSpacePressed = _currentTime;
 
     if (!_trackingOutput->isOpen())
       _trackingOutput->open(_configFile->getTrackingOptions());
@@ -371,6 +382,8 @@ void InterfaceWindow::runCalibrator()
 
 void InterfaceWindow::Update()
 {
+  _currentTime = std::chrono::high_resolution_clock::now();
+
   ImGui::SetNextWindowSize(GetWindowSize());
   ImGui::SetNextWindowPos({0, 0});
 
