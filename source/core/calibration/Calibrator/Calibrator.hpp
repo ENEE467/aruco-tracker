@@ -31,6 +31,9 @@ private:
   cv::Mat _frame;
   cv::Mat _frameCopy;
 
+  std::string _textToDisplay {"Press 'C' to add current frame. 'ESC' to finish and calibrate"};
+  cv::Scalar _textToDisplayColor {255, 0, 0};
+
   std::vector<int> _markerIDs;
   std::vector<std::vector<cv::Point2f>> _markerCorners;
   std::vector<std::vector<cv::Point2f>> _rejectedMarkers;

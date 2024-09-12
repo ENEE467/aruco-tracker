@@ -152,6 +152,9 @@ bool Calibrator::finishCalibration(options::CameraIntrinsic& paramsOut)
     paramsOut.distortionCoefficients, cv::noArray(), cv::noArray(), cv::noArray(),
     cv::noArray(), cv::noArray(), 0);
 
+  _textToDisplay = "Calibration complete, close the program now.";
+  _textToDisplayColor = {0, 255, 0};
+
   return true;
 }
 
