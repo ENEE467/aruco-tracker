@@ -244,6 +244,14 @@ void InterfaceWindow::openStartupMenu()
     }
   }
 
+  // Generate empty configuration file button
+  ImGui::SameLine();
+  // ImGui::Dummy(ImVec2(10.0, 0.0));
+  if (ImGui::Button("Generate Empty Configuration File##genEmptyConfig") && _isOutputDirSet) {
+    fileio::ConfigFile emptyConfigFile {_outputDir, _outputName, true};
+    emptyConfigFile.saveFile();
+  }
+
   ImGui::EndPopup();
 }
 
