@@ -24,6 +24,9 @@ public:
 
   void open(const options::Tracking& trackingOptionsIn)
   {
+    if (_isOpen)
+      return;
+
     _outputDirectoryPath = fileio::createPath(_outputParentDirectoryPath, "run", _outputName, "");
     std::filesystem::create_directory(_outputDirectoryPath);
 
@@ -39,12 +42,18 @@ public:
     _isOpen =
       positionsCSV->isOpen() && errorsCSV->isOpen()
       && positionsPlot->isOpen() && errorsPlot->isOpen();
+
+    if (!_isOpen)
+      throw std::runtime_error("Cannot open a new track output session");
   }
 
   const bool isOpen() const {return _isOpen;}
 
   void close()
   {
+    if (!_isOpen)
+      return;
+      
     positionsCSV.reset(nullptr);
     errorsCSV.reset(nullptr);
 
