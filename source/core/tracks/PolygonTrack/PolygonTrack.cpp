@@ -18,9 +18,24 @@ PolygonTrack::PolygonTrack(const cv::Point2d& centerIn, int sidesIn, double widt
 
   _objectPoints3D.reserve(_sidesQuantity);
   _imagePoints2D.reserve(_sidesQuantity);
+  _polyLinesPoints.reserve(_sidesQuantity * 2);
 
-  for (const auto& vertex: _vertices)
-    _objectPoints3D.emplace_back(vertex.x, vertex.y, 0);
+  for (const auto& side: _sides)
+    _objectPoints3D.emplace_back(side.getPoint1().x, side.getPoint1().y, 0);
+}
+
+PolygonTrack::PolygonTrack(const cv::FileStorage& cvFileObjectIn)
+: Track()
+{
+  readFromConfigFile(cvFileObjectIn);
+  generateSidesAndVertices();
+
+  _objectPoints3D.reserve(_sidesQuantity);
+  _imagePoints2D.reserve(_sidesQuantity);
+  _polyLinesPoints.reserve(_sidesQuantity * 2);
+
+  for (const auto& side: _sides)
+    _objectPoints3D.emplace_back(side.getPoint1().x, side.getPoint1().y, 0);
 }
 
 double PolygonTrack::calculatePerpendicularDistance(const cv::Point2d& positionIn) const
