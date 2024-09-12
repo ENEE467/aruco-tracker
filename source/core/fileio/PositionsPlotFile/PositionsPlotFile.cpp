@@ -35,11 +35,16 @@ void PositionsPlotFile::savePlot()
   _positionPlotAxesHandle->title_enhanced(false);
   _positionPlotAxesHandle->title("Line Follower Positions " + _fileName);
 
-  _track->plot(_positionPlotAxesHandle);
+  _track->plot(_positionPlotAxesHandle)->display_name("Reference Track");
+
   _positionPlotAxesHandle->hold(matplot::on);
-  _positionPlotAxesHandle->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o");
+
+  _positionPlotAxesHandle
+    ->plot(_lineFollowerPositions.first, _lineFollowerPositions.second, "-o")
+    ->display_name("Actual Path");
+
   _positionPlotAxesHandle->hold(matplot::off);
-  _positionPlotAxesHandle->legend({"Reference Path", "Actual Path"});
+  matplot::legend(_positionPlotAxesHandle, {"", ""});
 
   _positionPlotFigure->save(_filePath);
 }
