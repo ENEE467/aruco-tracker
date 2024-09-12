@@ -64,7 +64,7 @@ void PolygonTrack::generateSidesAndVertices()
   double heightHalf {_height * 0.5};
   double stepSize {(2 * M_PI) / _sidesQuantity};
 
-  for (double theta {0}; theta < 2 * M_PI; theta += stepSize) {
+  for (double theta {0}; theta <= 2 * M_PI; theta += stepSize) {
     double xVertex1 {_center.x + widthHalf * std::cos(theta)};
     double yVertex1 {_center.y + heightHalf * std::sin(theta)};
 
@@ -72,9 +72,6 @@ void PolygonTrack::generateSidesAndVertices()
     double yVertex2 {_center.y + heightHalf * std::sin(theta + stepSize)};
 
     _sides.emplace_back(cv::Point2d{xVertex1, yVertex1}, cv::Point2d{xVertex2, yVertex2});
-
-    _vertices.emplace_back(xVertex1, yVertex1);
-    _vertices.emplace_back(xVertex2, yVertex2);
   }
 }
 
