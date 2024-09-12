@@ -18,7 +18,7 @@ public:
   const cv::Point2d& getPoint2() const {return _point2;}
   const double getLength() const {return _length;}
 
-  void plot(matplot::axes_handle& axesHandleOut) const override;
+  matplot::line_handle plot(matplot::axes_handle& axesHandleOut) const override;
   void drawOnFrame(
     cv::Mat& frameOut,
     const cv::Affine3d& cameraExtrinsicIn,

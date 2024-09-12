@@ -107,10 +107,12 @@ void LineTrack::writeToConfigFile(cv::FileStorage& cvFileObjectOut)
   cvFileObjectOut.endWriteStruct();
 }
 
-void LineTrack::plot(matplot::axes_handle& axesHandleOut) const
+matplot::line_handle LineTrack::plot(matplot::axes_handle& axesHandleOut) const
 {
-  axesHandleOut->line(_point1.x * 100, _point1.y * 100,
-    _point2.x * 100, _point2.y * 100)->color("green");
+  auto plot {axesHandleOut->line(_point1.x * 100, _point1.y * 100, _point2.x * 100, _point2.y * 100)};
+  plot->color("green");
+
+  return plot;
 }
 
 void LineTrack::drawOnFrame(
