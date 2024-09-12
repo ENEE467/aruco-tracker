@@ -19,7 +19,7 @@ public:
 
   const Type getType() const override {return Type::POLYGON;}
 
-  void plot(matplot::axes_handle& axesHandleOut) const override;
+  matplot::line_handle plot(matplot::axes_handle& axesHandleOut) const override;
 
   double calculatePerpendicularDistance(const cv::Point2d& positionIn) const override;
 

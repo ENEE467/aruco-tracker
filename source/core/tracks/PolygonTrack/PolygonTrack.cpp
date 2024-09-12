@@ -122,14 +122,17 @@ void PolygonTrack::writeToConfigFile(cv::FileStorage& cvFileObjectOut)
   cvFileObjectOut.endWriteStruct();
 }
 
-void PolygonTrack::plot(matplot::axes_handle& axesHandleOut) const
+matplot::line_handle PolygonTrack::plot(matplot::axes_handle& axesHandleOut) const
 {
-  for (auto vertex {_vertices.begin()}; vertex < _vertices.end(); vertex++) {
-    if (++vertex == _vertices.end())
-      break;
+  matplot::line_handle lastLineTrackPlot {};
+  axesHandleOut->hold(matplot::on);
 
-    axesHandleOut->line(vertex->x, vertex->y, (++vertex)->x, (++vertex)->y)->color("green");
-  }
+  for (const auto& side: _sides)
+    lastLineTrackPlot = side.plot(axesHandleOut);
+
+  axesHandleOut->hold(matplot::off);
+
+  return lastLineTrackPlot;
 }
 
 void PolygonTrack::drawOnFrame(
