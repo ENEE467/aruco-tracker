@@ -14,8 +14,7 @@ ConfigFile::ConfigFile(
 
 ConfigFile::ConfigFile(const std::string& filePathIn)
 : File {filePathIn},
-  _cvFileObject {_filePath, cv::FileStorage::READ},
-  _isTemplateFile {false}
+  _cvFileObject {_filePath, cv::FileStorage::READ}
 {
   if (!_cvFileObject.isOpened())
     throw std::runtime_error("Config file cannot be opened for reading.");
