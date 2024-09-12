@@ -9,7 +9,7 @@ class Calibrator {
 public:
   Calibrator(const options::Calibration& optionsIn);
 
-  void run(cv::VideoCapture& videoCaptureObjectIn, unsigned int& imageTextureOut);
+  void run(cv::VideoCapture& videoCaptureObjectIn, cv::Mat& frameOut);
 
   bool captureFrame();
   bool finishCalibration(options::CameraIntrinsic& paramsOut);
