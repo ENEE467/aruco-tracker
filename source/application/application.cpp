@@ -351,33 +351,40 @@ void InterfaceWindow::runTracker()
 
 void InterfaceWindow::runCalibrator()
 {
-  // _calibrator->run(_videoObject, _imageTextureToDisplay);
+  _calibrator->run(_videoObject, _frame);
 
-  // if (_isCalibrationDone)
-  //   return;
+  if (_isCalibrationDone)
+    return;
 
-  // for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
-  //   if (false || !ImGui::IsKeyDown(key))
-  //     continue;
+  _durationSinceKeyPressed = _currentTime - _timeAtKeyPressed;
 
-  //   switch (key) {
+  for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
+    if (!ImGui::IsKeyDown(key))
+      continue;
 
-  //   case ImGuiKey_C:
-  //     _calibrator->captureFrame();
-  //     break;
+    if (_durationSinceKeyPressed.count() < 0.5)
+      continue;
 
-  //   case ImGuiKey_Escape:
-  //     _newCalibrationOptions = _configFile->getCalibrationOptions();
-  //     _isCalibrationDone = _calibrator->finishCalibration(_newCalibrationOptions.intrinsicParams);
-  //     _configFile->setCalibrationOptions(_newCalibrationOptions);
-  //     _configFile->saveFile();
-  //     break;
+    _timeAtKeyPressed = _currentTime;
 
-  //   default:
-  //     break;
+    switch (key) {
 
-  //   }
-  // }
+    case ImGuiKey_C:
+      _calibrator->captureFrame();
+      break;
+
+    case ImGuiKey_Escape:
+      _newCalibrationOptions = _configFile->getCalibrationOptions();
+      _isCalibrationDone = _calibrator->finishCalibration(_newCalibrationOptions.intrinsicParams);
+      _configFile->setCalibrationOptions(_newCalibrationOptions);
+      _configFile->saveFile();
+      break;
+
+    default:
+      break;
+
+    }
+  }
 }
 
 void InterfaceWindow::Update()
