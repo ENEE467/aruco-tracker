@@ -49,17 +49,21 @@ private:
   options::Calibration _newCalibrationOptions;
 
   unsigned int _imageTextureToDisplay {};
+  cv::Mat _frame;
 
   void openStartupMenu();
   void startInterface();
   void runTracker();
   void runCalibrator();
+  void displayCVFrame(cv::Mat& frameIn);
 
 };
 
 InterfaceWindow::InterfaceWindow(std::string title, int w, int h, int argc, char const *argv[])
 : App(title, w, h, argc, argv)
-{}
+{
+  glGenTextures(1, &_imageTextureToDisplay);
+}
 
 void InterfaceWindow::openStartupMenu()
 {
@@ -243,9 +247,73 @@ void InterfaceWindow::openStartupMenu()
   ImGui::EndPopup();
 }
 
+void InterfaceWindow::displayCVFrame(cv::Mat& frameIn)
+{
+  GLenum minFilter {GL_LINEAR_MIPMAP_LINEAR};
+  GLenum magFilter {GL_LINEAR};
+  GLenum wrapFilter {GL_CLAMP_TO_EDGE};
+  // Bind to our texture handle
+	glBindTexture(GL_TEXTURE_2D, _imageTextureToDisplay);
+
+	// Catch silly-mistake texture interpolation method for magnification
+	if (magFilter == GL_LINEAR_MIPMAP_LINEAR ||
+		magFilter == GL_LINEAR_MIPMAP_NEAREST ||
+		magFilter == GL_NEAREST_MIPMAP_LINEAR ||
+		magFilter == GL_NEAREST_MIPMAP_NEAREST)
+	{
+		// cout << "You can't use MIPMAPs for magnification - setting filter to GL_LINEAR" << endl;
+		magFilter = GL_LINEAR;
+	}
+
+	// Set texture interpolation methods for minification and magnification
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+
+	// Set texture clamping method
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapFilter);
+
+	// Set incoming texture format to:
+	// GL_BGR       for CV_CAP_OPENNI_BGR_IMAGE,
+	// GL_LUMINANCE for CV_CAP_OPENNI_DISPARITY_MAP,
+	// Work out other mappings as required ( there's a list in comments in main() )
+	GLenum inputColourFormat = GL_BGR;
+	if (frameIn.channels() == 1)
+	{
+		inputColourFormat = GL_RED;
+	}
+
+	// Create the texture
+	glTexImage2D(
+    GL_TEXTURE_2D,     // Type of texture
+		0,                 // Pyramid level (for mip-mapping) - 0 is the top level
+		GL_RGB,            // Internal colour format to convert to
+		frameIn.cols,          // Image width  i.e. 640 for Kinect in standard mode
+		frameIn.rows,          // Image height i.e. 480 for Kinect in standard mode
+		0,                 // Border width in pixels (can either be 1 or 0)
+		inputColourFormat, // Input image format (i.e. GL_RGB, GL_RGBA, GL_BGR etc.)
+		GL_UNSIGNED_BYTE,  // Image data type
+		frameIn.ptr());        // The actual image data itself
+
+  // If we're using mipmaps then generate them. Note: This requires OpenGL 3.0 or higher
+	if (minFilter == GL_LINEAR_MIPMAP_LINEAR ||
+		minFilter == GL_LINEAR_MIPMAP_NEAREST ||
+		minFilter == GL_NEAREST_MIPMAP_LINEAR ||
+		minFilter == GL_NEAREST_MIPMAP_NEAREST)
+	{
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+
+  ImGui::Image(
+    (void*)(intptr_t)_imageTextureToDisplay,
+    ImVec2(
+      _configFile->getTrackingOptions().detection.frameWidthPixels,
+      _configFile->getTrackingOptions().detection.frameHeightPixels));
+}
+
 void InterfaceWindow::runTracker()
 {
-  _tracker->run(_videoObject, _imageTextureToDisplay);
+  _tracker->run(_videoObject, _frame);
   _tracker->writeOutput(*_trackingOutput);
 
   for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
@@ -326,13 +394,8 @@ void InterfaceWindow::Update()
     }
   }
 
-  if (_isSetupDone) {
-    ImGui::Image(
-      (void*)(intptr_t)_imageTextureToDisplay,
-      ImVec2(
-        _configFile->getTrackingOptions().detection.frameWidthPixels,
-        _configFile->getTrackingOptions().detection.frameHeightPixels));
-  }
+  if (_isSetupDone)
+    displayCVFrame(_frame);
 
 
 

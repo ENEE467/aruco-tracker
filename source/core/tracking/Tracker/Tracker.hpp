@@ -13,7 +13,7 @@ class Tracker {
 public:
   Tracker(const options::Tracking& optionsIn);
 
-  void run(cv::VideoCapture& videoCaptureObjectIn, unsigned int& imageTextureOut);
+  void run(cv::VideoCapture& videoCaptureObjectIn, cv::Mat& frameOut);
   void writeOutput(Output& outputOut);
 
 private:
