@@ -52,8 +52,8 @@ private:
   cv::Mat _frame;
 
   std::chrono::_V2::system_clock::time_point _currentTime {std::chrono::high_resolution_clock::now()};
-  std::chrono::_V2::system_clock::time_point _timeAtSpacePressed {std::chrono::high_resolution_clock::now()};
-  std::chrono::duration<double, std::ratio<1L, 1L>> _durationSinceSpacePressed {};
+  std::chrono::_V2::system_clock::time_point _timeAtKeyPressed {std::chrono::high_resolution_clock::now()};
+  std::chrono::duration<double, std::ratio<1L, 1L>> _durationSinceKeyPressed {};
 
   void openStartupMenu();
   void startInterface();
@@ -328,19 +328,19 @@ void InterfaceWindow::runTracker()
   _tracker->run(_videoObject, _frame);
   _tracker->writeOutput(*_trackingOutput);
 
-  _durationSinceSpacePressed = _currentTime - _timeAtSpacePressed;
+  _durationSinceKeyPressed = _currentTime - _timeAtKeyPressed;
 
   for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1)) {
     if (!ImGui::IsKeyDown(key))
       continue;
 
+    if (_durationSinceKeyPressed.count() < 0.5)
+      continue;
+
     if (key != ImGuiKey_Space)
       continue;
 
-    if (_durationSinceSpacePressed.count() < 0.5)
-      continue;
-
-    _timeAtSpacePressed = _currentTime;
+    _timeAtKeyPressed = _currentTime;
 
     if (!_trackingOutput->isOpen())
       _trackingOutput->open(_configFile->getTrackingOptions());
