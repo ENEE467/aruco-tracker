@@ -38,7 +38,10 @@ void ConfigFile::saveFile()
   _trackingOptions.detection.writeToConfigFile(_cvFileObject);
   _trackingOptions.lineFollowerMarker.writeToConfigFile(_cvFileObject);
   _trackingOptions.boardMarkers.writeToConfigFile(_cvFileObject);
-  _trackingOptions.track->writeToConfigFile(_cvFileObject);
+
+  if (_trackingOptions.track->getType() != tracks::Type::NONE)
+    _trackingOptions.track->writeToConfigFile(_cvFileObject);
+
   _calibrationOptions.calibrationBoard.writeToConfigFile(_cvFileObject);
   _calibrationOptions.intrinsicParams.writeToConfigFile(_cvFileObject);
 
