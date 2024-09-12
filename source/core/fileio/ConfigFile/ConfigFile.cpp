@@ -87,6 +87,9 @@ void ConfigFile::saveFile()
 
   }
 }
+
+_cvFileObject.release();
+
 }
 
 }
