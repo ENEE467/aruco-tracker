@@ -8,7 +8,8 @@
 namespace tracks {
 
 PolygonTrack::PolygonTrack(const cv::Point2d& centerIn, int sidesIn, double widthIn, double heightIn)
-: _center {centerIn},
+: Track(),
+  _center {centerIn},
   _width {widthIn},
   _height {heightIn},
   _sidesQuantity {sidesIn}
