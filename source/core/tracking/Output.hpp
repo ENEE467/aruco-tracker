@@ -55,7 +55,6 @@ public:
     errorsPlot.reset(nullptr);
 
     _outputDirectoryPath.clear();
-    _outputName.clear();
     _isOpen = false;
   }
 
