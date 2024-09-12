@@ -21,7 +21,7 @@ public:
   const double getWidthHalf() const {return _a;}
   const double getHeightHalf() const {return _b;}
 
-  void plot(matplot::axes_handle& axesHandleOut) const override;
+  matplot::line_handle plot(matplot::axes_handle& axesHandleOut) const override;
   void drawOnFrame(
     cv::Mat& frameOut,
     const cv::Affine3d& cameraExtrinsicIn,

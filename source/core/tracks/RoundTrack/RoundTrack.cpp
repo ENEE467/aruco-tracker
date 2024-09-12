@@ -112,11 +112,15 @@ void RoundTrack::writeToConfigFile(cv::FileStorage& cvFileObjectOut)
   cvFileObjectOut.endWriteStruct();
 }
 
-void RoundTrack::plot(matplot::axes_handle& axesHandleOut) const
+matplot::line_handle RoundTrack::plot(matplot::axes_handle& axesHandleOut) const
 {
-  axesHandleOut->ellipse(
+  auto plot = axesHandleOut->ellipse(
     _center.x * 100 - _a * 100, _center.y * 100 - _b * 100,
-    _width * 100, _height * 100)->color("green");
+    _width * 100, _height * 100);
+
+  plot->color("green");
+
+  return plot;
 }
 
 void RoundTrack::drawOnFrame(
