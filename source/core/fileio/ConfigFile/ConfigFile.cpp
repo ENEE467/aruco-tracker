@@ -55,17 +55,25 @@ void ConfigFile::saveFile()
     if (trackType.first == _trackingOptions.track->getType())
       continue;
 
-    if (trackType.first == tracks::Type::LINE)
+    switch (trackType.first) {
+
+    case tracks::Type::LINE:
       tracks::LineTrack().writeToConfigFile(_cvFileObject);
+      break;
 
-    else if (trackType.first == tracks::Type::ROUND)
+    case tracks::Type::ROUND:
       tracks::RoundTrack().writeToConfigFile(_cvFileObject);
+      break;
 
-    else if (trackType.first == tracks::Type::POLYGON)
+    case tracks::Type::POLYGON:
       tracks::PolygonTrack().writeToConfigFile(_cvFileObject);
-  }
+      break;
 
-  _cvFileObject.release();
+    default:
+      break;
+
+  }
+}
 }
 
 }
