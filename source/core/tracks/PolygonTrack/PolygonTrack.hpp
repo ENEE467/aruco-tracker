@@ -8,7 +8,7 @@ class PolygonTrack : public Track {
 
 public:
   PolygonTrack() : Track() {}
-  PolygonTrack(const cv::FileStorage& cvFileObjectIn) : Track() {readFromConfigFile(cvFileObjectIn);}
+  PolygonTrack(const cv::FileStorage& cvFileObjectIn);
   PolygonTrack(const cv::Point2d& centerIn, int sidesIn, double widthIn, double heightIn);
 
   void drawOnFrame(
