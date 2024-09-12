@@ -81,7 +81,7 @@ void PolygonTrack::readFromConfigFile(const cv::FileStorage& cvFileObjectIn)
 
   if (polygonTrackNode.empty() || !polygonTrackNode.isMap()) {
     throw std::runtime_error(
-      "Line track section is incorrectly formatted or has missing information.");
+      "Polygon track section is incorrectly formatted or has missing information.");
   }
 
   auto centerXNode {polygonTrackNode["center"]["x_meters"]};
@@ -95,7 +95,7 @@ void PolygonTrack::readFromConfigFile(const cv::FileStorage& cvFileObjectIn)
     || !sidesQuantityNode.isInt()) {
 
     throw std::runtime_error(
-      "Line track section is incorrectly formatted or has missing information.");
+      "Polygon track section is incorrectly formatted or has missing information.");
   }
 
   cv::read(centerXNode, _center.x, 0.0);
