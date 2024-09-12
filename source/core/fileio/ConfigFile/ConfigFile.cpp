@@ -78,6 +78,10 @@ void ConfigFile::saveFile()
       tracks::PolygonTrack().writeToConfigFile(_cvFileObject);
       break;
 
+    case tracks::Type::PILL:
+      tracks::PillTrack().writeToConfigFile(_cvFileObject);
+      break;
+
     default:
       break;
 

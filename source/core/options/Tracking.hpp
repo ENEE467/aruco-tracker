@@ -12,6 +12,7 @@
 #include "ArcTrack/ArcTrack.hpp"
 #include "RoundTrack/RoundTrack.hpp"
 #include "PolygonTrack/PolygonTrack.hpp"
+#include "PillTrack/PillTrack.hpp"
 
 namespace options {
 
@@ -63,6 +64,11 @@ public:
     case tracks::Type::POLYGON:
       std::cout << "Polygon track set" << '\n';
       track.reset(new tracks::PolygonTrack(cvFileObjectIn));
+      break;
+
+    case tracks::Type::PILL:
+      std::cout << "Pill track set" << '\n';
+      track.reset(new tracks::PillTrack(cvFileObjectIn));
       break;
 
     default:
