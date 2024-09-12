@@ -40,11 +40,19 @@ PolygonTrack::PolygonTrack(const cv::FileStorage& cvFileObjectIn)
 
 double PolygonTrack::calculatePerpendicularDistance(const cv::Point2d& positionIn) const
 {
-  double slope {std::atan2(positionIn.y - _center.y, positionIn.x - _center.x)};
-  int sectionIndex = std::floor((slope * _sidesQuantity) / (2 * M_PI));
-  std::clamp(sectionIndex, 0, _sidesQuantity - 1);
+  double distance {INFINITY};
+  double newDistance {};
 
-  return _sides.at(sectionIndex).calculatePerpendicularDistance(positionIn);
+  for (const auto& side: _sides) {
+    newDistance = side.calculatePerpendicularDistance(positionIn);
+
+    if (newDistance >= distance)
+      continue;
+
+    distance = newDistance;
+  }
+
+  return distance;
 }
 
 void PolygonTrack::generateSidesAndVertices()
