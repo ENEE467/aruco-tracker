@@ -18,7 +18,6 @@ public:
     const cv::Mat& cameraIntrinsicDistCoeffs) override;
 
   const Type getType() const override {return Type::POLYGON;}
-  const std::vector<cv::Point2d>& getVertices() const {return _vertices;}
 
   void plot(matplot::axes_handle& axesHandleOut) const override;
 
