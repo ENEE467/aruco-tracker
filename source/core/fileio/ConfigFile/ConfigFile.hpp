@@ -36,11 +36,11 @@ public:
 
 
 private:
-  cv::FileStorage _cvFileObject;
-  bool _isTemplateFile;
+  cv::FileStorage _cvFileObject {};
+  bool _isTemplateFile {false};
 
-  options::Tracking _trackingOptions;
-  options::Calibration _calibrationOptions;
+  options::Tracking _trackingOptions {};
+  options::Calibration _calibrationOptions {};
 
 };
 
