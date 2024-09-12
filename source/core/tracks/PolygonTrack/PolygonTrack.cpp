@@ -145,6 +145,7 @@ void PolygonTrack::drawOnFrame(
     return;
 
   _imagePoints2D.clear();
+  _polyLinesPoints.clear();
 
   cv::projectPoints(
     _objectPoints3D,
@@ -152,7 +153,16 @@ void PolygonTrack::drawOnFrame(
     cameraIntrinsicCamMatrix, cameraIntrinsicDistCoeffs,
     _imagePoints2D);
 
-  cv::polylines(frameOut, _imagePoints2D, true, {0, 255, 0});
+  for (auto pointIt {_imagePoints2D.begin()}; pointIt < _imagePoints2D.end(); pointIt++) {
+    auto nextPointit {std::next(pointIt)};
+
+    if (nextPointit == _imagePoints2D.end())
+      break;
+
+    _polyLinesPoints.push_back({*pointIt, *nextPointit});
+  }
+
+  cv::polylines(frameOut, _polyLinesPoints, true, {0, 255, 0});
 }
 
 }
