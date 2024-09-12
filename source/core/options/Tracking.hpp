@@ -21,7 +21,7 @@ public:
   MarkerDetection detection {};
   LineFollowerMarker lineFollowerMarker {};
   BoardMarkers boardMarkers {};
-  std::unique_ptr<tracks::Track> track {};
+  std::unique_ptr<tracks::Track> track {std::make_unique<tracks::Track>()};
   CameraIntrinsic intrinsicParams {};
 
   Tracking() {}
