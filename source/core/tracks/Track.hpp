@@ -41,7 +41,7 @@ public:
     throw std::runtime_error("Specific type of track isn't assigned.");
   }
 
-  virtual void plot(matplot::axes_handle& axesHandleOut) const
+  virtual matplot::line_handle plot(matplot::axes_handle& axesHandleOut) const
   {
     throw std::runtime_error("Specific type of track isn't assigned.");
   }
