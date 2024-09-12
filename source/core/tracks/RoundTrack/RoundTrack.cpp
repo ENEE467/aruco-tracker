@@ -8,7 +8,8 @@
 namespace tracks {
 
 RoundTrack::RoundTrack(const cv::Point2d& centerIn, double widthIn, double heightIn)
-: _center {centerIn},
+: Track(),
+  _center {centerIn},
   _width {widthIn},
   _height {heightIn}
 {
