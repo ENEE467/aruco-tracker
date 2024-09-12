@@ -51,6 +51,11 @@ void ConfigFile::saveFile()
   }
 
   // Also add default fields for the remaining tracks if it's a template config file.
+  _cvFileObject.writeComment(
+    "\nTemplate parameters for defining tracks. Populate track parameters for ONLY ONE of these"
+    "\ntypes and omit the rest. If multiple tracks were left defined in the config file, only the"
+    "\nfirst valid track configuration that's found is read and the rest are ignored.");
+
   for (const auto& trackType: tracks::Types) {
     if (trackType.first == _trackingOptions.track->getType())
       continue;
