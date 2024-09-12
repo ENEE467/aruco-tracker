@@ -40,18 +40,18 @@ void LineTrack::setPoints(const cv::Point2d& point1In, const cv::Point2d& point2
 
 double LineTrack::calculatePerpendicularDistance(const cv::Point2d& positionIn) const
 {
-  double perpendicularDistance {0.0};
+  double distanceToLine {0};
 
   if (_length <= 0)
-    return perpendicularDistance;
+    return distanceToLine;
 
   double yDiff {_point2.y - _point1.y};
   double xDiff {_point2.x - _point1.x};
   double c {_point2.x * _point1.y - _point2.y * _point1.x};
 
-  perpendicularDistance = std::abs(yDiff * positionIn.x - xDiff * positionIn.y + c) * _lengthInv;
+  distanceToLine = std::abs(yDiff * positionIn.x - xDiff * positionIn.y + c) * _lengthInv;
 
-  return perpendicularDistance;
+  return distanceToLine;
 }
 
 void LineTrack::updateLength()
