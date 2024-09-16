@@ -8,17 +8,21 @@
 		"--cap-add=SYS_PTRACE",
 		"--security-opt=seccomp:unconfined",
 		"--security-opt=apparmor:unconfined",
-		"--volume=/tmp/.X11-unix:/tmp/.X11-unix",
+
+    "--volume=/tmp/.X11-unix:/tmp/.X11-unix",
 		"--volume=/run/user:/run/user",
 		"--volume=/dev:/dev:rw",
-		"--ipc=host",
-		"--device=/dev/dri",
-		"--device=/dev/video0:/dev/video0",
-		"--device=/dev/video1:/dev/video1",
-    "--device=/dev/video2:/dev/video2",
+
+    "--ipc=host",
+
+    "--device=/dev/dri",
     "--device=/dev/video3:/dev/video3",
     "--device=/dev/video4:/dev/video4",
-    "--device=/dev/video5:/dev/video5"
+    "--device=/dev/video5:/dev/video5",
+
+    "--device=/dev/video0:/dev/video0",
+		"--device=/dev/video1:/dev/video1",
+    "--device=/dev/video2:/dev/video2"
 	],
 	"containerEnv": {
 		"DISPLAY": "${localEnv:DISPLAY}",
