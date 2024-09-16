@@ -5,7 +5,6 @@
     "editor.tabSize": 2,
     "files.trimTrailingWhitespace": true,
     "files.insertFinalNewline": true,
-    "cmake.configureOnOpen": false,
     "terminal.integrated.enablePersistentSessions": false,
     "files.associations": {
       "deque": "cpp",
@@ -93,20 +92,4 @@
     "editor.detectIndentation": false,
     "git.enableCommitSigning": true,
     "files.autoSave": "afterDelay",
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "cmake.options.advanced": {
-      "build": {
-        "statusBarVisibility": "inherit",
-        "inheritDefault": "visible"
-      },
-      "launch": {
-        "statusBarVisibility": "inherit",
-        "inheritDefault": "visible"
-      },
-      "debug": {
-        "statusBarVisibility": "inherit",
-        "inheritDefault": "visible"
-      }
-    },
-    "cmake.options.statusBarVisibility": "icon"
   }

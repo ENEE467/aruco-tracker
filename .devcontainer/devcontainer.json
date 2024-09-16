@@ -42,7 +42,27 @@
 				"ms-vscode.makefile-tools",
 				"yzhang.markdown-all-in-one",
 				"redhat.vscode-yaml"
-			]
+			],
+      "settings": {
+        "cmake.configureOnOpen": false,
+        "git.enableCommitSigning": true,
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "cmake.options.advanced": {
+          "build": {
+            "statusBarVisibility": "inherit",
+            "inheritDefault": "visible"
+          },
+          "launch": {
+            "statusBarVisibility": "inherit",
+            "inheritDefault": "visible"
+          },
+          "debug": {
+            "statusBarVisibility": "inherit",
+            "inheritDefault": "visible"
+          }
+        },
+        "cmake.options.statusBarVisibility": "icon"
+      }
 		}
 	}
 }
