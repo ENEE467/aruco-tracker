@@ -53,11 +53,13 @@ sudo apt update && sudo apt install -y \
   libopenjpip-viewer \
   libopenjpip7 \
   openjpeg-doc \
-  libglfw3-dev
+  libglfw3-dev \
+  v4l-utils \
+  libgtk-3-dev
 
 pip3 install pylint flake8 vtk
 
-# Create a libs directory to clone the source code of libraries ----------------
+# Create a libs directory to clone the source code of libraries ------------------------------------
 if [ ! -d $PROJECT_ROOT/libs ]
 then
   mkdir -p $PROJECT_ROOT/libs
@@ -67,14 +69,14 @@ cd $PROJECT_ROOT/libs
 
 # $PROJECT_ROOT/libs is now the current working directory
 
-# Clone OpenCV Source ----------------------------------------------------------
+# Clone OpenCV Source ------------------------------------------------------------------------------
 if [ ! -d opencv-4.9.0 ]
 then
     wget -O opencv.zip https://github.com/opencv/opencv/archive/refs/tags/4.9.0.zip
     unzip opencv.zip && rm opencv.zip
 fi
 
-# Clone OpenCV modules source --------------------------------------------------
+# Clone OpenCV modules source ----------------------------------------------------------------------
 if [ ! -d opencv_contrib ]
 then
     git clone -b 4.x https://github.com/opencv/opencv_contrib.git
@@ -103,7 +105,7 @@ cd $PROJECT_ROOT/libs
 
 # $PROJECT_ROOT/libs is now the current working directory
 
-# Clone matplot++ source -------------------------------------------------------
+# Clone matplot++ source ---------------------------------------------------------------------------
 if [ ! -d matplotplusplus ]
 then
   git clone https://github.com/alandefreitas/matplotplusplus.git
@@ -113,8 +115,36 @@ cd matplotplusplus
 
 # $PROJECT_ROOT/libs/matplotplusplus is now the current working directory
 
+if [ -d build ]
+then
+  rm -rf build
+fi
+
 # Build the library and install it
-cmake --build build/system
+cmake --preset=system
+cmake --build --preset=system
 sudo cmake --install build/system
+
+cd $PROJECT_ROOT/libs
+
+# $PROJECT_ROOT/libs is now the current working directory
+
+# Clone ImGui source -------------------------------------------------------------------------------
+if [ ! -d imgui ]
+then
+  git clone https://github.com/ocornut/imgui.git
+fi
+
+# Clone ImPlot source ------------------------------------------------------------------------------
+if [ ! -d implot ]
+then
+  git clone https://github.com/epezent/implot.git
+fi
+
+# Clone nativefiledialog-extended source -----------------------------------------------------------
+if [ ! -d nativefiledialog-extended ]
+then
+  git clone https://github.com/btzy/nativefiledialog-extended.git
+fi
 
 printf "\nSetup complete, environment is now ready to use! \n"
