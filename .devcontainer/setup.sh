@@ -147,4 +147,13 @@ then
   git clone https://github.com/btzy/nativefiledialog-extended.git
 fi
 
+# Add a bash function macro for disabling webcam autofocus (For Logitech webcams)
+printf "\ndisable_autofocus() {\n\
+  v4l2-ctl -d \$1 -c focus_automatic_continuous=0\n\
+  echo \"Continuous automatic focus is now disabled\"\n\
+  \n\
+  v4l2-ctl -d \$1 -c focus_absolute=0\n\
+  echo \"Absolute focus is now set to infinity\"\n\
+}\n" >> ~/.bashrc
+
 printf "\nSetup complete, environment is now ready to use! \n"
