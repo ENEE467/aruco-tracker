@@ -8,9 +8,11 @@ namespace tracking {
 
 Tracker::Tracker(
   const options::Tracking& optionsIn)
-: _track {optionsIn.track.get()},
+: _flipFrameVertical {optionsIn.detection.flipVertical},
+  _flipFrameHorizontal {optionsIn.detection.flipHorizontal},
   _trackBoardDetector {optionsIn},
-  _lineFollowerDetector {optionsIn}
+  _lineFollowerDetector {optionsIn},
+  _track {optionsIn.track.get()}
 {}
 
 void tracking::Tracker::run(
@@ -21,6 +23,15 @@ void tracking::Tracker::run(
    return;
 
   videoCaptureObjectIn.read(_frame);
+
+  if (_flipFrameVertical && !_flipFrameHorizontal)
+    cv::flip(_frame, _frame, 0);
+
+  else if (!_flipFrameVertical && _flipFrameHorizontal)
+    cv::flip(_frame, _frame, 1);
+
+  else if (_flipFrameVertical && _flipFrameHorizontal)
+    cv::flip(_frame, _frame, -1);
 
   _trackBoardDetector.detectBoard(_frame);
   _isBoardPoseEstimated = _trackBoardDetector.estimateFrameBoard_Camera();

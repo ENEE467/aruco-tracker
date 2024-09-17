@@ -19,6 +19,8 @@ public:
 private:
   double calculateTrackingError(const cv::Point2d& positionIn);
 
+  bool _flipFrameVertical {false};
+  bool _flipFrameHorizontal {false};
   bool _isBoardPoseEstimated {false};
   bool _isLineFollowerPoseEstimated {false};
   bool _isOutputSaving {false};
