@@ -10,6 +10,8 @@ struct MarkerDetection {
   int frameWidthPixels {640};
   int frameHeightPixels {480};
   int frameRateFPS {30};
+  bool flipVertical {false};
+  bool flipHorizontal {false};
   bool showRejectedMarkers {false};
   cv::aruco::DetectorParameters detectorParameters{cv::aruco::DetectorParameters()};
 
