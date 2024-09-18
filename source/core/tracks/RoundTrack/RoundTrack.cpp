@@ -170,7 +170,7 @@ void RoundTrack::drawOnFrame(
     _polyLinesPoints.push_back({*pointIt, *nextPointit});
   }
 
-  cv::polylines(frameOut, _polyLinesPoints, false, {0, 255, 0});
+  cv::polylines(frameOut, _polyLinesPoints, true, {0, 255, 0});
 }
 
 }
