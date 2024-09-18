@@ -8,7 +8,7 @@ class RoundTrack : public Track {
 
 public:
   RoundTrack() : Track() {}
-  RoundTrack(const cv::FileStorage& cvFileObjectIn) : Track() {readFromConfigFile(cvFileObjectIn);}
+  RoundTrack(const cv::FileStorage& cvFileObjectIn);
   RoundTrack(const cv::Point2d& centerIn, double widthIn, double heightIn);
 
   void setParameters(const cv::Point2d& centerIn, double widthIn, double heightIn);
@@ -46,6 +46,7 @@ private:
   double _bInv {0};
   double _evoluteXCalcMidPart {0};
   double _evoluteYCalcMidPart {0};
+  std::vector<std::vector<cv::Point2i>> _polyLinesPoints {};
 
 };
 

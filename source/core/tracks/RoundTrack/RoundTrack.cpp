@@ -15,11 +15,31 @@ RoundTrack::RoundTrack(const cv::Point2d& centerIn, double widthIn, double heigh
 {
   updateParameters();
 
-  _objectPoints3D.reserve(2);
-  _imagePoints2D.reserve(2);
+  _objectPoints3D.reserve(16);
+  _imagePoints2D.reserve(16);
 
-  _objectPoints3D.emplace_back(_center.x, _center.y, 0);
-  _objectPoints3D.emplace_back(_center.x + _width, _center.y + _height, 0);
+  for (double theta {0}; theta <= M_PI * 2; theta += (2 * M_PI) / 16) {
+    _objectPoints3D.emplace_back(
+      _center.x + _a * std::cos(theta),
+      _center.y + _b * std::sin(theta),
+      0);
+  }
+}
+
+RoundTrack::RoundTrack(const cv::FileStorage& cvFileObjectIn)
+: Track()
+{
+  readFromConfigFile(cvFileObjectIn);
+
+  _objectPoints3D.reserve(16);
+  _imagePoints2D.reserve(16);
+
+  for (double theta {0}; theta <= M_PI * 2; theta += (2 * M_PI) / 16) {
+    _objectPoints3D.emplace_back(
+      _center.x + _a * std::cos(theta),
+      _center.y + _b * std::sin(theta),
+      0);
+  }
 }
 
 void RoundTrack::setParameters(const cv::Point2d& centerIn, double widthIn, double heightIn)
@@ -133,6 +153,7 @@ void RoundTrack::drawOnFrame(
     return;
 
   _imagePoints2D.clear();
+  _polyLinesPoints.clear();
 
   cv::projectPoints(
     _objectPoints3D,
@@ -140,13 +161,16 @@ void RoundTrack::drawOnFrame(
     cameraIntrinsicCamMatrix, cameraIntrinsicDistCoeffs,
     _imagePoints2D);
 
-  float ellipseWidthOnImage = std::abs(_imagePoints2D.at(1).x - _imagePoints2D.at(0).x);
-  float ellipseHeightOnImage = std::abs(_imagePoints2D.at(1).y - _imagePoints2D.at(0).y);
+  for (auto pointIt {_imagePoints2D.begin()}; pointIt < _imagePoints2D.end(); pointIt++) {
+    auto nextPointit {std::next(pointIt)};
 
-  cv::ellipse(
-    frameOut,
-    {_imagePoints2D.at(0), {ellipseWidthOnImage, ellipseHeightOnImage}, 0},
-    {0, 255, 0});
+    if (nextPointit == _imagePoints2D.end())
+      break;
+
+    _polyLinesPoints.push_back({*pointIt, *nextPointit});
+  }
+
+  cv::polylines(frameOut, _polyLinesPoints, false, {0, 255, 0});
 }
 
 }
