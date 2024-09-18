@@ -8,7 +8,7 @@ marker_detection:
    frame_height_pixels: 448
    frame_rate_fps: 30
    frame_flip_vertical: 1
-   frame_flip_horizontal: 0
+   frame_flip_horizontal: 1
    show_rejected_markers: 0
 #
 # Parameters specific to line follower marker.

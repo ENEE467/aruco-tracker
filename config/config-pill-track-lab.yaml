@@ -8,7 +8,7 @@ marker_detection:
    frame_height_pixels: 448
    frame_rate_fps: 30
    frame_flip_vertical: 1
-   frame_flip_horizontal: 0
+   frame_flip_horizontal: 1
    show_rejected_markers: 0
 #
 # Parameters specific to line follower marker.
@@ -27,9 +27,9 @@ board_markers:
 #
 pill_track:
    center:
-      x_meters: 38.98e-02
-      y_meters: 24.38e-02
-   width_meters: 67.07e-02
+      x_meters: 39.48e-02
+      y_meters: 23.38e-02
+   width_meters: 66.07e-02
    height_meters: 28.98e-02
 #
 # Parameters specific to calibration board used for calibrating camera.
