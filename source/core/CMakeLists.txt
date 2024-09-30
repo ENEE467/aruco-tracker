@@ -1,9 +1,11 @@
 find_package(OpenCV REQUIRED)
 find_package(Matplot++ REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
   ${OpenCV_INCLUDE_DIRS}
   ${GLAD_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 add_subdirectory(tracks)
@@ -37,6 +39,7 @@ target_link_libraries(core PUBLIC
   opencv_objdetect
   opencv_calib3d
   opencv_aruco
+  Eigen3::Eigen
   Matplot++::matplot
   glad
 )
