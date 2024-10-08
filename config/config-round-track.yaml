@@ -1,0 +1,93 @@
+%YAML:1.0
+---
+#
+# Common detection parameters that apply to both detection and calibration modes.
+marker_detection:
+   camera_id: 4
+   frame_width_pixels: 800
+   frame_height_pixels: 448
+   frame_rate_fps: 30
+   frame_flip_vertical: 1
+   frame_flip_horizontal: 1
+   show_rejected_markers: 0
+#
+# Parameters specific to line follower marker.
+line_follower_marker:
+   marker_side_meters: 5.0000000745058060e-02
+   marker_id: 5
+   marker_dictionary_id: 17
+#
+# Parameters specific to board markers.
+board_markers:
+   marker_side_meters: 5.0000000745058060e-02
+   marker_seperation_meters_x: 8.5089998245239258e-01
+   marker_seperation_meters_y: 5.5160000000000000e-01
+   marker_ids: [ 0, 1, 2, 3 ]
+   marker_dictionary_id: 0
+#
+# Parameters specific to calibration board used for calibrating camera.
+calibration_board:
+   marker_side_meters: 2.1999999880790710e-02
+   square_side_meters: 2.9999999329447746e-02
+   squares_quantity_x: 8
+   squares_quantity_y: 6
+   marker_dictionary_id: 0
+#
+# Intrinsic parameters from camera calibration.
+intrinsic_parameters:
+   camera_matrix: !!opencv-matrix
+      rows: 3
+      cols: 3
+      dt: d
+      data: [ 6.6109297636502356e+02, 0., 4.1614498978398382e+02, 0.,
+          6.6460401451210157e+02, 2.6858817839268323e+02, 0., 0., 1. ]
+   distortion_coefficients: !!opencv-matrix
+      rows: 1
+      cols: 5
+      dt: d
+      data: [ -6.7392970693816917e-02, 1.0696052626674979e+00,
+          2.3420004862549054e-02, 1.0697978359806576e-02,
+          -3.7979307713310924e+00 ]
+#
+# Template parameters for defining tracks. Populate track parameters for ONLY ONE of these
+# types and omit the rest. If multiple tracks were left defined in the config file, only the
+# first valid track configuration that's found is read and the rest are ignored.
+#
+# line_track:
+#    point1:
+#       x_meters: 0.
+#       y_meters: 0.
+#    point2:
+#       x_meters: 0.
+#       y_meters: 0.
+#
+# arc_track:
+#    point1:
+#       x_meters: 12.40e-02
+#       y_meters: 3.00e-02
+#    point2:
+#       x_meters: 6.00e-02
+#       y_meters: 3.00e-02
+#    sweep_angle_degrees: 90.00
+#
+round_track:
+   center:
+      x_meters: 42.48e-02
+      y_meters: 25.63e-02
+   width_meters: 70.10e-02
+   height_meters: 42.95e-02
+#
+# polygon_track:
+#    center:
+#       x_meters: 8.70e-02
+#       y_meters: 5.55e-02
+#    width_meters: 11.40e-02
+#    height_meters: 11.40e-02
+#    sides: 6
+#
+# pill_track:
+#    center:
+#       x_meters: 8.70e-02
+#       y_meters: 5.55e-02
+#    width_meters: 11.40e-02
+#    height_meters: 6.84e-02
