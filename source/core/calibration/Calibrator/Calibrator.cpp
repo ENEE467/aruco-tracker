@@ -76,10 +76,10 @@ Calibrator::Calibrator(const options::Calibration& optionsIn)
   // _options {optionsIn},
 
   _calibrationBoard {
-    cv::Size(_options.calibrationBoard.squaresQuantityX, _options.calibrationBoard.squaresQuantityY),
-    _options.calibrationBoard.squareSideMeters,
-    _options.calibrationBoard.markerSideMeters,
-    cv::aruco::getPredefinedDictionary(_options.calibrationBoard.markerDictionaryID)},
+    cv::Size(optionsIn.calibrationBoard.squaresQuantityX, optionsIn.calibrationBoard.squaresQuantityY),
+    optionsIn.calibrationBoard.squareSideMeters,
+    optionsIn.calibrationBoard.markerSideMeters,
+    cv::aruco::getPredefinedDictionary(optionsIn.calibrationBoard.markerDictionaryID)},
 
   _calibrationBoardDetector {
     _calibrationBoard, cv::aruco::CharucoParameters(), cv::aruco::DetectorParameters()}
