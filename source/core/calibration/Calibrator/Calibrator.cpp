@@ -71,7 +71,9 @@
 namespace calibration {
 
 Calibrator::Calibrator(const options::Calibration& optionsIn)
-: _options {optionsIn},
+: _flipFrameVertical {optionsIn.detection.flipVertical},
+  _flipFrameHorizontal {optionsIn.detection.flipHorizontal},
+  // _options {optionsIn},
 
   _calibrationBoard {
     cv::Size(_options.calibrationBoard.squaresQuantityX, _options.calibrationBoard.squaresQuantityY),
@@ -95,6 +97,15 @@ void Calibrator::run(cv::VideoCapture& videoCaptureObjectIn, cv::Mat& frameOut)
   _currentImagePoints.clear();
 
   videoCaptureObjectIn.read(_frame);
+
+  if (_flipFrameVertical && !_flipFrameHorizontal)
+    cv::flip(_frame, _frame, 0);
+
+  else if (!_flipFrameVertical && _flipFrameHorizontal)
+    cv::flip(_frame, _frame, 1);
+
+  else if (_flipFrameVertical && _flipFrameHorizontal)
+    cv::flip(_frame, _frame, -1);
 
   // Detect ChArUco board
   _calibrationBoardDetector.detectBoard(_frame, _currentCharucoCorners, _currentCharucoIDs);

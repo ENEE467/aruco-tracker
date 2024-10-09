@@ -15,7 +15,10 @@ public:
   bool finishCalibration(options::CameraIntrinsic& paramsOut);
 
 private:
-  options::Calibration _options;
+  bool _flipFrameVertical {false};
+  bool _flipFrameHorizontal {false};
+
+  // options::Calibration _options;
 
   // cv::aruco::DetectorParameters _detectorParams;
   cv::aruco::CharucoBoard _calibrationBoard;
